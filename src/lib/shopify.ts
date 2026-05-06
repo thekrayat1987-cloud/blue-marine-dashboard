@@ -797,7 +797,20 @@ export async function pushProductToShopify(
         tags: params.tags,
         status: "DRAFT",
         seo: { title: params.enSeoTitle, description: params.enSeoDescription },
-        productOptions: [{ name: "Title", values: [{ name: "Default Title" }] }],
+        productOptions: [
+          {
+            name: "Size",
+            values: [
+              { name: "XS" },
+              { name: "S" },
+              { name: "M" },
+              { name: "L" },
+              { name: "XL" },
+              { name: "2XL" },
+              { name: "3XL" },
+            ],
+          },
+        ],
       },
       media: [
         {
@@ -817,18 +830,18 @@ export async function pushProductToShopify(
   const product = productCreateData.productCreate.product;
   if (!product) throw new Error("productCreate returned no product");
 
-  // Set price + SKU on the default variant
+  // Set price + SKU on every Size variant (no inventory tracking)
   try {
     const variantsData = await shopifyGraphQL<{
       product: { variants: { edges: Array<{ node: { id: string } }> } } | null;
     }>(
       `query ProductVariants($id: ID!) {
-        product(id: $id) { variants(first: 1) { edges { node { id } } } }
+        product(id: $id) { variants(first: 50) { edges { node { id } } } }
       }`,
       { id: product.id },
     );
-    const variantId = variantsData.product?.variants.edges[0]?.node.id;
-    if (variantId) {
+    const variantIds = variantsData.product?.variants.edges.map((e) => e.node.id) ?? [];
+    if (variantIds.length) {
       const updateRes = await shopifyGraphQL<{
         productVariantsBulkUpdate: {
           userErrors: Array<{ field: string[]; message: string }>;
@@ -841,7 +854,11 @@ export async function pushProductToShopify(
         }`,
         {
           productId: product.id,
-          variants: [{ id: variantId, price: params.price, inventoryItem: { sku: params.sku } }],
+          variants: variantIds.map((id) => ({
+            id,
+            price: params.price,
+            inventoryItem: { sku: params.sku, tracked: false },
+          })),
         },
       );
       if (updateRes.productVariantsBulkUpdate.userErrors.length) {
@@ -1089,5 +1106,163 @@ export async function addVariantToProduct(
     productHandle: productData.product.handle,
     adminUrl,
     warnings,
+  };
+}
+
+export interface AddLengthResult {
+  productId: string;
+  variantsCreated: number;
+  warnings: string[];
+  adminUrl: string;
+}
+
+const LENGTH_OPTION_NAME = "Length in inch";
+const LENGTH_VALUES = [
+  "50",
+  "51",
+  "52",
+  "53",
+  "54",
+  "55",
+  "56",
+  "57",
+  "58",
+  "59",
+  "60",
+];
+
+const LENGTH_VARIANTS_NAME_PATTERNS = ["length", "lenght", "longueur"];
+
+export async function addLengthToProduct(
+  productId: string,
+): Promise<AddLengthResult> {
+  const warnings: string[] = [];
+
+  const productData = await shopifyGraphQL<{
+    product: {
+      title: string;
+      handle: string;
+      options: Array<{ id: string; name: string; values: string[] }>;
+      variants: {
+        edges: Array<{
+          node: {
+            id: string;
+            price: string;
+            sku: string | null;
+            selectedOptions: Array<{ name: string; value: string }>;
+          };
+        }>;
+      };
+    } | null;
+  }>(
+    `query Product($id: ID!) {
+      product(id: $id) {
+        title
+        handle
+        options { id name values }
+        variants(first: 100) {
+          edges { node {
+            id
+            price
+            sku
+            selectedOptions { name value }
+          }}
+        }
+      }
+    }`,
+    { id: productId },
+  );
+
+  if (!productData.product) throw new Error("Produit Shopify introuvable");
+
+  const existingLength = productData.product.options.find((o) =>
+    LENGTH_VARIANTS_NAME_PATTERNS.some((p) => o.name.toLowerCase().includes(p)),
+  );
+  if (existingLength) {
+    throw new Error(
+      `Ce produit a déjà une option longueur (« ${existingLength.name} »).`,
+    );
+  }
+
+  const existingVariants = productData.product.variants.edges.map((e) => e.node);
+
+  const optRes = await shopifyGraphQL<{
+    productOptionsCreate: {
+      userErrors: Array<{ field: string[]; message: string }>;
+    };
+  }>(
+    `mutation OptionsCreate($productId: ID!, $options: [OptionCreateInput!]!) {
+      productOptionsCreate(productId: $productId, options: $options) {
+        userErrors { field message }
+      }
+    }`,
+    {
+      productId,
+      options: [
+        {
+          name: LENGTH_OPTION_NAME,
+          values: [{ name: LENGTH_VALUES[0] }],
+        },
+      ],
+    },
+  );
+
+  if (optRes.productOptionsCreate.userErrors.length) {
+    throw new Error(
+      `Length option create: ${optRes.productOptionsCreate.userErrors.map((e) => e.message).join(", ")}`,
+    );
+  }
+
+  const newVariants: Array<{
+    optionValues: Array<{ optionName: string; name: string }>;
+    price: string;
+    inventoryItem: { sku: string; tracked: boolean };
+  }> = [];
+
+  for (const variant of existingVariants) {
+    const otherOptions = variant.selectedOptions.filter(
+      (o) => o.name !== LENGTH_OPTION_NAME,
+    );
+    for (const lv of LENGTH_VALUES.slice(1)) {
+      newVariants.push({
+        optionValues: [
+          ...otherOptions.map((o) => ({ optionName: o.name, name: o.value })),
+          { optionName: LENGTH_OPTION_NAME, name: lv },
+        ],
+        price: variant.price,
+        inventoryItem: { sku: variant.sku ?? "", tracked: false },
+      });
+    }
+  }
+
+  if (newVariants.length > 0) {
+    const createRes = await shopifyGraphQL<{
+      productVariantsBulkCreate: {
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation VariantCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+        productVariantsBulkCreate(productId: $productId, variants: $variants) {
+          userErrors { field message }
+        }
+      }`,
+      { productId, variants: newVariants },
+    );
+
+    if (createRes.productVariantsBulkCreate.userErrors.length) {
+      warnings.push(
+        `Variant create: ${createRes.productVariantsBulkCreate.userErrors.map((e) => e.message).join(", ")}`,
+      );
+    }
+  }
+
+  const numericId = productId.split("/").pop();
+  const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
+
+  return {
+    productId,
+    variantsCreated: newVariants.length,
+    warnings,
+    adminUrl,
   };
 }

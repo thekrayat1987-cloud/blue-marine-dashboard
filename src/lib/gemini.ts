@@ -15,48 +15,42 @@ export type PosePreset =
   | "low_angle";
 
 const STYLE_PROMPTS: Record<StylePreset, string> = {
-  studio: `Transform this product photo into a luxury studio shot in the style of Blue Marine Atelier (Moroccan/Middle-Eastern haute couture).
+  studio: `Photograph the EXACT garment from the source image, worn by a model, in a luxury studio setting for Blue Marine Atelier.
 Background: smooth seamless studio backdrop with a subtle warm gradient (cream to beige).
 Lighting: soft, even studio lighting with no harsh shadows; gentle highlights on fabric to reveal embroidery and texture.
-Color palette: rich jewel tones — burgundy, burnished gold, midnight blue, deep purple, natural beige with golden accents.
 Mood: refined, minimalist luxury, contemporary heritage.
-Post-processing: rich saturation, moderate contrast, warm overall tone, polished finish.
-Keep the EXACT garment design, fabric, embroidery, color, and proportions from the original photo. Do not invent new patterns.`,
+Post-processing: faithful color reproduction, moderate contrast, warm overall tone, polished finish.
+The background palette must NOT bleed into the garment colors — the garment keeps its exact original colors regardless of the scene's color palette.`,
 
-  lookbook: `Transform this product photo into an editorial lookbook image in the style of Blue Marine Atelier.
+  lookbook: `Photograph the EXACT garment from the source image, worn by a model, in an editorial lookbook setting for Blue Marine Atelier.
 Setting: minimalist architectural interior with arches, warm marble or sandstone textures, subtle Moorish-inspired details.
 Lighting: golden-hour natural light filtering through, soft warm glow on the fabric.
-Color palette: bordeaux, gold, midnight blue, ivory, with gold accents.
-Mood: timeless luxury, modern oriental elegance.
-Keep the EXACT garment from the original — same cut, fabric, embroidery, color.`,
+Background palette only: bordeaux, gold, ivory accents. The garment itself keeps its exact original colors and patterns — do not tint or recolor it to match the room.
+Mood: timeless luxury, modern oriental elegance.`,
 
-  lifestyle: `Transform this product photo into a lifestyle campaign image in the style of Blue Marine Atelier.
+  lifestyle: `Photograph the EXACT garment from the source image, worn by a model, in a lifestyle campaign setting for Blue Marine Atelier.
 Setting: serene Mediterranean/oriental scene — white-washed walls, lush greenery, soft sunlight, or terrace with sea view.
 Lighting: golden hour, warm and luminous, with soft natural shadows.
-Color palette: warm jewel tones harmonizing with the natural surroundings.
-Mood: aspirational, refined, oriental contemporary luxury.
-Keep the EXACT garment design from the original photo — preserve cut, fabric, embroidery, color and proportions.`,
+The garment colors must remain identical to the source — only the surrounding scene uses warm Mediterranean tones.
+Mood: aspirational, refined, oriental contemporary luxury.`,
 
-  riad: `Transform this product photo into an editorial image set inside an authentic Moroccan riad in the style of Blue Marine Atelier.
+  riad: `Photograph the EXACT garment from the source image, worn by a model, inside an authentic Moroccan riad for Blue Marine Atelier.
 Setting: interior courtyard of a traditional riad — zellige tile mosaics on walls and floor, a central marble fountain, carved cedar arches, hanging brass lanterns, terracotta plants.
 Lighting: soft diffused daylight from above through the open courtyard, gentle dappled shadows on the model and tiles.
-Color palette: deep teal and cobalt zellige, warm terracotta, brass, ivory walls, with the garment as the focal accent.
-Mood: heritage luxury, intimate, contemplative.
-Keep the EXACT garment from the original — same cut, fabric, embroidery, color and proportions. Do not invent patterns.`,
+Background palette only: deep teal and cobalt zellige, warm terracotta, brass, ivory walls. The garment keeps its exact original colors — do not let the zellige tones bleed into the fabric.
+Mood: heritage luxury, intimate, contemplative.`,
 
-  palais: `Transform this product photo into a regal evening image set inside a Gulf/Moroccan palace in the style of Blue Marine Atelier.
+  palais: `Photograph the EXACT garment from the source image, worn by a model, inside a Gulf/Moroccan palace interior for Blue Marine Atelier.
 Setting: grand palace interior — black and white marble floor, gilded mouldings, a tall crystal chandelier, ornate mirrors, deep velvet drapes in burgundy or midnight blue.
 Lighting: warm chandelier glow with soft golden highlights on the fabric, subtle ambient shadows for depth and drama.
-Color palette: midnight blue, burgundy, polished gold, ivory marble.
-Mood: opulent evening occasion, refined, ceremonial.
-Keep the EXACT garment from the original photo — preserve cut, fabric, embroidery, color and proportions. Do not invent details.`,
+Background palette only: midnight blue, burgundy, polished gold, ivory marble. The garment keeps its exact original colors — drapes and decor do not transfer their colors to the fabric.
+Mood: opulent evening occasion, refined, ceremonial.`,
 
-  desert: `Transform this product photo into a cinematic desert campaign image in the style of Blue Marine Atelier.
+  desert: `Photograph the EXACT garment from the source image, worn by a model, in a cinematic desert setting for Blue Marine Atelier.
 Setting: vast golden sand dunes at golden hour, soft wind ripples in the sand, distant horizon, no harsh sun.
 Lighting: warm, low-angle golden hour light raking across the dunes, long soft shadows, gentle glow on the fabric.
-Color palette: warm sand, ochre, soft rose-gold sky, with the garment colors standing out cleanly against the neutral background.
-Mood: timeless, serene, cinematic, heritage.
-Keep the EXACT garment from the original photo — preserve cut, fabric, embroidery, color and proportions. Do not invent patterns.`,
+Background palette only: warm sand, ochre, soft rose-gold sky. The garment keeps its exact original colors and patterns against this neutral background.
+Mood: timeless, serene, cinematic, heritage.`,
 };
 
 const POSE_PROMPTS: Record<PosePreset, string> = {
@@ -149,12 +143,34 @@ export async function generateBlueMarineImage(params: {
   const posePrompt = POSE_PROMPTS[params.pose];
   const compositionHint = buildCompositionHint(params.pieces ?? 1, params.hasShawl ?? false);
 
+  const garmentLock = `# GARMENT FIDELITY — HIGHEST PRIORITY (read before anything else)
+
+The source image shows ONE specific garment. Your job is to put THAT garment, unchanged, on a model. Treat the garment like a real physical object you must reproduce 1:1.
+
+You MUST copy from the source, exactly:
+- Every color and color zone — including the dominant color of each part (top, sleeves, skirt, belt, hem). If the skirt is orange/brown in the source, it stays orange/brown.
+- Every pattern, motif and print — geometric shapes, embroidery, prints, borders. Do not add new patterns. Do not remove existing patterns.
+- The full length, cut, silhouette, neckline, sleeves, and proportions.
+- The fabric type and finish (matte, sheen, velvet, satin) as visible in the source.
+- Trims, belts, ties, buttons, embroidery placement.
+
+You MUST NOT, under any circumstance:
+- Add navy blue, midnight blue, or any color not present in the source garment.
+- Add floral patterns, paisley, or any motif not present in the source garment.
+- Replace the skirt or any panel with a different fabric or color.
+- "Complete" or "enrich" the design because it looks simple. Simplicity is intentional.
+- Let the background scene or palette tint or recolor the garment.
+- Change the garment length (do not turn a long dress into a short one or vice-versa).
+
+If you are tempted to make the garment "more interesting", stop. The garment is already finished. You are only a photographer choosing the scene, lighting, and pose.`;
+
   const prompt = [
+    garmentLock,
     stylePrompt,
     posePrompt,
     compositionHint,
     params.extraInstructions ? `Additional instructions: ${params.extraInstructions}` : null,
-    "IMPORTANT: Preserve the exact garment from the source image (cut, fabric, embroidery, colors, proportions). Do not invent new patterns or alter the design.",
+    "FINAL CHECK before generating: compare your mental image to the source. Same colors on every part? Same patterns? Same length? Same cut? If anything differs, fix it before outputting.",
   ]
     .filter(Boolean)
     .join("\n\n");

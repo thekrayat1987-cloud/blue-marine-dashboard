@@ -1740,6 +1740,10 @@ function ShopifyPushBox({
   const [result, setResult] = useState<PushResult | AddVariantResult | null>(null);
   const [resultMode, setResultMode] = useState<"new" | "variant">("new");
 
+  const [addingLength, setAddingLength] = useState(false);
+  const [lengthAdded, setLengthAdded] = useState<{ count: number; warnings: string[] } | null>(null);
+  const [lengthError, setLengthError] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     setCollectionsLoading(true);
@@ -1866,6 +1870,34 @@ function ShopifyPushBox({
     }
   }
 
+  async function addLength() {
+    if (!result || resultMode !== "new") return;
+    const productId = (result as PushResult).productId;
+    if (!productId) {
+      setLengthError("ID produit manquant");
+      return;
+    }
+    setAddingLength(true);
+    setLengthError(null);
+    try {
+      const res = await fetch("/api/shopify/add-length", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Échec de l'ajout de Length");
+      setLengthAdded({
+        count: data.variantsCreated ?? 0,
+        warnings: data.warnings ?? [],
+      });
+    } catch (err) {
+      setLengthError(err instanceof Error ? err.message : "Erreur inconnue");
+    } finally {
+      setAddingLength(false);
+    }
+  }
+
   if (result) {
     const isVariant = resultMode === "variant";
     return (
@@ -1883,15 +1915,38 @@ function ShopifyPushBox({
             ? "La nouvelle couleur est ajoutée. Vérifie l'ordre des variantes et l'image principale dans Shopify."
             : "Va dans ton admin pour vérifier les variantes, valider le prix et publier."}
         </p>
-        <a
-          href={result.adminUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-foreground text-xs font-medium hover:bg-accent/90"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          Ouvrir dans Shopify
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={result.adminUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-foreground text-xs font-medium hover:bg-accent/90"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Ouvrir dans Shopify
+          </a>
+          {!isVariant && !lengthAdded && (
+            <button
+              type="button"
+              onClick={addLength}
+              disabled={addingLength}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-background border border-border text-foreground text-xs font-medium hover:border-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {addingLength ? "Ajout en cours…" : "📏 Ajouter Length (50–60)"}
+            </button>
+          )}
+        </div>
+        {lengthAdded && (
+          <div className="text-[11px] text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg p-2">
+            ✅ Length ajoutée — {lengthAdded.count} nouvelles variantes créées
+            (taille × longueur).
+          </div>
+        )}
+        {lengthError && (
+          <div className="text-[11px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-2">
+            ❌ {lengthError}
+          </div>
+        )}
         {result.warnings.length > 0 && (
           <div className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 space-y-1">
             <p className="font-medium">Quelques avertissements :</p>

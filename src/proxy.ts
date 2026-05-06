@@ -6,6 +6,7 @@ const PUBLIC_PATHS = new Set<string>([
   "/login",
   "/api/auth/login",
   "/api/auth/logout",
+  "/api/auth/shopify",
   "/api/auth/shopify/callback",
   "/api/auth/meta/callback",
   "/api/auth/snapchat/callback",
