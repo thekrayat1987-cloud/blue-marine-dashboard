@@ -181,11 +181,23 @@ async function compressForUpload(file: File): Promise<File> {
   return file;
 }
 
+const VALID_PRESETS: Preset[] = ["studio", "lookbook", "lifestyle", "riad", "palais", "desert"];
+
+function readPresetFromUrl(): Preset {
+  if (typeof window === "undefined") return "studio";
+  const fromUrl = new URLSearchParams(window.location.search).get("preset");
+  return fromUrl && (VALID_PRESETS as string[]).includes(fromUrl) ? (fromUrl as Preset) : "studio";
+}
+
 export default function ProductPhotoPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [sourcePreview, setSourcePreview] = useState<string | null>(null);
   const [preset, setPreset] = useState<Preset>("studio");
+
+  useEffect(() => {
+    setPreset(readPresetFromUrl());
+  }, []);
   const [poses, setPoses] = useState<Pose[]>(["three_quarter"]);
   const [extra, setExtra] = useState("");
   const [sku, setSku] = useState("");

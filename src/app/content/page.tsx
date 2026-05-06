@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Video,
   Image as ImageIcon,
@@ -16,6 +17,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Sparkles,
+  Pencil,
+  Save,
+  X,
 } from "lucide-react";
 import { contentCalendar, reelsIdeas } from "@/data/dashboardData";
 
@@ -37,41 +42,41 @@ const typeIcons: Record<string, typeof Video> = {
 };
 
 type Status = "draft" | "ready" | "posted";
+type Preset = "studio" | "lookbook" | "lifestyle" | "riad" | "palais" | "desert";
 
-type PostSlot = {
-  day: string;
-  dayKey: string;
+type SlotTemplate = {
   time: string;
   type: string;
   topic: string;
   caption: string;
   hashtags: string;
+  preset: Preset;
 };
 
-const publicationPlan: { day: string; dayKey: string; posts: Omit<PostSlot, "day" | "dayKey">[] }[] = [
+const publicationPlan: { day: string; dayKey: string; posts: SlotTemplate[] }[] = [
   { day: "Monday", dayKey: "monday", posts: [
-    { time: "12:00", type: "Reel", topic: "Behind the scenes / Crafting", caption: "Sewing process or fabric sourcing", hashtags: "#BlueMarine #MadeInKuwait #Dishdasha #HandMade #KuwaitFashion" },
+    { time: "12:00", type: "Reel", topic: "Behind the scenes / Crafting", caption: "Sewing process or fabric sourcing", hashtags: "#BlueMarine #MadeInKuwait #Dishdasha #HandMade #KuwaitFashion", preset: "studio" },
   ]},
   { day: "Tuesday", dayKey: "tuesday", posts: [
-    { time: "18:00", type: "Story", topic: "Product of the day + Poll", caption: "Which color do you prefer? Interactive poll", hashtags: "#OOTD #KuwaitStyle #TraditionalWear" },
-    { time: "20:00", type: "Story", topic: "Q&A / Questions box", caption: "Ask us anything about our collections", hashtags: "#AskBlueMarine #Kuwait" },
+    { time: "18:00", type: "Story", topic: "Product of the day + Poll", caption: "Which color do you prefer? Interactive poll", hashtags: "#OOTD #KuwaitStyle #TraditionalWear", preset: "studio" },
+    { time: "20:00", type: "Story", topic: "Q&A / Questions box", caption: "Ask us anything about our collections", hashtags: "#AskBlueMarine #Kuwait", preset: "studio" },
   ]},
   { day: "Wednesday", dayKey: "wednesday", posts: [
-    { time: "12:00", type: "Reel", topic: "Style / OOTD / Lookbook", caption: "3 ways to wear the abaya or GRWM event", hashtags: "#AbayaStyle #ModestFashion #KuwaitFashion #GRWM #Lookbook" },
+    { time: "12:00", type: "Reel", topic: "Style / OOTD / Lookbook", caption: "3 ways to wear the abaya or GRWM event", hashtags: "#AbayaStyle #ModestFashion #KuwaitFashion #GRWM #Lookbook", preset: "lookbook" },
   ]},
   { day: "Thursday", dayKey: "thursday", posts: [
-    { time: "17:00", type: "Carousel", topic: "Educational / Guide / Tips", caption: "How to spot quality fabric / Care guide", hashtags: "#FashionTips #QualityFabric #BlueMarine #KuwaitLife" },
+    { time: "17:00", type: "Carousel", topic: "Educational / Guide / Tips", caption: "How to spot quality fabric / Care guide", hashtags: "#FashionTips #QualityFabric #BlueMarine #KuwaitLife", preset: "studio" },
   ]},
   { day: "Friday", dayKey: "friday", posts: [
-    { time: "10:00", type: "Story", topic: "Jumu'ah Vibes", caption: "Friday outfit + inspiring message", hashtags: "#JumuahMubarak #FridayVibes #Kuwait" },
-    { time: "19:00", type: "Story", topic: "Weekend Promo", caption: "Weekend special offer / New product", hashtags: "#WeekendSale #BlueMarine #ShopNow" },
+    { time: "10:00", type: "Story", topic: "Jumu'ah Vibes", caption: "Friday outfit + inspiring message", hashtags: "#JumuahMubarak #FridayVibes #Kuwait", preset: "lifestyle" },
+    { time: "19:00", type: "Story", topic: "Weekend Promo", caption: "Weekend special offer / New product", hashtags: "#WeekendSale #BlueMarine #ShopNow", preset: "lookbook" },
   ]},
   { day: "Saturday", dayKey: "saturday", posts: [
-    { time: "13:00", type: "Reel", topic: "UGC / Customer testimonial", caption: "Customer unboxing reaction or before/after alterations", hashtags: "#CustomerReview #Unboxing #BlueMarine #KuwaitShopping" },
+    { time: "13:00", type: "Reel", topic: "UGC / Customer testimonial", caption: "Customer unboxing reaction or before/after alterations", hashtags: "#CustomerReview #Unboxing #BlueMarine #KuwaitShopping", preset: "lifestyle" },
   ]},
   { day: "Sunday", dayKey: "sunday", posts: [
-    { time: "18:00", type: "Post", topic: "Weekly recap", caption: "New arrivals + best-sellers + next week preview", hashtags: "#WeeklyRecap #NewArrivals #BlueMarine #KuwaitFashion" },
-    { time: "20:00", type: "Story", topic: "Next week teaser", caption: "Preview of upcoming content", hashtags: "#ComingSoon #StayTuned" },
+    { time: "18:00", type: "Post", topic: "Weekly recap", caption: "New arrivals + best-sellers + next week preview", hashtags: "#WeeklyRecap #NewArrivals #BlueMarine #KuwaitFashion", preset: "lookbook" },
+    { time: "20:00", type: "Story", topic: "Next week teaser", caption: "Preview of upcoming content", hashtags: "#ComingSoon #StayTuned", preset: "studio" },
   ]},
 ];
 
@@ -83,11 +88,12 @@ type Entry = {
   posted_at: string | null;
   custom_caption: string | null;
   custom_hashtags: string | null;
+  notes?: string | null;
 };
 
 function getMondayOf(date: Date): Date {
   const d = new Date(date);
-  const dow = d.getDay(); // 0=Sun..6=Sat
+  const dow = d.getDay();
   const diff = dow === 0 ? -6 : 1 - dow;
   d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
@@ -99,6 +105,11 @@ function toIsoDate(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+function getTodayKey(): string {
+  const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  return days[new Date().getDay()];
 }
 
 function nextStatus(s: Status): Status {
@@ -124,8 +135,18 @@ export default function ContentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<Record<string, boolean>>({});
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [draftCaption, setDraftCaption] = useState("");
+  const [draftHashtags, setDraftHashtags] = useState("");
+  const [draftNotes, setDraftNotes] = useState("");
 
+  const todayKey = useMemo(() => getTodayKey(), []);
   const weekIso = useMemo(() => toIsoDate(weekStart), [weekStart]);
+
+  const isCurrentWeek = useMemo(() => {
+    const thisMonday = getMondayOf(new Date());
+    return toIsoDate(thisMonday) === weekIso;
+  }, [weekIso]);
 
   const weekLabel = useMemo(() => {
     const end = new Date(weekStart);
@@ -155,6 +176,17 @@ export default function ContentPage() {
     return () => { cancelled = true; };
   }, [weekIso]);
 
+  async function patchSlot(dayKey: string, time: string, body: Partial<Entry>) {
+    const res = await fetch("/api/content/status", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ week_start: weekIso, day: dayKey, time, ...body }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Save failed");
+    return json.entry as Entry;
+  }
+
   async function cycleStatus(dayKey: string, time: string) {
     const key = `${dayKey}|${time}`;
     if (pending[key]) return;
@@ -172,6 +204,7 @@ export default function ContentPage() {
           time,
           custom_caption: existing?.custom_caption ?? null,
           custom_hashtags: existing?.custom_hashtags ?? null,
+          notes: existing?.notes ?? null,
           status: target,
           posted_at: target === "posted" ? new Date().toISOString() : null,
         },
@@ -179,17 +212,44 @@ export default function ContentPage() {
     });
 
     try {
-      const res = await fetch("/api/content/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ week_start: weekIso, day: dayKey, time, status: target }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Save failed");
-      setEntries((prev) => ({ ...prev, [key]: json.entry }));
+      const entry = await patchSlot(dayKey, time, { status: target });
+      setEntries((prev) => ({ ...prev, [key]: entry }));
     } catch (e) {
       setError((e as Error).message);
       setEntries((prev) => ({ ...prev, [key]: { ...(prev[key] as Entry), status: current } }));
+    } finally {
+      setPending((p) => { const n = { ...p }; delete n[key]; return n; });
+    }
+  }
+
+  function startEdit(key: string, template: SlotTemplate) {
+    const e = entries[key];
+    setDraftCaption(e?.custom_caption ?? template.caption);
+    setDraftHashtags(e?.custom_hashtags ?? template.hashtags);
+    setDraftNotes(e?.notes ?? "");
+    setEditingKey(key);
+  }
+
+  function cancelEdit() {
+    setEditingKey(null);
+    setDraftCaption("");
+    setDraftHashtags("");
+    setDraftNotes("");
+  }
+
+  async function saveEdit(dayKey: string, time: string, template: SlotTemplate) {
+    const key = `${dayKey}|${time}`;
+    setPending((p) => ({ ...p, [key]: true }));
+    try {
+      const entry = await patchSlot(dayKey, time, {
+        custom_caption: draftCaption.trim() === template.caption ? null : draftCaption,
+        custom_hashtags: draftHashtags.trim() === template.hashtags ? null : draftHashtags,
+        notes: draftNotes.trim() || null,
+      });
+      setEntries((prev) => ({ ...prev, [key]: entry }));
+      cancelEdit();
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setPending((p) => { const n = { ...p }; delete n[key]; return n; });
     }
@@ -203,13 +263,17 @@ export default function ContentPage() {
     });
   }
 
+  function goToCurrentWeek() {
+    setWeekStart(getMondayOf(new Date()));
+  }
+
   const totalSlots = publicationPlan.reduce((acc, d) => acc + d.posts.length, 0);
   const postedCount = Object.values(entries).filter((e) => e.status === "posted").length;
 
   return (
     <div className="flex-1 overflow-auto">
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md px-8 py-5">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-xl font-bold text-foreground">Content & Publications</h1>
             <p className="text-sm text-foreground-muted mt-0.5">Content calendar + Instagram publication plan</p>
@@ -222,11 +286,16 @@ export default function ContentPage() {
               <button onClick={() => shiftWeek(-7)} className="p-1.5 hover:bg-white/5 rounded transition-colors" aria-label="Previous week">
                 <ChevronLeft className="w-4 h-4 text-foreground-muted" />
               </button>
-              <span className="text-xs font-medium text-foreground px-2 min-w-[140px] text-center">{weekLabel}</span>
+              <span className="text-xs font-medium text-foreground px-2 min-w-[150px] text-center">{weekLabel}</span>
               <button onClick={() => shiftWeek(7)} className="p-1.5 hover:bg-white/5 rounded transition-colors" aria-label="Next week">
                 <ChevronRight className="w-4 h-4 text-foreground-muted" />
               </button>
             </div>
+            {!isCurrentWeek && (
+              <button onClick={goToCurrentWeek} className="text-xs px-2.5 py-1.5 rounded-lg border border-accent/40 text-accent hover:bg-accent/10 transition-colors">
+                This week
+              </button>
+            )}
           </div>
         </div>
         {error && (
@@ -244,9 +313,16 @@ export default function ContentPage() {
           <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
             {Object.entries(contentCalendar).map(([day, data]) => {
               const Icon = typeIcons[data.type] || Video;
+              const isToday = isCurrentWeek && day === todayKey;
               return (
-                <div key={day} className="rounded-xl bg-surface border border-border p-4">
-                  <p className="text-xs font-semibold text-accent mb-2">{dayLabels[day]}</p>
+                <div
+                  key={day}
+                  className={`rounded-xl bg-surface border p-4 transition-colors ${isToday ? "border-accent ring-1 ring-accent/40" : "border-border"}`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-accent">{dayLabels[day]}</p>
+                    {isToday && <span className="text-[9px] font-bold uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">Today</span>}
+                  </div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <Icon className="w-3.5 h-3.5 text-foreground-muted" />
                     <span className="text-xs font-medium text-foreground">{data.type}</span>
@@ -270,58 +346,146 @@ export default function ContentPage() {
             {loading && <Loader2 className="inline w-3 h-3 ml-2 animate-spin" />}
           </p>
           <div className="space-y-4">
-            {publicationPlan.map((day) => (
-              <div key={day.dayKey} className="rounded-xl bg-surface border border-border overflow-hidden">
-                <div className="px-5 py-3 border-b border-border bg-surface-muted">
-                  <span className="text-sm font-semibold text-accent">{day.day}</span>
-                </div>
-                <div className="divide-y divide-white/5">
-                  {day.posts.map((post) => {
-                    const key = `${day.dayKey}|${post.time}`;
-                    const entry = entries[key];
-                    const status: Status = entry?.status ?? "draft";
-                    const styles = statusStyles(status);
-                    const StatusIcon = styles.icon;
-                    const isPending = pending[key];
-                    return (
-                      <div key={post.time} className="px-5 py-4 flex flex-col md:flex-row md:items-start gap-4">
-                        <div className="flex items-center gap-2 shrink-0 w-24">
-                          <Clock className="w-3.5 h-3.5 text-foreground-subtle" />
-                          <span className="text-sm font-mono font-medium text-foreground">{post.time}</span>
-                        </div>
-                        <div className="shrink-0">
-                          <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${
-                            post.type === "Reel" ? "bg-pink-500/20 text-pink-400" :
-                            post.type === "Story" ? "bg-purple-500/20 text-purple-400" :
-                            post.type === "Carousel" ? "bg-blue-500/20 text-blue-400" :
-                            "bg-green-500/20 text-green-400"
-                          }`}>
-                            {post.type}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm font-medium ${status === "posted" ? "text-foreground-muted line-through" : "text-foreground"}`}>{post.topic}</p>
-                          <p className="text-xs text-foreground-muted mt-1">{entry?.custom_caption || post.caption}</p>
-                          <div className="flex items-center gap-1 mt-2">
-                            <Hash className="w-3 h-3 text-foreground-subtle" />
-                            <p className="text-[10px] text-foreground-subtle truncate">{entry?.custom_hashtags || post.hashtags}</p>
+            {publicationPlan.map((day) => {
+              const isToday = isCurrentWeek && day.dayKey === todayKey;
+              return (
+                <div key={day.dayKey} className={`rounded-xl bg-surface border overflow-hidden ${isToday ? "border-accent ring-1 ring-accent/40" : "border-border"}`}>
+                  <div className="px-5 py-3 border-b border-border bg-surface-muted flex items-center justify-between">
+                    <span className="text-sm font-semibold text-accent">{day.day}</span>
+                    {isToday && <span className="text-[9px] font-bold uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">Today</span>}
+                  </div>
+                  <div className="divide-y divide-white/5">
+                    {day.posts.map((post) => {
+                      const key = `${day.dayKey}|${post.time}`;
+                      const entry = entries[key];
+                      const status: Status = entry?.status ?? "draft";
+                      const styles = statusStyles(status);
+                      const StatusIcon = styles.icon;
+                      const isPending = pending[key];
+                      const isEditing = editingKey === key;
+                      const captionText = entry?.custom_caption || post.caption;
+                      const hashtagsText = entry?.custom_hashtags || post.hashtags;
+                      return (
+                        <div key={post.time} className="px-5 py-4">
+                          <div className="flex flex-col md:flex-row md:items-start gap-4">
+                            <div className="flex items-center gap-2 shrink-0 w-24">
+                              <Clock className="w-3.5 h-3.5 text-foreground-subtle" />
+                              <span className="text-sm font-mono font-medium text-foreground">{post.time}</span>
+                            </div>
+                            <div className="shrink-0">
+                              <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${
+                                post.type === "Reel" ? "bg-pink-500/20 text-pink-400" :
+                                post.type === "Story" ? "bg-purple-500/20 text-purple-400" :
+                                post.type === "Carousel" ? "bg-blue-500/20 text-blue-400" :
+                                "bg-green-500/20 text-green-400"
+                              }`}>
+                                {post.type}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-sm font-medium ${status === "posted" ? "text-foreground-muted line-through" : "text-foreground"}`}>{post.topic}</p>
+                              {!isEditing && (
+                                <>
+                                  <p className="text-xs text-foreground-muted mt-1">{captionText}</p>
+                                  <div className="flex items-center gap-1 mt-2">
+                                    <Hash className="w-3 h-3 text-foreground-subtle" />
+                                    <p className="text-[10px] text-foreground-subtle truncate">{hashtagsText}</p>
+                                  </div>
+                                  {entry?.notes && (
+                                    <p className="text-[11px] text-amber-400/90 mt-2 italic">📝 {entry.notes}</p>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {!isEditing && (
+                                <>
+                                  <Link
+                                    href={`/product-photo?preset=${post.preset}`}
+                                    className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition-colors"
+                                    title={`Generate image (${post.preset} preset)`}
+                                  >
+                                    <Sparkles className="w-3 h-3" />
+                                    Image
+                                  </Link>
+                                  <button
+                                    onClick={() => startEdit(key, post)}
+                                    className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border border-white/10 bg-white/5 text-foreground-muted hover:bg-white/10 transition-colors"
+                                    title="Edit caption"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => cycleStatus(day.dayKey, post.time)}
+                                    disabled={isPending || loading}
+                                    className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors hover:opacity-80 disabled:opacity-50 ${styles.cls}`}
+                                    title="Click to change status"
+                                  >
+                                    {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <StatusIcon className="w-3 h-3" />}
+                                    {styles.label}
+                                  </button>
+                                </>
+                              )}
+                            </div>
                           </div>
+
+                          {isEditing && (
+                            <div className="mt-3 ml-0 md:ml-[152px] space-y-2 rounded-lg border border-border bg-background/40 p-3">
+                              <div>
+                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Caption</label>
+                                <textarea
+                                  value={draftCaption}
+                                  onChange={(e) => setDraftCaption(e.target.value)}
+                                  rows={2}
+                                  className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-accent"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Hashtags</label>
+                                <textarea
+                                  value={draftHashtags}
+                                  onChange={(e) => setDraftHashtags(e.target.value)}
+                                  rows={2}
+                                  className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground font-mono resize-none focus:outline-none focus:ring-1 focus:ring-accent"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Notes (private)</label>
+                                <textarea
+                                  value={draftNotes}
+                                  onChange={(e) => setDraftNotes(e.target.value)}
+                                  rows={2}
+                                  placeholder="e.g. Use the new abaya from last week's shoot"
+                                  className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-accent"
+                                />
+                              </div>
+                              <div className="flex items-center justify-end gap-2 pt-1">
+                                <button
+                                  onClick={cancelEdit}
+                                  className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded border border-border bg-surface text-foreground-muted hover:bg-white/5"
+                                >
+                                  <X className="w-3 h-3" />
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => saveEdit(day.dayKey, post.time, post)}
+                                  disabled={isPending}
+                                  className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 disabled:opacity-50"
+                                >
+                                  {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                  Save
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <button
-                          onClick={() => cycleStatus(day.dayKey, post.time)}
-                          disabled={isPending || loading}
-                          className={`shrink-0 inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors hover:opacity-80 disabled:opacity-50 ${styles.cls}`}
-                          title="Click to change status"
-                        >
-                          {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <StatusIcon className="w-3 h-3" />}
-                          {styles.label}
-                        </button>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
