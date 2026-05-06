@@ -65,16 +65,16 @@ export default function WhatsAppPage() {
 
   return (
     <div className="flex-1 overflow-auto">
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-background/80 backdrop-blur-md px-8 py-5">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md px-8 py-5">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white">WhatsApp Business</h1>
-            <p className="text-sm text-slate-400 mt-0.5">Messaging & customer communication</p>
+            <h1 className="text-xl font-bold text-foreground">WhatsApp Business</h1>
+            <p className="text-sm text-foreground-muted mt-0.5">Messaging & customer communication</p>
           </div>
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-muted hover:bg-surface-muted text-xs text-foreground-muted transition-colors disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
             Refresh
@@ -90,23 +90,23 @@ export default function WhatsAppPage() {
       <div className="p-8 space-y-8">
         {/* Profile Card */}
         {profile && (
-          <div className="rounded-xl bg-card border border-white/5 p-6">
+          <div className="rounded-xl bg-surface border border-border p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#25d366]/20 flex items-center justify-center">
                 <MessageCircle className="w-6 h-6 text-[#25d366]" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white">{profile.verifiedName}</h2>
+                <h2 className="text-lg font-bold text-foreground">{profile.verifiedName}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="text-sm text-slate-400">{profile.displayPhoneNumber}</span>
+                  <Phone className="w-3.5 h-3.5 text-foreground-muted" />
+                  <span className="text-sm text-foreground-muted">{profile.displayPhoneNumber}</span>
                 </div>
               </div>
               <div className="ml-auto">
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
                   profile.qualityRating === "GREEN" ? "bg-green-500/20 text-green-400" :
                   profile.qualityRating === "YELLOW" ? "bg-yellow-500/20 text-yellow-400" :
-                  "bg-slate-500/20 text-slate-400"
+                  "bg-surface-muted text-foreground-muted"
                 }`}>
                   Quality: {profile.qualityRating}
                 </span>
@@ -148,16 +148,16 @@ export default function WhatsAppPage() {
         </div>
 
         {/* Message Templates */}
-        <div className="rounded-xl bg-card border border-white/5 overflow-hidden">
-          <div className="px-6 py-4 border-b border-white/5 flex items-center gap-2">
+        <div className="rounded-xl bg-surface border border-border overflow-hidden">
+          <div className="px-6 py-4 border-b border-border flex items-center gap-2">
             <FileText className="w-4 h-4 text-[#25d366]" />
-            <h2 className="text-sm font-semibold text-white">Message Templates</h2>
-            <span className="text-xs text-slate-500 ml-auto">{templates.length} templates</span>
+            <h2 className="text-sm font-semibold text-foreground">Message Templates</h2>
+            <span className="text-xs text-foreground-subtle ml-auto">{templates.length} templates</span>
           </div>
           {templates.length > 0 ? (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs text-slate-500 border-b border-white/5">
+                <tr className="text-left text-xs text-foreground-subtle border-b border-border">
                   <th className="px-6 py-3 font-medium">Template Name</th>
                   <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Language</th>
@@ -170,12 +170,12 @@ export default function WhatsAppPage() {
                     t.status === "APPROVED" ? "bg-green-500/20 text-green-400" :
                     t.status === "PENDING" ? "bg-yellow-500/20 text-yellow-400" :
                     t.status === "REJECTED" ? "bg-red-500/20 text-red-400" :
-                    "bg-slate-500/20 text-slate-400";
+                    "bg-surface-muted text-foreground-muted";
                   return (
-                    <tr key={t.name + t.language} className="border-b border-white/5 hover:bg-white/[.02] transition-colors">
-                      <td className="px-6 py-3.5 font-medium text-white">{t.name}</td>
-                      <td className="px-4 py-3.5 text-slate-400">{t.category}</td>
-                      <td className="px-4 py-3.5 text-slate-400">{t.language}</td>
+                    <tr key={t.name + t.language} className="border-b border-border hover:bg-surface-muted transition-colors">
+                      <td className="px-6 py-3.5 font-medium text-foreground">{t.name}</td>
+                      <td className="px-4 py-3.5 text-foreground-muted">{t.category}</td>
+                      <td className="px-4 py-3.5 text-foreground-muted">{t.language}</td>
                       <td className="px-6 py-3.5">
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase ${statusColor}`}>
                           {t.status}
@@ -187,7 +187,7 @@ export default function WhatsAppPage() {
               </tbody>
             </table>
           ) : (
-            <div className="px-6 py-8 text-center text-sm text-slate-500">
+            <div className="px-6 py-8 text-center text-sm text-foreground-subtle">
               No templates yet. Create templates in WhatsApp Business Manager to send broadcast messages.
             </div>
           )}
@@ -195,8 +195,8 @@ export default function WhatsAppPage() {
 
         {/* WhatsApp Link */}
         <div className="rounded-xl bg-[#25d366]/10 border border-[#25d366]/20 p-6">
-          <h3 className="text-sm font-semibold text-white mb-2">Quick WhatsApp Link</h3>
-          <p className="text-xs text-slate-400 mb-3">Share this link with customers to start a conversation:</p>
+          <h3 className="text-sm font-semibold text-foreground mb-2">Quick WhatsApp Link</h3>
+          <p className="text-xs text-foreground-muted mb-3">Share this link with customers to start a conversation:</p>
           <div className="bg-black/30 rounded-lg px-4 py-2.5 font-mono text-sm text-[#25d366] select-all">
             https://wa.me/{profile?.displayPhoneNumber?.replace(/[^0-9]/g, "") || "9659592234"}
           </div>

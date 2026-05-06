@@ -1,32 +1,32 @@
 // ==========================================
 // BLUE MARINE - DASHBOARD DATA
-// Goal: $1,000,000 / year
+// Goal: 50,000 KD / year
 // Market: Traditional Clothing - Kuwait
 // Channels: Instagram + E-commerce + WhatsApp
-// Average Order: 50-100 KWD ($150-300)
+// Average Order: 60 KD
 // ==========================================
 
-export const ANNUAL_TARGET = 1_000_000;
+export const ANNUAL_TARGET = 50_000;
 export const MONTHLY_TARGET = Math.round(ANNUAL_TARGET / 12);
 export const DAILY_TARGET = Math.round(ANNUAL_TARGET / 365);
-export const AVG_ORDER_VALUE = 200; // $200 (60 KWD)
+export const AVG_ORDER_VALUE = 60; // 60 KD
 export const ORDERS_PER_MONTH = Math.round(MONTHLY_TARGET / AVG_ORDER_VALUE);
 export const ORDERS_PER_DAY = Math.round(DAILY_TARGET / AVG_ORDER_VALUE);
 
-// Monthly revenue data (Year 1 simulation - progressive growth)
+// Monthly revenue data (Year 1 simulation - progressive growth, sums to ANNUAL_TARGET)
 export const monthlyData = [
-  { month: "Jan", target: 50000, revenue: 0, orders: 0, visitors: 0, adSpend: 8000 },
-  { month: "Feb", target: 55000, revenue: 0, orders: 0, visitors: 0, adSpend: 9000 },
-  { month: "Mar", target: 65000, revenue: 0, orders: 0, visitors: 0, adSpend: 10000 },
-  { month: "Apr", target: 75000, revenue: 0, orders: 0, visitors: 0, adSpend: 12000 },
-  { month: "May", target: 80000, revenue: 0, orders: 0, visitors: 0, adSpend: 12000 },
-  { month: "Jun", target: 85000, revenue: 0, orders: 0, visitors: 0, adSpend: 13000 },
-  { month: "Jul", target: 85000, revenue: 0, orders: 0, visitors: 0, adSpend: 13000 },
-  { month: "Aug", target: 90000, revenue: 0, orders: 0, visitors: 0, adSpend: 14000 },
-  { month: "Sep", target: 95000, revenue: 0, orders: 0, visitors: 0, adSpend: 15000 },
-  { month: "Oct", target: 100000, revenue: 0, orders: 0, visitors: 0, adSpend: 16000 },
-  { month: "Nov", target: 110000, revenue: 0, orders: 0, visitors: 0, adSpend: 18000 },
-  { month: "Dec", target: 110000, revenue: 0, orders: 0, visitors: 0, adSpend: 18000 },
+  { month: "Jan", target: 2500, revenue: 0, orders: 0, visitors: 0, adSpend: 400 },
+  { month: "Feb", target: 2750, revenue: 0, orders: 0, visitors: 0, adSpend: 450 },
+  { month: "Mar", target: 3250, revenue: 0, orders: 0, visitors: 0, adSpend: 500 },
+  { month: "Apr", target: 3750, revenue: 0, orders: 0, visitors: 0, adSpend: 600 },
+  { month: "May", target: 4000, revenue: 0, orders: 0, visitors: 0, adSpend: 600 },
+  { month: "Jun", target: 4250, revenue: 0, orders: 0, visitors: 0, adSpend: 650 },
+  { month: "Jul", target: 4250, revenue: 0, orders: 0, visitors: 0, adSpend: 650 },
+  { month: "Aug", target: 4500, revenue: 0, orders: 0, visitors: 0, adSpend: 700 },
+  { month: "Sep", target: 4750, revenue: 0, orders: 0, visitors: 0, adSpend: 750 },
+  { month: "Oct", target: 5000, revenue: 0, orders: 0, visitors: 0, adSpend: 800 },
+  { month: "Nov", target: 5500, revenue: 0, orders: 0, visitors: 0, adSpend: 900 },
+  { month: "Dec", target: 5500, revenue: 0, orders: 0, visitors: 0, adSpend: 900 },
 ];
 
 // Channel breakdown
@@ -34,7 +34,7 @@ export const channelData = [
   {
     name: "Instagram / Social",
     percentage: 35,
-    targetRevenue: 350000,
+    targetRevenue: 17500,
     color: "#e1306c",
     icon: "instagram",
     metrics: {
@@ -47,7 +47,7 @@ export const channelData = [
   {
     name: "E-commerce (Shopify)",
     percentage: 45,
-    targetRevenue: 450000,
+    targetRevenue: 22500,
     color: "#96bf48",
     icon: "shopping-cart",
     metrics: {
@@ -60,7 +60,7 @@ export const channelData = [
   {
     name: "WhatsApp",
     percentage: 20,
-    targetRevenue: 200000,
+    targetRevenue: 10000,
     color: "#25d366",
     icon: "whatsapp",
     metrics: {
@@ -72,23 +72,23 @@ export const channelData = [
   },
 ];
 
-// Meta Ads KPI targets
+// Meta Ads KPI targets (KD)
 export const metaAdsTargets = {
-  monthlyBudget: 8000,
-  targetROAS: 4.0, // $4 revenue per $1 spent
-  targetCPC: 0.80, // Cost per click
-  targetCPM: 12.0, // Cost per 1000 impressions
+  monthlyBudget: 500, // ~1500 USD
+  targetROAS: 4.0, // 4 KD revenue per 1 KD spent
+  targetCPC: 0.25, // Cost per click
+  targetCPM: 3.7, // Cost per 1000 impressions
   targetCTR: 2.5, // Click-through rate %
-  targetCPA: 25, // Cost per acquisition
+  targetCPA: 8, // Cost per acquisition
   targetConversion: 3.0, // Conversion rate %
 };
 
-// Meta Ads campaigns
+// Meta Ads campaigns (budget en KD)
 export const metaCampaigns = [
   {
     name: "Ramadan Collection 2026",
     status: "active" as const,
-    budget: 3000,
+    budget: 920,
     spent: 0,
     impressions: 0,
     clicks: 0,
@@ -99,7 +99,7 @@ export const metaCampaigns = [
   {
     name: "New Arrivals - Dishdashas",
     status: "draft" as const,
-    budget: 2000,
+    budget: 615,
     spent: 0,
     impressions: 0,
     clicks: 0,
@@ -110,7 +110,7 @@ export const metaCampaigns = [
   {
     name: "Brand Awareness Kuwait",
     status: "draft" as const,
-    budget: 1500,
+    budget: 460,
     spent: 0,
     impressions: 0,
     clicks: 0,
@@ -121,7 +121,7 @@ export const metaCampaigns = [
   {
     name: "Retargeting - Cart Abandoners",
     status: "draft" as const,
-    budget: 1500,
+    budget: 460,
     spent: 0,
     impressions: 0,
     clicks: 0,
@@ -245,23 +245,23 @@ export const budgetAllocation = [
 
 // KPI Definitions
 export const kpiDefinitions = {
-  AOV: { name: "Avg Order Value (AOV)", target: 200, unit: "$", description: "Average amount per order" },
-  CAC: { name: "Customer Acquisition Cost", target: 25, unit: "$", description: "Cost to acquire 1 customer" },
-  LTV: { name: "Customer Lifetime Value", target: 600, unit: "$", description: "Total avg revenue per customer" },
+  AOV: { name: "Avg Order Value (AOV)", target: 60, unit: "KD", description: "Average amount per order" },
+  CAC: { name: "Customer Acquisition Cost", target: 8, unit: "KD", description: "Cost to acquire 1 customer" },
+  LTV: { name: "Customer Lifetime Value", target: 180, unit: "KD", description: "Total avg revenue per customer" },
   ROAS: { name: "Return on Ad Spend", target: 4.0, unit: "x", description: "$4 revenue for every $1 in ads" },
   conversionRate: { name: "Conversion Rate", target: 2.5, unit: "%", description: "% of visitors who purchase" },
   repeatRate: { name: "Repeat Rate", target: 30, unit: "%", description: "% of customers who buy again" },
   marginRate: { name: "Gross Margin", target: 65, unit: "%", description: "% margin on each sale" },
 };
 
-// Product categories
+// Product categories (avgPrice en KD)
 export const productCategories = [
-  { name: "Men's Dishdashas", avgPrice: 180, margin: 65, bestSeller: true },
-  { name: "Women's Abayas", avgPrice: 250, margin: 70, bestSeller: true },
-  { name: "Jalabiya", avgPrice: 200, margin: 68, bestSeller: false },
-  { name: "Accessories (Ghutra, Agal)", avgPrice: 50, margin: 75, bestSeller: false },
-  { name: "Ramadan Collections", avgPrice: 300, margin: 60, bestSeller: true },
-  { name: "Custom / Bespoke", avgPrice: 500, margin: 55, bestSeller: false },
+  { name: "Men's Dishdashas", avgPrice: 55, margin: 65, bestSeller: true },
+  { name: "Women's Abayas", avgPrice: 75, margin: 70, bestSeller: true },
+  { name: "Jalabiya", avgPrice: 60, margin: 68, bestSeller: false },
+  { name: "Accessories (Ghutra, Agal)", avgPrice: 15, margin: 75, bestSeller: false },
+  { name: "Ramadan Collections", avgPrice: 90, margin: 60, bestSeller: true },
+  { name: "Custom / Bespoke", avgPrice: 150, margin: 55, bestSeller: false },
 ];
 
 // Seasonal events (Kuwait specific)

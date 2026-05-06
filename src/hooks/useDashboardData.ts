@@ -58,6 +58,7 @@ interface DashboardData {
     } | null;
   };
   errors?: string[];
+  metaNeedsAuth?: boolean;
   lastUpdated: string;
 }
 

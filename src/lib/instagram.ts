@@ -13,6 +13,10 @@ async function igFetch<T>(endpoint: string, params: Record<string, string> = {})
   const res = await fetch(url.toString());
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
+    if (error?.error?.type === "OAuthException") {
+      const { OAuthError } = await import("./meta-ads");
+      throw new OAuthError(`Meta/Instagram token invalide ou expiré (code ${error.error.code})`);
+    }
     throw new Error(`Instagram API error: ${res.status} - ${JSON.stringify(error)}`);
   }
   return res.json();

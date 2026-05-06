@@ -1,3 +1,5 @@
+import { usdToKd } from "./currency";
+
 const SNAP_ACCESS_TOKEN = process.env.SNAP_ACCESS_TOKEN!;
 const SNAP_AD_ACCOUNT_ID = process.env.SNAP_AD_ACCOUNT_ID!;
 const SNAP_BASE_URL = "https://adsapi.snapchat.com/v1";
@@ -47,8 +49,8 @@ export async function getCampaigns(): Promise<SnapCampaign[]> {
     name: c.campaign.name,
     status: c.campaign.status,
     objective: c.campaign.objective || "Unknown",
-    dailyBudget: (c.campaign.daily_budget_micro || 0) / 1000000,
-    lifetimeBudget: (c.campaign.lifetime_spend_cap_micro || 0) / 1000000,
+    dailyBudget: usdToKd((c.campaign.daily_budget_micro || 0) / 1000000),
+    lifetimeBudget: usdToKd((c.campaign.lifetime_spend_cap_micro || 0) / 1000000),
     startTime: c.campaign.start_time,
   }));
 }
@@ -76,7 +78,7 @@ export async function getAccountStats(): Promise<SnapAccountStats> {
     if (data.total_stats?.length) {
       const stats = data.total_stats[0].total_stat.stats;
       return {
-        spend: (stats.spend || 0) / 1000000,
+        spend: usdToKd((stats.spend || 0) / 1000000),
         impressions: stats.impressions || 0,
         swipes: stats.swipes || 0,
       };

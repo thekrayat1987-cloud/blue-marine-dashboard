@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { getOrderMetrics } from "@/lib/shopify";
-import { getCampaigns, getAdAccountInsights } from "@/lib/meta-ads";
+import { getCampaigns, getAdAccountInsights, OAuthError } from "@/lib/meta-ads";
 import { getProfile, getInsights } from "@/lib/instagram";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const errors: string[] = [];
+  let metaNeedsAuth = false;
 
   // Fetch all data in parallel, gracefully handling failures
   const [shopifyResult, metaCampaignsResult, metaInsightsResult, igProfileResult, igInsightsResult] =
@@ -22,13 +23,22 @@ export async function GET() {
   if (shopifyResult.status === "rejected") errors.push(`Shopify: ${shopifyResult.reason}`);
 
   const metaCampaigns = metaCampaignsResult.status === "fulfilled" ? metaCampaignsResult.value : null;
-  if (metaCampaignsResult.status === "rejected") errors.push(`Meta Campaigns: ${metaCampaignsResult.reason}`);
+  if (metaCampaignsResult.status === "rejected") {
+    if (metaCampaignsResult.reason instanceof OAuthError) metaNeedsAuth = true;
+    else errors.push(`Meta Campaigns: ${metaCampaignsResult.reason}`);
+  }
 
   const metaInsights = metaInsightsResult.status === "fulfilled" ? metaInsightsResult.value : null;
-  if (metaInsightsResult.status === "rejected") errors.push(`Meta Insights: ${metaInsightsResult.reason}`);
+  if (metaInsightsResult.status === "rejected") {
+    if (metaInsightsResult.reason instanceof OAuthError) metaNeedsAuth = true;
+    else errors.push(`Meta Insights: ${metaInsightsResult.reason}`);
+  }
 
   const igProfile = igProfileResult.status === "fulfilled" ? igProfileResult.value : null;
-  if (igProfileResult.status === "rejected") errors.push(`Instagram Profile: ${igProfileResult.reason}`);
+  if (igProfileResult.status === "rejected") {
+    if (igProfileResult.reason instanceof OAuthError) metaNeedsAuth = true;
+    else errors.push(`Instagram Profile: ${igProfileResult.reason}`);
+  }
 
   const igInsights = igInsightsResult.status === "fulfilled" ? igInsightsResult.value : null;
   if (igInsightsResult.status === "rejected") errors.push(`Instagram Insights: ${igInsightsResult.reason}`);
@@ -51,6 +61,7 @@ export async function GET() {
       insights: igInsights || null,
     },
     errors: errors.length > 0 ? errors : undefined,
+    metaNeedsAuth: metaNeedsAuth || undefined,
     lastUpdated: new Date().toISOString(),
   });
 }

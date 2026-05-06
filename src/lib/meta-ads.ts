@@ -1,3 +1,12 @@
+import { usdToKd } from "./currency";
+
+export class OAuthError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "OAuthError";
+  }
+}
+
 const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN!;
 const META_AD_ACCOUNT_ID = process.env.META_AD_ACCOUNT_ID!;
 const META_API_VERSION = "v21.0";
@@ -13,6 +22,9 @@ async function metaFetch<T>(endpoint: string, params: Record<string, string> = {
   const res = await fetch(url.toString());
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
+    if (error?.error?.type === "OAuthException") {
+      throw new OAuthError(`Meta token invalide ou expiré (code ${error.error.code})`);
+    }
     throw new Error(`Meta API error: ${res.status} - ${JSON.stringify(error)}`);
   }
   return res.json();
@@ -81,13 +93,13 @@ export async function getCampaigns(): Promise<MetaCampaign[]> {
         const spend = parseFloat(d.spend);
 
         insights = {
-          spend: Math.round(spend),
+          spend: Math.round(usdToKd(spend)),
           impressions: parseInt(d.impressions),
           clicks: parseInt(d.clicks),
           conversions: parseInt(conversions),
-          revenue: Math.round(parseFloat(revenue)),
-          cpc: parseFloat(parseFloat(d.cpc).toFixed(2)),
-          cpm: parseFloat(parseFloat(d.cpm).toFixed(2)),
+          revenue: Math.round(usdToKd(parseFloat(revenue))),
+          cpc: parseFloat(usdToKd(parseFloat(d.cpc)).toFixed(2)),
+          cpm: parseFloat(usdToKd(parseFloat(d.cpm)).toFixed(2)),
           ctr: parseFloat(parseFloat(d.ctr).toFixed(2)),
           roas: spend > 0 ? parseFloat((parseFloat(revenue) / spend).toFixed(1)) : 0,
         };
@@ -101,8 +113,8 @@ export async function getCampaigns(): Promise<MetaCampaign[]> {
       name: campaign.name,
       status: campaign.status.toLowerCase(),
       objective: campaign.objective?.replace("OUTCOME_", "").replace(/_/g, " ") || "Unknown",
-      dailyBudget: campaign.daily_budget ? parseFloat(campaign.daily_budget) / 100 : 0,
-      lifetimeBudget: campaign.lifetime_budget ? parseFloat(campaign.lifetime_budget) / 100 : 0,
+      dailyBudget: campaign.daily_budget ? usdToKd(parseFloat(campaign.daily_budget) / 100) : 0,
+      lifetimeBudget: campaign.lifetime_budget ? usdToKd(parseFloat(campaign.lifetime_budget) / 100) : 0,
       insights,
     });
   }
@@ -149,13 +161,13 @@ export async function getAdAccountInsights(): Promise<MetaAdAccountInsights> {
   const revenue = parseFloat(d.action_values?.find((a) => a.action_type === "purchase")?.value || "0");
 
   return {
-    totalSpend: Math.round(spend),
+    totalSpend: Math.round(usdToKd(spend)),
     totalImpressions: parseInt(d.impressions),
     totalClicks: parseInt(d.clicks),
     totalConversions: conversions,
-    totalRevenue: Math.round(revenue),
-    avgCPC: parseFloat(parseFloat(d.cpc).toFixed(2)),
-    avgCPM: parseFloat(parseFloat(d.cpm).toFixed(2)),
+    totalRevenue: Math.round(usdToKd(revenue)),
+    avgCPC: parseFloat(usdToKd(parseFloat(d.cpc)).toFixed(2)),
+    avgCPM: parseFloat(usdToKd(parseFloat(d.cpm)).toFixed(2)),
     avgCTR: parseFloat(parseFloat(d.ctr).toFixed(2)),
     roas: spend > 0 ? parseFloat((revenue / spend).toFixed(1)) : 0,
   };

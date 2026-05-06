@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# generated images / product descriptions (local only)
+/.generated
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

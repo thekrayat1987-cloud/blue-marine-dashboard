@@ -6,11 +6,12 @@ import {
   TrendingUp,
   Target,
   Percent,
-  BarChart3,
   CalendarDays,
   RefreshCw,
   Loader2,
   Users,
+  ArrowUpRight,
+  AlertCircle,
 } from "lucide-react";
 import {
   BarChart,
@@ -34,134 +35,255 @@ import {
   seasonalEvents,
 } from "@/data/dashboardData";
 
+const MONTH_FR: Record<string, string> = {
+  Jan: "Jan", Feb: "Fév", Mar: "Mar", Apr: "Avr", May: "Mai", Jun: "Juin",
+  Jul: "Juil", Aug: "Août", Sep: "Sep", Oct: "Oct", Nov: "Nov", Dec: "Déc",
+};
+
+const IMPACT_FR = {
+  "very-high": { label: "Très fort", className: "bg-danger-soft text-danger" },
+  "high": { label: "Fort", className: "bg-warning-soft text-warning" },
+  "medium": { label: "Moyen", className: "bg-info-soft text-info" },
+} as const;
+
+const formatCurrency = (n: number) =>
+  n.toLocaleString("fr-FR", { maximumFractionDigits: 0 });
+
 export default function Home() {
   const { data, loading, error, refresh } = useDashboardData();
 
-  // Merge real Shopify data with static targets
+  const shopifyConnected = !!data?.shopify;
+  const metaConnected = !!data?.meta?.accountInsights && !data?.metaNeedsAuth;
+  const igConnected = !!data?.instagram?.profile;
+
   const monthlyData = staticMonthlyData.map((m) => {
     const real = data?.shopify?.monthlyBreakdown.find((r) => r.month === m.month);
-    return { ...m, revenue: real?.revenue ?? m.revenue, orders: real?.orders ?? m.orders };
+    return {
+      ...m,
+      monthFr: MONTH_FR[m.month] ?? m.month,
+      revenue: real?.revenue ?? m.revenue,
+      orders: real?.orders ?? m.orders,
+    };
   });
 
-  const totalRevenue = data?.shopify?.totalRevenue ?? monthlyData.reduce((s, m) => s + m.revenue, 0);
-  const totalOrders = data?.shopify?.totalOrders ?? monthlyData.reduce((s, m) => s + m.orders, 0);
-  const aov = data?.shopify?.averageOrderValue ?? (totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 200);
-  const totalAdSpend = data?.meta?.accountInsights?.totalSpend ?? monthlyData.reduce((s, m) => s + m.adSpend, 0);
-  const roas = totalAdSpend > 0 ? (totalRevenue / totalAdSpend).toFixed(1) : "0.0";
+  const totalRevenue = data?.shopify?.totalRevenue ?? 0;
+  const totalOrders = data?.shopify?.totalOrders ?? 0;
+  const aov = data?.shopify?.averageOrderValue ?? 0;
+  const totalAdSpend = data?.meta?.accountInsights?.totalSpend ?? 0;
+  const roas = totalAdSpend > 0 ? totalRevenue / totalAdSpend : 0;
   const followers = data?.instagram?.profile?.followers ?? 0;
+
+  const goalProgress = (totalRevenue / ANNUAL_TARGET) * 100;
 
   return (
     <div className="flex-1 overflow-auto">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-white/10 bg-background/80 backdrop-blur-md px-8 py-5">
-        <div className="flex items-center justify-between">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur-md px-8 py-6">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-white">Overview</h1>
-            <p className="text-sm text-slate-400 mt-0.5">
-              Marketing Dashboard &mdash; {new Date().getFullYear()} Goal
+            <p className="text-[11px] uppercase tracking-[0.18em] text-accent font-medium mb-1">
+              Atelier · Pilotage 2026
+            </p>
+            <h1 className="font-display text-3xl font-semibold text-foreground">
+              Tableau de bord
+            </h1>
+            <p className="text-sm text-foreground-muted mt-1">
+              Suivi de l&apos;objectif annuel · {formatCurrency(ANNUAL_TARGET)} KD
             </p>
           </div>
           <div className="flex items-center gap-3">
             {data?.lastUpdated && (
-              <span className="text-[10px] text-slate-500">
-                MAJ: {new Date(data.lastUpdated).toLocaleTimeString("fr-FR")}
+              <span className="text-[11px] text-foreground-subtle">
+                Mis à jour à {new Date(data.lastUpdated).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
             <button
               onClick={refresh}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface hover:border-accent hover:text-accent text-sm text-foreground-muted transition-colors disabled:opacity-50"
             >
-              {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-              Refresh
+              {loading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3.5 h-3.5" />
+              )}
+              Actualiser
             </button>
           </div>
         </div>
+
         {error && (
-          <div className="mt-2 text-xs text-orange-400 bg-orange-500/10 px-3 py-1.5 rounded-lg">
-            API connection error — showing static data. {error}
+          <div className="mt-4 flex items-start gap-2 text-xs text-warning bg-warning-soft px-3 py-2 rounded-lg">
+            <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span>Connexion API indisponible — les chiffres affichés peuvent être incomplets.</span>
+          </div>
+        )}
+        {data?.metaNeedsAuth && (
+          <div className="mt-4 flex items-center justify-between gap-3 text-xs text-warning bg-warning-soft px-3 py-2.5 rounded-lg">
+            <span className="flex items-start gap-2">
+              <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+              Le jeton Meta a expiré. Les données Meta Ads et Instagram ne sont pas disponibles.
+            </span>
+            <a
+              href="/settings"
+              className="shrink-0 px-3 py-1.5 rounded-md bg-warning text-white hover:bg-warning/90 transition-colors font-medium"
+            >
+              Reconnecter →
+            </a>
           </div>
         )}
         {data?.errors && data.errors.length > 0 && (
-          <div className="mt-2 text-xs text-orange-400 bg-orange-500/10 px-3 py-1.5 rounded-lg">
-            Some APIs did not respond: {data.errors.join(", ")}
+          <div className="mt-2 text-xs text-foreground-muted bg-surface-muted px-3 py-2 rounded-lg">
+            APIs sans réponse : {data.errors.join(", ")}
           </div>
         )}
       </header>
 
-      <div className="p-8 space-y-8">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <KPICard
-            label="Revenue"
-            value={`$${totalRevenue.toLocaleString()}`}
-            subtitle={`Goal: $${ANNUAL_TARGET.toLocaleString()}`}
-            icon={DollarSign}
-            color="text-green-400"
-          />
-          <KPICard
-            label="Orders"
-            value={totalOrders.toLocaleString()}
-            subtitle={`Target: ${ORDERS_PER_MONTH}/month`}
-            icon={ShoppingCart}
-            color="text-blue-400"
-          />
-          <KPICard
-            label="Avg Order"
-            value={`$${aov}`}
-            subtitle={`Target: $${kpiDefinitions.AOV.target}`}
-            icon={TrendingUp}
-            color="text-accent"
-          />
-          <KPICard
-            label="ROAS"
-            value={`${roas}x`}
-            subtitle={`Target: ${kpiDefinitions.ROAS.target}x`}
-            icon={Target}
-            color="text-purple-400"
-          />
-          <KPICard
-            label="Followers IG"
-            value={followers.toLocaleString()}
-            subtitle="Instagram"
-            icon={Users}
-            color="text-pink-400"
-          />
-          <KPICard
-            label="Margin"
-            value={`${kpiDefinitions.marginRate.target}%`}
-            subtitle="Gross margin target"
-            icon={BarChart3}
-            color="text-emerald-400"
-          />
-        </div>
+      <div className="px-8 py-8 space-y-10 max-w-[1600px]">
+        {/* Hero KPIs */}
+        <section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+            <KPICard
+              variant="hero"
+              label="Chiffre d'affaires"
+              value={`${formatCurrency(totalRevenue)} KD`}
+              subtitle={`${goalProgress.toFixed(1)}% de l'objectif annuel`}
+              icon={DollarSign}
+              loading={loading && !data}
+              empty={!loading && !shopifyConnected}
+              emptyHint="Connectez Shopify pour voir vos ventes"
+            />
+            <KPICard
+              variant="hero"
+              label="ROAS — Retour publicitaire"
+              value={`${roas.toFixed(1)}×`}
+              subtitle={`Cible : ${kpiDefinitions.ROAS.target}×`}
+              icon={Target}
+              loading={loading && !data}
+              empty={!loading && !metaConnected}
+              emptyHint="Connectez Meta Ads pour suivre votre ROAS"
+            />
+          </div>
+
+          {/* Goal progress bar */}
+          <div className="rounded-2xl bg-surface border border-border p-6">
+            <div className="flex items-baseline justify-between mb-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.14em] text-foreground-subtle font-medium">
+                  Progression — Objectif 2026
+                </p>
+                <p className="font-display text-xl font-semibold text-foreground mt-1 tabular-nums">
+                  {formatCurrency(totalRevenue)} <span className="text-foreground-subtle">/ {formatCurrency(ANNUAL_TARGET)} KD</span>
+                </p>
+              </div>
+              <span className="text-2xl font-display font-semibold text-accent tabular-nums">
+                {goalProgress.toFixed(1)}%
+              </span>
+            </div>
+            <ProgressBar value={totalRevenue} max={ANNUAL_TARGET} color="bg-accent" size="md" />
+          </div>
+        </section>
+
+        {/* Secondary KPIs */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-semibold text-foreground">Indicateurs clés</h2>
+            <span className="text-[11px] text-foreground-subtle">Mensuel</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <KPICard
+              label="Commandes"
+              value={totalOrders.toLocaleString("fr-FR")}
+              subtitle={`Cible : ${ORDERS_PER_MONTH}/mois`}
+              icon={ShoppingCart}
+              loading={loading && !data}
+              empty={!loading && !shopifyConnected}
+            />
+            <KPICard
+              label="Panier moyen"
+              value={aov > 0 ? `${formatCurrency(aov)} KD` : "—"}
+              subtitle={`Cible : ${kpiDefinitions.AOV.target} KD`}
+              icon={TrendingUp}
+              loading={loading && !data}
+              empty={!loading && !shopifyConnected}
+            />
+            <KPICard
+              label="Abonnés Instagram"
+              value={followers.toLocaleString("fr-FR")}
+              subtitle="@bluemarine_atelier"
+              icon={Users}
+              loading={loading && !data}
+              empty={!loading && !igConnected}
+              emptyHint="Connectez Instagram"
+            />
+            <KPICard
+              label="Marge brute"
+              value={`${kpiDefinitions.marginRate.target}%`}
+              subtitle="Cible visée"
+              icon={Percent}
+            />
+          </div>
+        </section>
 
         {/* Revenue Chart */}
-        <div className="rounded-xl bg-card border border-white/5 p-6">
-          <h2 className="text-sm font-semibold text-white mb-1">Monthly Revenue vs Target</h2>
-          <p className="text-xs text-slate-500 mb-6">Annual progression — $1M Goal</p>
-          <div className="h-72">
+        <section className="rounded-2xl bg-surface border border-border p-7">
+          <div className="flex items-baseline justify-between mb-1">
+            <h2 className="font-display text-lg font-semibold text-foreground">
+              Chiffre d&apos;affaires mensuel
+            </h2>
+            <span className="text-[11px] text-foreground-subtle uppercase tracking-wider">
+              Réel vs objectif
+            </span>
+          </div>
+          <p className="text-xs text-foreground-muted mb-6">
+            Progression annuelle vers l&apos;objectif de 50 000 KD
+          </p>
+          <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData} barGap={4}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="month" tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-                <Tooltip
-                  contentStyle={{ background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "#e2e8f0", fontSize: 13 }}
-                  formatter={(value) => [`$${Number(value).toLocaleString()}`, undefined]}
+              <BarChart data={monthlyData} barGap={6} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="2 4" stroke="#e8e2d6" vertical={false} />
+                <XAxis
+                  dataKey="monthFr"
+                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
-                <Legend wrapperStyle={{ fontSize: 12, color: "#94a3b8" }} />
-                <Bar dataKey="target" name="Target" fill="#c8a96e" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <YAxis
+                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "#ffffff",
+                    border: "1px solid #e8e2d6",
+                    borderRadius: "10px",
+                    color: "#1a2238",
+                    fontSize: 12,
+                    boxShadow: "0 8px 24px -12px rgba(26, 34, 56, 0.12)",
+                  }}
+                  cursor={{ fill: "rgba(200, 169, 110, 0.08)" }}
+                  formatter={(value) => [`${formatCurrency(Number(value))} KD`, undefined as unknown as string]}
+                  labelStyle={{ color: "#6b7280", fontWeight: 500 }}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: 12, color: "#6b7280", paddingTop: 12 }}
+                  iconType="circle"
+                />
+                <Bar dataKey="target" name="Objectif" fill="#e8d5a8" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="revenue" name="Réel" fill="#c8a96e" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </section>
 
-        {/* Channels + Seasonal Events */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-sm font-semibold text-white">Sales Channels</h2>
+        {/* Channels + Seasonal */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <h2 className="font-display text-lg font-semibold text-foreground mb-4">
+              Canaux de vente
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {channelData.map((channel) => {
                 let currentRevenue = 0;
@@ -170,22 +292,39 @@ export default function Home() {
                 } else if (channel.name.includes("Shopify") && data?.shopify) {
                   currentRevenue = data.shopify.totalRevenue * 0.35;
                 }
+                const channelLabel = channel.name
+                  .replace("Instagram / Social", "Instagram & social")
+                  .replace("E-commerce (Shopify)", "Boutique Shopify");
                 return (
-                  <div key={channel.name} className="rounded-xl bg-card border border-white/5 p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: channel.color }} />
-                      <span className="text-sm font-medium text-white">{channel.name}</span>
+                  <div
+                    key={channel.name}
+                    className="rounded-2xl bg-surface border border-border p-5 hover:border-accent/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <div
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: channel.color }}
+                      />
+                      <span className="text-sm font-medium text-foreground">{channelLabel}</span>
                     </div>
-                    <p className="text-2xl font-bold text-white">{channel.percentage}%</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Target: ${channel.targetRevenue.toLocaleString()}
+                    <p className="font-display text-3xl font-semibold text-foreground tabular-nums">
+                      {channel.percentage}<span className="text-lg text-foreground-subtle">%</span>
                     </p>
-                    <div className="mt-3">
+                    <p className="text-[11px] text-foreground-muted mt-1 tabular-nums">
+                      Cible : {formatCurrency(channel.targetRevenue)} KD
+                    </p>
+                    <div className="mt-4">
                       <ProgressBar value={currentRevenue} max={channel.targetRevenue} color="bg-accent" size="sm" />
                     </div>
-                    {currentRevenue > 0 && (
-                      <p className="text-[10px] text-accent mt-1">${Math.round(currentRevenue).toLocaleString()} earned</p>
-                    )}
+                    <p className="text-[11px] mt-2 tabular-nums">
+                      {currentRevenue > 0 ? (
+                        <span className="text-accent font-medium">
+                          {formatCurrency(Math.round(currentRevenue))} KD réalisés
+                        </span>
+                      ) : (
+                        <span className="text-foreground-subtle">En attente de données</span>
+                      )}
+                    </p>
                   </div>
                 );
               })}
@@ -193,33 +332,44 @@ export default function Home() {
           </div>
 
           <div>
-            <h2 className="text-sm font-semibold text-white mb-4">Seasonal Events</h2>
-            <div className="rounded-xl bg-card border border-white/5 p-4 space-y-3">
-              {seasonalEvents.map((event) => {
-                const impactColor =
-                  event.impact === "very-high"
-                    ? "bg-red-500/20 text-red-400"
-                    : event.impact === "high"
-                    ? "bg-orange-500/20 text-orange-400"
-                    : "bg-blue-500/20 text-blue-400";
+            <h2 className="font-display text-lg font-semibold text-foreground mb-4">
+              Temps forts
+            </h2>
+            <div className="rounded-2xl bg-surface border border-border p-2">
+              {seasonalEvents.map((event, idx) => {
+                const impact = IMPACT_FR[event.impact as keyof typeof IMPACT_FR];
                 return (
-                  <div key={event.name} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <CalendarDays className="w-3.5 h-3.5 text-slate-500" />
-                        <span className="text-sm font-medium text-white">{event.name}</span>
+                  <div
+                    key={event.name}
+                    className={`flex items-center justify-between px-4 py-3 ${idx !== seasonalEvents.length - 1 ? "border-b border-border" : ""}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <CalendarDays className="w-4 h-4 text-accent mt-0.5 shrink-0" strokeWidth={1.75} />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{event.name}</p>
+                        <p className="text-[11px] text-foreground-subtle mt-0.5">{event.month}</p>
                       </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5 ml-5.5">{event.month}</p>
                     </div>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${impactColor}`}>
-                      {event.impact}
+                    <span
+                      className={`text-[10px] font-medium uppercase tracking-wider px-2 py-1 rounded-full ${impact?.className ?? "bg-surface-muted text-foreground-muted"}`}
+                    >
+                      {impact?.label ?? event.impact}
                     </span>
                   </div>
                 );
               })}
             </div>
+            <a
+              href="/content"
+              className="mt-4 flex items-center justify-between px-4 py-3 rounded-2xl border border-dashed border-border hover:border-accent hover:bg-accent-soft/40 transition-colors group"
+            >
+              <span className="text-xs text-foreground-muted group-hover:text-accent">
+                Planifier une campagne
+              </span>
+              <ArrowUpRight className="w-4 h-4 text-foreground-subtle group-hover:text-accent" />
+            </a>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
