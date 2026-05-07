@@ -415,7 +415,7 @@ export default function FullProductPage() {
               <ol className="space-y-3 text-sm text-foreground-muted list-decimal list-inside">
                 <li>Vous renseignez SKU, prix et infos de base</li>
                 <li>Pour chaque couleur, vous saisissez le nom (ex: <em>Olive</em>) et uploadez sa vraie photo</li>
-                <li>L&apos;IA Gemini analyse la photo principale et écrit la fiche complète : titre, description, SEO, tags — en français ET en arabe Khaleeji</li>
+                <li>L&apos;IA Gemini analyse la photo principale et écrit la fiche complète : titre, description, SEO, tags — en anglais ET en arabe Khaleeji</li>
                 <li>Le produit est créé sur Shopify avec :
                   <ul className="list-disc list-inside ml-4 mt-1 text-xs text-foreground-subtle">
                     <li>Tailles XS-3XL automatiques</li>
@@ -434,7 +434,7 @@ export default function FullProductPage() {
               <Loader2 className="w-8 h-8 mx-auto text-accent animate-spin mb-3" />
               <p className="text-sm text-foreground">Création en cours…</p>
               <p className="text-xs text-foreground-subtle mt-1">
-                Génération fiche → push produit → ajout {validColors.length - 1} variante{validColors.length - 1 > 1 ? "s" : ""}
+                Génération fiche → push produit ({validColors.length} couleur{validColors.length > 1 ? "s" : ""})
               </p>
             </div>
           )}
