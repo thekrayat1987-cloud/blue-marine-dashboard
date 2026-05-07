@@ -844,7 +844,7 @@ export async function pushProductToShopify(
         vendor: params.vendor,
         handle: params.enHandle,
         tags: params.tags,
-        status: "DRAFT",
+        status: "ACTIVE",
         category: TRADITIONAL_CLOTHING_CATEGORY,
         seo: { title: params.enSeoTitle, description: params.enSeoDescription },
         productOptions: [
@@ -1120,6 +1120,29 @@ export async function pushProductToShopify(
 
   const numericId = product.id.split("/").pop();
   const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
+
+  // Publish to Online Store sales channel (REST — GraphQL publishablePublish needs read_publications scope).
+  try {
+    const pubRes = await fetch(
+      `https://${SHOPIFY_STORE_URL}/admin/api/${SHOPIFY_API_VERSION}/products/${numericId}.json`,
+      {
+        method: "PUT",
+        headers: {
+          "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          product: { id: Number(numericId), published: true, published_scope: "web" },
+        }),
+      },
+    );
+    if (!pubRes.ok) {
+      const text = await pubRes.text();
+      warnings.push(`Online Store publish failed: ${pubRes.status} ${text.slice(0, 200)}`);
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Publish: ${err.message}` : "Publish failed");
+  }
 
   return {
     productId: product.id,
