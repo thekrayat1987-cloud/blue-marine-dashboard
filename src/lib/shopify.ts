@@ -878,6 +878,39 @@ export async function pushProductToShopify(
   const product = productCreateData.productCreate.product;
   if (!product) throw new Error("productCreate returned no product");
 
+  // Shopify productCreate only generates ONE variant (using the first option value).
+  // Create the remaining 6 size variants explicitly so the product has all of XS-3XL.
+  try {
+    const missingSizeVariants = ["S", "M", "L", "XL", "2XL", "3XL"].map((size) => ({
+      optionValues: [{ optionName: "Size", name: size }],
+      price: params.price,
+      inventoryItem: {
+        sku: params.sku,
+        tracked: true,
+        measurement: { weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" } },
+      },
+    }));
+    const bulkCreateRes = await shopifyGraphQL<{
+      productVariantsBulkCreate: {
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation VariantsBulkCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+        productVariantsBulkCreate(productId: $productId, variants: $variants) {
+          userErrors { field message }
+        }
+      }`,
+      { productId: product.id, variants: missingSizeVariants },
+    );
+    if (bulkCreateRes.productVariantsBulkCreate.userErrors.length) {
+      warnings.push(
+        `Size variants create: ${bulkCreateRes.productVariantsBulkCreate.userErrors.map((e) => e.message).join(", ")}`,
+      );
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Size variants: ${err.message}` : "Size variants create failed");
+  }
+
   // Set price, SKU, weight, tracking + seed inventory on every Size variant
   const initialQty = params.inventoryQuantity ?? DEFAULT_INVENTORY_QUANTITY;
   try {
