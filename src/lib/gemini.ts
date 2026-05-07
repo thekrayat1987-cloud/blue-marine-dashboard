@@ -335,7 +335,7 @@ export async function generateProductDescription(params: {
 This product is offered in ${colorList.length} colors. The PRIMARY color (shown in the photo) is "${colorList[0]}". The other available color${colorList.length > 2 ? "s are" : " is"}: ${colorList.slice(1).map((c) => `"${c}"`).join(", ")}.
 - The English description MUST add ONE short sentence at the end of paragraph 1 OR start of paragraph 3 that names every color, e.g. "Also available in ${colorList.slice(1).join(" and ")}." Use plain language, no marketing fluff.
 - The Arabic description MUST do the same in Arabic, e.g. "متوفر أيضًا باللون ${colorList.slice(1).join(" و")}". Translate each color name to Arabic if it is not already (أخضر = green, أزرق = blue, أحمر = red, أسود = black, أبيض = white, ذهبي = gold, فضي = silver, بنفسجي = purple, وردي = pink, بيج = beige, زيتي = olive, نيلي = navy, عنابي = burgundy).
-- The tags array MUST include EACH color name as a separate lowercase English tag (e.g. ${colorList.map((c) => `"${c.toLowerCase()}"`).join(", ")}).
+- The tags array MUST include EACH color as a BILINGUAL PAIR (one EN tag + one AR tag) — e.g. for ${colorList.map((c) => `"${c.toLowerCase()}"`).join(", ")} emit both the English lowercase tag AND its Arabic translation tag (أخضر, أزرق, أحمر, etc.).
 - Do NOT describe the photo's color as the only color of the product — make it clear other colors exist.
 `
     : "";
@@ -430,7 +430,7 @@ SEO RULES:
 - Page title (AR) mirrors the EN structure with "أتيليه بلو مارين" at the end.
 - Page title NEVER contains the SKU prefix.
 - Meta description MUST include: garment type, color/material, occasion (general), AND the word "Kuwait" or "Atelier Blue Marine" once.
-- Tags must include the Arabic spelling AND English of the garment type — duplicate keys help search (e.g. "bisht" AND "بشت", "daraa" AND "درّاعة").
+- Tags must be FULLY BILINGUAL (English + Arabic) for garment type, color, fabric and occasion. Duplicate keys help GCC shoppers find products in either language (e.g. "bisht" AND "بشت"; "green" AND "أخضر"; "velvet" AND "مخمل"; "wedding" AND "زفاف").
 - Description (body_html) MUST mention: garment type by name (bisht/daraa/caftan/abaya), fabric, occasion, and where appropriate "Kuwait" or "Gulf heritage" (once, naturally).
 - Use the SKU's poetic name as the brand-distinctive token (Yaqut, Layali, Zumurud, etc.) — this is the canonical product name on Google. Include it in the page title as the distinctive trait when natural.
 
@@ -440,15 +440,21 @@ PARAGRAPH 1 — what it is. Garment type + main visual fact (color, fabric).
 PARAGRAPH 2 — one specific detail that matters (embroidery placement, cut, layering, sleeve, set composition).
 PARAGRAPH 3 — when to wear it (1 short sentence) + a separate sentence about fabric/feel.
 
-# TAGS — 10-12 lowercase Shopify tags optimized for Google + Shopify search
-Required mix:
-- garment type: pick from {bisht, daraa, caftan, abaya, kaftan, set, bisht-set, daraa-set}
-- color (1-2 dominant): {green, emerald, burgundy, navy, ivory, gold, black, …}
-- fabric: {velvet, silk, chiffon, embroidered, brocade, …}
-- occasion (NO ramadan unless capsule): {evening, wedding, henna, eid, gathering, formal, special-occasion}
-- style: {heritage, gulf, khaleeji, kuwait, luxury, traditional}
+# TAGS — 16-22 BILINGUAL Shopify tags optimized for GCC search (English + Arabic)
+Atelier Blue Marine ships across Kuwait, Saudi, UAE, Qatar, Bahrain, Oman — Arabic shoppers must find products by typing Arabic. Every garment-type, color, fabric and occasion tag MUST be emitted as a bilingual PAIR (one EN tag + one AR tag).
+
+Required mix (PAIRS unless noted):
+- garment type — EN + AR pair: {bisht/بشت, daraa/درّاعة, caftan/قفطان, abaya/عباية, set/طقم, bisht-set/طقم-بشت, daraa-set/طقم-درّاعة}
+- color (1-2 dominant) — EN + AR pair per color: {green/أخضر, emerald/زمرّدي, burgundy/عنابي, navy/كحلي, ivory/عاجي, gold/ذهبي, silver/فضي, black/أسود, white/أبيض, blue/أزرق, red/أحمر, purple/بنفسجي, pink/وردي, beige/بيج, olive/زيتي, brown/بني}
+- fabric — EN + AR pair: {velvet/مخمل, silk/حرير, chiffon/شيفون, embroidered/مطرّز, brocade/بروكار, satin/ساتان, lace/دانتيل, cotton/قطن}
+- occasion (NO ramadan unless capsule) — EN + AR pair: {evening/سهرة, wedding/زفاف, henna/حناء, eid/عيد, gathering/تجمع, formal/رسمي, special-occasion/مناسبة-خاصة}
+- style — EN only (these are already brand-recognized in EN by GCC shoppers): {heritage, gulf, khaleeji, kuwait, luxury, traditional}
 - ALWAYS include 1 transliteration/locale tag like "kuwait" or "khaleeji".
-- Single-word or short hyphenated. No "#", no commas inside tags.
+
+Format rules:
+- Lowercase. Single-word or short hyphenated. No "#", no commas inside tags.
+- Arabic tags use Arabic script (no transliteration). Hyphenate AR multi-word tags exactly like the EN counterpart (e.g. "special-occasion" → "مناسبة-خاصة").
+- Output as a flat array. Order: garment(EN+AR), color(EN+AR), fabric(EN+AR), occasion(EN+AR), style(EN).
 
 # URL HANDLE
 - Lowercase, hyphen-separated, ASCII only.
