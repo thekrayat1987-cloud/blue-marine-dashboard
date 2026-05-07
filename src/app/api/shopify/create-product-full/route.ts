@@ -145,6 +145,10 @@ export async function POST(request: NextRequest) {
       pieces: piecesNormalized,
       hasShawl: hasShawlBool,
       usedNames,
+      colorList:
+        validColors.length > 1
+          ? validColors.map((c) => c.name.trim())
+          : undefined,
     });
 
     const mainImageBuffer = Buffer.from(mainColor.generatedBase64, "base64");
@@ -199,6 +203,10 @@ export async function POST(request: NextRequest) {
           imageBuffer: Buffer.from(color.generatedBase64, "base64"),
           imageMimeType: color.generatedMimeType,
           imageFilename: `${cleanSku.toLowerCase()}-${slug(colorName)}.${extFor(color.generatedMimeType)}`,
+          inventoryQuantity:
+            typeof inventoryQuantity === "number" && inventoryQuantity >= 0
+              ? Math.floor(inventoryQuantity)
+              : undefined,
         });
         variantResults.push({ color: colorName, variantId: result.variantId });
       } catch (err) {

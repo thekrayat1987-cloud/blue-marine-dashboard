@@ -304,12 +304,16 @@ export async function generateProductDescription(params: {
   pieces?: 1 | 2 | 3 | 4;
   hasShawl?: boolean;
   usedNames?: string[];
+  colorList?: string[];
 }): Promise<ProductDescription> {
   const ai = getClient();
   const sku = params.sku?.trim() || "AXXX";
   const pieces = params.pieces ?? 1;
   const hasShawl = params.hasShawl ?? false;
   const usedNames = params.usedNames ?? [];
+  const colorList = (params.colorList ?? [])
+    .map((c) => c?.trim())
+    .filter((c): c is string => Boolean(c));
 
   const piecesArabic: Record<1 | 2 | 3 | 4 | 5, string> = { 1: "١", 2: "٢", 3: "٣", 4: "٤", 5: "٥" };
   const totalPieces = Math.min(5, pieces + (hasShawl ? 1 : 0)) as 1 | 2 | 3 | 4 | 5;
@@ -326,11 +330,21 @@ export async function generateProductDescription(params: {
     ? `\n\n# COMPOSITION (must be reflected in title, description and tags)\nThis product is: ${compositionFacts.join(", ")}.\n- The shawl counts as a piece in the total. Title MUST say "${pieceCountEn}". Description MUST say "${totalPieces === 2 ? "two" : totalPieces === 3 ? "three" : totalPieces === 4 ? "four" : "five"}-piece set" (NOT a lower number).\n- If a shawl is included, mention it as a matching shawl / châle assorti / شال مطابق as one of the pieces.\n- Add relevant tags such as "${totalPieces}-piece", "set"${hasShawl ? ', "shawl"' : ""}.\n`
     : "";
 
+  const colorsBlock = colorList.length > 1
+    ? `\n\n# AVAILABLE COLORS — MUST be reflected in description AND tags
+This product is offered in ${colorList.length} colors. The PRIMARY color (shown in the photo) is "${colorList[0]}". The other available color${colorList.length > 2 ? "s are" : " is"}: ${colorList.slice(1).map((c) => `"${c}"`).join(", ")}.
+- The English description MUST add ONE short sentence at the end of paragraph 1 OR start of paragraph 3 that names every color, e.g. "Also available in ${colorList.slice(1).join(" and ")}." Use plain language, no marketing fluff.
+- The Arabic description MUST do the same in Arabic, e.g. "متوفر أيضًا باللون ${colorList.slice(1).join(" و")}". Translate each color name to Arabic if it is not already (أخضر = green, أزرق = blue, أحمر = red, أسود = black, أبيض = white, ذهبي = gold, فضي = silver, بنفسجي = purple, وردي = pink, بيج = beige, زيتي = olive, نيلي = navy, عنابي = burgundy).
+- The tags array MUST include EACH color name as a separate lowercase English tag (e.g. ${colorList.map((c) => `"${c.toLowerCase()}"`).join(", ")}).
+- Do NOT describe the photo's color as the only color of the product — make it clear other colors exist.
+`
+    : "";
+
   const forbiddenBlock = usedNames.length
     ? `\n\n⚠️ FORBIDDEN NAMES — already used on other products in the catalogue, you MUST pick a different one:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n`
     : "";
 
-  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, abaya, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${forbiddenBlock}
+  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, abaya, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${colorsBlock}${forbiddenBlock}
 
 # SKU RULE — ABSOLUTE, READ FIRST
 The product SKU is exactly: ${sku}

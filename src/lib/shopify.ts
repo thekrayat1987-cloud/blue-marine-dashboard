@@ -1524,6 +1524,7 @@ export interface AddVariantParams {
   imageBuffer: Buffer;
   imageMimeType: string;
   imageFilename: string;
+  inventoryQuantity?: number;
 }
 
 export interface AddVariantResult {
@@ -1768,6 +1769,46 @@ export async function addVariantToProduct(
     }
   } catch (err) {
     warnings.push(err instanceof Error ? `Media: ${err.message}` : "Media attach failed");
+  }
+
+  // Seed inventory at the default location for every new variant
+  const initialQty = params.inventoryQuantity ?? DEFAULT_INVENTORY_QUANTITY;
+  try {
+    const newInventoryItemIds = createdVariants
+      .map((v) => v.inventoryItem?.id)
+      .filter((id): id is string => Boolean(id));
+    if (newInventoryItemIds.length) {
+      const setQuantitiesRes = await shopifyGraphQL<{
+        inventorySetQuantities: {
+          userErrors: Array<{ field: string[]; message: string }>;
+        };
+      }>(
+        `mutation InventorySet($input: InventorySetQuantitiesInput!) {
+          inventorySetQuantities(input: $input) {
+            userErrors { field message }
+          }
+        }`,
+        {
+          input: {
+            name: "available",
+            reason: "correction",
+            ignoreCompareQuantity: true,
+            quantities: newInventoryItemIds.map((id) => ({
+              inventoryItemId: id,
+              locationId: DEFAULT_LOCATION_ID,
+              quantity: initialQty,
+            })),
+          },
+        },
+      );
+      if (setQuantitiesRes.inventorySetQuantities.userErrors.length) {
+        warnings.push(
+          `Inventory seed: ${setQuantitiesRes.inventorySetQuantities.userErrors.map((e) => e.message).join(", ")}`,
+        );
+      }
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Inventory: ${err.message}` : "Inventory seed failed");
   }
 
   // Apply customs (country of origin + HS code) + tracking on every new inventory item
