@@ -131,52 +131,6 @@ export const metaCampaigns = [
   },
 ];
 
-// Shopify Audit Checklist
-export const shopifyAuditChecklist = [
-  {
-    category: "Performance",
-    items: [
-      { task: "Page load speed < 3 seconds", done: false, priority: "high" as const },
-      { task: "Optimized images (WebP, lazy loading)", done: false, priority: "high" as const },
-      { task: "Mobile responsive design", done: false, priority: "high" as const },
-      { task: "Core Web Vitals optimized", done: false, priority: "medium" as const },
-    ],
-  },
-  {
-    category: "SEO",
-    items: [
-      { task: "Meta titles & descriptions for each product", done: false, priority: "high" as const },
-      { task: "Optimized URLs (clean slugs)", done: false, priority: "medium" as const },
-      { task: "Schema markup (Product, BreadcrumbList)", done: false, priority: "medium" as const },
-      { task: "Blog with SEO content (KW keywords)", done: false, priority: "medium" as const },
-      { task: "XML Sitemap & robots.txt", done: false, priority: "high" as const },
-    ],
-  },
-  {
-    category: "Conversion",
-    items: [
-      { task: "High quality product photos (min 5 per product)", done: false, priority: "high" as const },
-      { task: "Detailed descriptions in Arabic + English", done: false, priority: "high" as const },
-      { task: "Clear size guide", done: false, priority: "high" as const },
-      { task: "Customer reviews / Social proof", done: false, priority: "high" as const },
-      { task: "Simplified checkout (< 3 steps)", done: false, priority: "high" as const },
-      { task: "Payment: KNET + Apple Pay + Tabby (BNPL)", done: false, priority: "high" as const },
-      { task: "Live chat / WhatsApp integrated", done: false, priority: "medium" as const },
-      { task: "Email capture popup (10% off)", done: false, priority: "medium" as const },
-    ],
-  },
-  {
-    category: "Trust & Branding",
-    items: [
-      { task: "Professional logo & consistent branding", done: false, priority: "high" as const },
-      { task: "About page with brand story", done: false, priority: "medium" as const },
-      { task: "Clear return policy", done: false, priority: "high" as const },
-      { task: "Free shipping > 30 KWD", done: false, priority: "medium" as const },
-      { task: "Active SSL certificate", done: false, priority: "high" as const },
-    ],
-  },
-];
-
 // Instagram Reels Ideas
 export const reelsIdeas = [
   {

@@ -1,0 +1,1202 @@
+[
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.sentence.two_words_connector",
+    "en": "and",
+    "digest": "e3ee915a8e8c7aa02d2fced443314522b20824abd2535d5959c41dc8ab8a09e4"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.sentence.last_word_connector",
+    "en": ", and",
+    "digest": "0a63e3f63f232f0c18f3bfe678607aad0b9f7ac6c73e037f74c79c0b2ba103f8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.pagination.previous",
+    "en": "Previous",
+    "digest": "a57b08a480b822a0a572b993391c292ede593bf8000b406675b180bbb16260fa"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.pagination.next",
+    "en": "Next",
+    "digest": "1ff57a29d7c9d11bdf61c1b80f2b289b44c1ea844824d4b94a0d52b6ba5fc858"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.links.powered_by_shopify",
+    "en": "Powered by Shopify",
+    "digest": "ffb1a16ea4755b3554a603573cbe2560ed8befc533b2e9d2b18b23f2917e4f7c"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.links.learn_more",
+    "en": "Learn more",
+    "digest": "1445799c033a2d17e2bad5d8610879e71ff0d73a8a3c2b932b43ad0449dac3a1"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.feed.more",
+    "en": "More",
+    "digest": "d47d7cb0e4f8fd2be5ee07826694c18917d83ca77d0a01698582d05f432db996"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.email",
+    "en": "email",
+    "digest": "82244417f956ac7c599f191593f7e441a4fafa20a4158fd52e154f1dc4c8ed92"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.password",
+    "en": "password",
+    "digest": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.password_confirmation",
+    "en": "The password confirmation",
+    "digest": "40e8edf09c93cab1bb811c5f2f1532f43cb18f83645ae862ae2f33e069ceed5f"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.first_name",
+    "en": "first name",
+    "digest": "1b836d86806e16bd45164b9d665ce86dac9d9d55bf79d0e771265da9fbf950d1"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.last_name",
+    "en": "last name",
+    "digest": "5b87de02aa741b042511fd277db127a8ac3b04f184420820e6952a0e911441ec"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.body",
+    "en": "body",
+    "digest": "230d8358dc8e8890b4c58deeb62912ee2f20357ae92a5cc861b98e68fe31acb5"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.attributes.signature",
+    "en": "Address",
+    "digest": "56ef8f20955f256423d328f65b62106005252551db25d660031887e421cb4684"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.zip_code",
+    "en": "ZIP code",
+    "digest": "95c87fe32d58da52210e826d08723ce80d4428244a622d37cb1aeb394ea0febd"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.postal_code",
+    "en": "Postal code",
+    "digest": "ae53cea8228bcfc350fef961189a32a592e06ccffa52a8b991f88841cbac8de4"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.postcode",
+    "en": "Postcode",
+    "digest": "0a4387d25c62e78b711eec63eb89f71ce0b8e122fbffcc4927e95ef5530ac65c"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.pincode",
+    "en": "Pincode",
+    "digest": "1281a628826a35690635f07659b3ed625a2c3c68e615f24085e2bf7f631caed3"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.region",
+    "en": "Region",
+    "digest": "d3a008ef1335692d9d045175ba9ea1dcd39ae48da9e2043a9baabad6c3818c28"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.prefecture",
+    "en": "Prefecture",
+    "digest": "505719aef9b4b8d428ec05f41a86e96fa1312b249faed17aea414026d64f6d1b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.province",
+    "en": "Province",
+    "digest": "abfcecfabeb7545eaf3bc06d4c35204a4ebfd978963d132838d0198638a45b30"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.state",
+    "en": "State",
+    "digest": "a3b50c476732c7409d297c3d7d0e23569fee5e08318553ae76041ab5fe60582e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.state_and_territory",
+    "en": "State/territory",
+    "digest": "aed428e623433b85668d5b76879a691932b72d7bc992dfcf0ea821a902d6ea58"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.county",
+    "en": "County",
+    "digest": "136c87dec4695cefef030fd6dc7c32faeb6280a795fda70b017197b60e3b7873"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.emirate",
+    "en": "Emirate",
+    "digest": "4309cddf046bf04c761906a806c7b7fb56bba72ca03a11effa23ac3ad879a0ba"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.governorate",
+    "en": "Governorate",
+    "digest": "5741232b5affa4f7a57073e0cbe3f4f95601436373c3a7d6705975b5c1b94534"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.addresses.confirm",
+    "en": "Are you sure you wish to delete this address?",
+    "digest": "96df9cd3da6e734374ead3e4cc9d398d749999ba566cdcbcce55ddc205fcd8f8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.manual",
+    "en": "Featured",
+    "digest": "c533cafab69e4033784a7d3857a806e551a95fee2ce47207bdd9a5528a24fb25"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.best_selling",
+    "en": "Best selling",
+    "digest": "ce026edd920bc701d50a505f0498992c97522d9ddab3765ff0630b12ffa27f10"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.az",
+    "en": "Alphabetically, A-Z",
+    "digest": "7e5de364db9ca993b57f78b67309094c3ef53c1d58a93685f8f7897444d665e9"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.za",
+    "en": "Alphabetically, Z-A",
+    "digest": "181634291ab314eee9f085ed87bb921ef2d878a3e8d344f317e260fd086c301b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.price_ascending",
+    "en": "Price, low to high",
+    "digest": "e24f26b0228d40789e44a540d447e6335a769df092cdda8bff193392ae4ac6b7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.price_descending",
+    "en": "Price, high to low",
+    "digest": "bb0e68df6df96366e3ed60f927719df4fbef1e83739424ce140291c27d50f263"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.date_ascending",
+    "en": "Date, old to new",
+    "digest": "56b61eae01d7780118d214ec6ccc60d62c22fe4aa73bf12fef8cdd8321726dd9"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.date_descending",
+    "en": "Date, new to old",
+    "digest": "2cccf35a257cfdc248709fdef1d6484f9c29295daddcf65a7e9fe847e3650d79"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.collections.sorting.most_relevant",
+    "en": "Most relevant",
+    "digest": "6e9317d86b2194bd30dbe76091316fa75070c12bc53784618a5ec68a8d9ffa3b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.blank",
+    "en": "can't be blank",
+    "digest": "5d323a6c5156756086ab2779e067b00e8bf253bd7d04725f618437ea7ad64fc2"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.blocked_address",
+    "en": "This location isn't supported",
+    "digest": "9906255741ad36cc567f196ee5aae04062a586bccc6f91d6b7656bbfcea89037"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.credit_card_session_expired",
+    "en": "Credit card authorization has expired, please enter your payment information again. Your card has not been charged.",
+    "digest": "8661181825b1e66e140c5805dd366bdc060ae6d7106cc846759291257774f03e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.empty",
+    "en": "can't be empty",
+    "digest": "0edc9afc7fd46fc2583d325b287d0ea5939716d868ff7a81c6b28b69008a0b93"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_email",
+    "en": "must be a valid email address",
+    "digest": "df72a204be851304721ea9ccdf5291e206e3020bfe29fa6cc90e47a79d5de9e8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.discount_disabled",
+    "en": "This discount has been disabled",
+    "digest": "564b1a29975f6409e0fe3b6f0622473a62e51a789b0dfa649ae90fadf2960763"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.discount_expired",
+    "en": "This discount is not valid anymore",
+    "digest": "c2050886c9b7a87ee4258eb27646f5e9eba1ee9368d8be2b0d3a04dca4c80bc4"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.discount_limit_reached",
+    "en": "This discount has reached its usage limit",
+    "digest": "b3572e2a7daec716c23fcb698a2a52797d83b3347f1b5198245e45af8f56d35d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.discount_not_found",
+    "en": "Unable to find a valid discount matching the code entered",
+    "digest": "83c6e30adedf25f93e18149c4157c74322d4144d51b4c81c61d1de7489739a0c"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.customer_already_used_once_per_customer_discount_notice",
+    "en": "This discount has reached its usage limit",
+    "digest": "b3572e2a7daec716c23fcb698a2a52797d83b3347f1b5198245e45af8f56d35d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.gift_card_already_applied",
+    "en": "Code has already been applied to your checkout",
+    "digest": "64be646b6427cecdc1c80df9cf0fc739bef45f6a6432c31a96051796c78c667b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.gift_card_code_invalid",
+    "en": "Code is invalid",
+    "digest": "4f868e1584404fd9a66d75d89cb15e6c43b3c7b468b58b869eda581ba0d34e6e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.gift_card_currency_mismatch",
+    "en": "This gift card can't be used for this purchase. Contact %{shop_name} to have it reissued.",
+    "digest": "907c01be511f5bf25f120299158c687ada990d38df2e8ef70e4fac68e5fde259"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.gift_card_depleted",
+    "en": "There are no funds left on this gift card",
+    "digest": "c89a28b96c65edc3da97c53e86303937f7eea24e050ef453698bee060050c9a3"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.gift_card_disabled",
+    "en": "Gift card is disabled",
+    "digest": "2b6d1ab9edb1ab2d97b888b579fe4bbab39759edb05359062a026fd3d1701c41"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.gift_card_expired",
+    "en": "Gift card is expired",
+    "digest": "db5da3a6a0304a5ce42cd4a9c313a38de7d5176184a17ff6747020697dc987e5"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid",
+    "en": "is invalid",
+    "digest": "10e38003f57a5c2cef2bef9a7a3fe257bb626e5b23d4319870fbcc6885067423"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.bad_domain",
+    "en": "contains an invalid domain name",
+    "digest": "78fb21ccc3b825a3c70ed724f28becf933c01e932c894601dc2881e319ad8c21"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.taken",
+    "en": "has already been taken",
+    "digest": "661de7b7029452732441d53f1c9c15e67f3917b5320fbaf9fb0b9e5e32aa1f5b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.contains_html_tags",
+    "en": "cannot contain HTML tags",
+    "digest": "5fcbff0ce38260f1e5a34dc545e010234fc1b77a24a6794f19087c147351156a"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.too_short",
+    "en": "is too short (minimum is %{count} characters)",
+    "digest": "09df96f6f9e8e56455f96cc7b892e7d9af647c59d4d37f8c22cc728e454240e8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.too_long",
+    "en": "is too long (maximum is %{count} characters)",
+    "digest": "a74e0b20782f1985d0316d897d61c2b96d6068370777a4aa1ada302fdf0c87a3"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.password_mismatch",
+    "en": "must match the provided password",
+    "digest": "50247b713e96ed64c8db2f51a8f10c3a2427d6841ffdcd0cd0642f24f6f49366"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.contains_spaces",
+    "en": "starts or ends with spaces.",
+    "digest": "0e7d169c00a28a7ad4f1bafaaa86974b02343841a38d28615761d1e1e906d84f"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_for_country",
+    "en": "is not valid for %{country}",
+    "digest": "f7e8239c009437cc731445489acd705675c1228336296982eab444482f712cd2"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_for_country_and_province",
+    "en": "is not valid for %{province} and %{country}",
+    "digest": "e7c7d475faf99e753f4fdac3fa767603afda41c6387f5f47c64af6052acd7265"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_province_in_country",
+    "en": "is not a valid province in %{country}",
+    "digest": "813fe977ee59a457540a12522638f0196b5166e3b1a0f548c8d1a9b13aa9baa2"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_state_in_country",
+    "en": "is not a valid state in %{country}",
+    "digest": "536a3c72547c81146f70c5b11c51914ffdc7a3274e58a1c790f033b400a62ed0"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_region_in_country",
+    "en": "is not a valid region in %{country}",
+    "digest": "87989ade1824ec3781d1cf7d7f868a8e6dad965f6a9609852feeae132835db9d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.less_than_or_equal_to",
+    "en": "must be less than or equal to %{count}",
+    "digest": "bdcae902dfabb2cf71f5bb55a981be8e14a0b40fa9ea7e9c12c024b9977477a7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.not_supported",
+    "en": "is not supported",
+    "digest": "fc20cf6948da4c856b42e4ad0a970bf8b87bd98d9a0c18683a4e7de41a632185"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.full_name_required",
+    "en": "Enter a first name and last name",
+    "digest": "9c4ea3f8b4464a66fac2c2c57f4af954f5f81e7197a664a74092a6a466dec9bc"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_for_card_type",
+    "en": "is not valid",
+    "digest": "3626efe6c05b5313160ff3b183bf89abe75e080a87d7fa5d701d862f7a7f1ec5"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_type",
+    "en": "sorry, we do not accept cards of this type",
+    "digest": "ad2d1bc0bc1bb12a971437695c0756903a7a9eba8440f38ee4d00a3f9401ee92"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_format",
+    "en": "format is not valid",
+    "digest": "c5c78e42d0b6ee2e598bee1a1134b323937acb3972999e4472f2bcb84fc4284f"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.expired",
+    "en": "has expired",
+    "digest": "3a03a742abee17672a2a0a9771a2d6bb70511488f0f5075675959e15f94c93f6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_start_date_or_issue_number_for_debit",
+    "en": "a valid start date or issue number is required",
+    "digest": "cace5c8cf4c098f6611126e2ff65379cdfedb1d2b7329480d6640747d9a2c1f2"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.invalid_expiry_year",
+    "en": "is not a valid expiration year",
+    "digest": "981de9d7f3bf6f068f3e5cdf2f1a6c8d000c2f0feb65cbaa9c119da582b4d4df"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.reset_password_html",
+    "en": "This email address is already associated with an account. If this account is yours, you can <a href=\"/account/login#recover\">reset your password</a>",
+    "digest": "6d50d07270e936381614256dd20290e93fc28bbd42ae82a888f6866d3d810029"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.verify_email",
+    "en": "We have sent an email to %{customer_email}, please click the link included to verify your email address.",
+    "digest": "f4b5945af76a272738e968c2c396c5c32097cc1c9fe8e3033c10564d1a2ee475"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.product_not_available",
+    "en": "product is not published for this customer.",
+    "digest": "4952b554ad46414b5d63820018f91736252bebc25bc7a0dac39d37b6fffc9917"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.title",
+    "en": "Create an Ecommerce Website and Sell Online! Ecommerce Software by Shopify",
+    "digest": "c6be3435dd6ca00b1dc67361f1c6aa3f8d7c404f515d72927613385ed57a7526"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.heros.store_unavailable",
+    "en": "Sorry, this store is currently unavailable.",
+    "digest": "b58029e8b560bfced0491fa799c31d704ca99622f46352fa6c0f1c13a4fc88eb"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.heros.store_not_exist",
+    "en": "This store does not exist.",
+    "digest": "34d2d340eb0f53884bfe670ceafd2de99251f65c4203c38c5708fce092e5dc57"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.heros.no_storefront",
+    "en": "This store doesn't have a website yet.",
+    "digest": "0f109e5cba11b3b338333c2b01db9a83592791a56069c078c144f319245d9ae8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.links.explore_other_stores",
+    "en": "Explore other stores",
+    "digest": "a177d3c0a82fdc00537fc9104dda140d923add0e2e4b4c8504bb14871a22493c"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.links.start_free_trial",
+    "en": "Start a free trial",
+    "digest": "2af62e917c71b286ad338ad388e18100d27fa40c609d23db9dcae0df404a5bc9"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.owner_ctas.header",
+    "en": "Are you the store owner?",
+    "digest": "4f3c9ab9f5062b353c615a5e203cde7a217b03ef0bc9092954a20e8b5c763b64"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.owner_ctas.fix_domain",
+    "en": "Finish setting up your new web address, go to %{domain_settings_link}. Click “Connect domain” and enter: %{domain}.<br>If you're having trouble getting into your store, try the %{forgot_your_store_lin",
+    "digest": "7c34f2c5daa7f302b41d413a13c332439583260f9e04d6bbf71f381602dc20ad"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.owner_ctas.fix_domain_link_text",
+    "en": "your domain settings",
+    "digest": "ed8a059a3e57974ab70fef6d3ec8158064048e352c913073aa1bcfb2bb55e63a"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.owner_ctas.forgot_your_store_link_text",
+    "en": "forgot your store",
+    "digest": "c2ddca21ed22883ed2fb684531925a2729d0d77e8fbc2648e30860c82c5eab97"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.owner_ctas.add_storefront",
+    "en": "You can set up your website by adding the Online Store channel in your %{admin_link}. If you're having trouble getting into your store, try the %{forgot_your_store_link} page.",
+    "digest": "4dc757eb36b14573bbaf52c8757fe459564985d78250530e1b78c6feadcb1bdd"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.owner_ctas.admin_link_text",
+    "en": "admin",
+    "digest": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.sell_in_person.header",
+    "en": "Sell in person",
+    "digest": "987de50aae747daffc87e2c57831611055af4501a561f430edc593594a188a68"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.sell_in_person.caption",
+    "en": "Get the features you need to run your retail store whether you're starting out or scaling up.",
+    "digest": "1310309dbfb393d5f8ab6889ac17138c8583d931624d8434a05ed65c3c02f71e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.sell_in_person.link_text",
+    "en": "Start free trial",
+    "digest": "b1effd1ffed357a2f09239fcaefb22e64db46670b341b9699e7c7a938607d7d3"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.open_a_store.header",
+    "en": "Open a new Shopify store",
+    "digest": "9f8b771089542dc292a91746f760125089d9a68194981c3a5c9b49c743850a0d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.open_a_store.caption",
+    "en": "Start a 3-day free trial, then continue for $1/month for the next 3 months.",
+    "digest": "abe76c24c51a4ff791c0e679f44456b907bd6ce22574a03af95075e8b0b45aff"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.open_a_store.link_text",
+    "en": "Sign up now",
+    "digest": "ecd6ac97f5fe7f945d6c76ad24aa81bad37104db6d9dd0f071bd6bf9d20b7ff4"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.editions.header",
+    "en": "Check out Shopify Editions",
+    "digest": "29aac4b081986b8258278cc996ef8d3258fd81e00c20ecc9e350ab84f9b8ca89"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.editions.caption",
+    "en": "With 100+ product updates, you can be more productive and creative, and powerful in commerce than you ever imagined.",
+    "digest": "b1ee3d52aac0e8dec2165697638c19d2e5dc3ed3fa8da6a08e61c48777792df1"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.editions.link_text",
+    "en": "Explore latest Editions",
+    "digest": "86cfe27871ef06d4974f678a6c3d7c6a89f7af869898ded0ee06b59696ff8984"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.store_owner.header",
+    "en": "Are you the store owner?",
+    "digest": "4f3c9ab9f5062b353c615a5e203cde7a217b03ef0bc9092954a20e8b5c763b64"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.store_owner.caption",
+    "en": "Are you having trouble getting into your store? Try the %{forgot_your_store_link} feature. If you would like to reactivate your store contact %{shopify_support_link}.",
+    "digest": "8f4a2ba43787f87373bdb254e6362952c48b4b5882f46c9425e1dc647ee2f629"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.errors.shop_404.ctas.store_owner.shopify_support_link_text",
+    "en": "Shopify support",
+    "digest": "8688d5393d0ad5942a8f34d37aaaa615bb96780277d8e6f93c5ca2156fc2f1ac"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.password_reset_error",
+    "en": "Password reset error",
+    "digest": "be648f6c66e85390d6b7dec01db257c82c735cf9a088d7d2e0027db3e2d6a534"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.subscribe_error",
+    "en": "Subscribe error",
+    "digest": "7f597f696d8b8d3784a33384ee997181ca74c2aca45c2bf623c3fbb3c130ea0e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.unsubscribe_error",
+    "en": "Unsubscribe error",
+    "digest": "3fe9a9d95b051ce8579231f0d8b69a5bb88e709071ed9244706720028fc0cecb"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.no_account_found",
+    "en": "No account found with that email.",
+    "digest": "81589715dff1ccd05eee72ab24592fad69b9d1255582c6b6adebfd5cc42353e8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.invalid_credentials",
+    "en": "Incorrect email or password.",
+    "digest": "6f8e6becc59df5bec4d0bec7b295f91373312ece29f480a605dc3b19739a1014"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.denylisted_reset_password",
+    "en": "Your account couldn't be accessed because the current password is not secure. You will receive an email to update your password.",
+    "digest": "53095c3b23cccd794404c67b497f8aeb06eee2f2ecff2773664d57243e6be3b7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.customer.signup_disabled",
+    "en": "Customer account creation has been disabled.",
+    "digest": "ce7610323988e99966d77b93c09ba30a3bf9cc1681aec22f622509daa89b7224"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.address.updated",
+    "en": "Successfully updated address.",
+    "digest": "441a8c2a8b2740eb2148c56321d71426b375b7e159596914da4b3a547e587b25"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.address.error_updating",
+    "en": "Error updating address",
+    "digest": "3401065962bdaf23aebe6460a276971ca091086234b6cf461a0929e8927524ac"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.address.created",
+    "en": "Successfully created address",
+    "digest": "2bc52c9a3ff9a1e9de8228ffce94d2a6cec07a9dcf53df486195ca9c4426a968"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.address.error_creating",
+    "en": "Error creating address.",
+    "digest": "3f89e3455d61d923c8e5e68d539310427b6993a5866d5b17e71df28d7fc82fd7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.address.deleted",
+    "en": "Successfully deleted address",
+    "digest": "3ea94e2f7f26c7eb85e58d74528508b6d77189a9dea26b2aa8648a7ced8de91e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.address.error_deleting",
+    "en": "Error deleting address.",
+    "digest": "589f18dea4408e0fc98269da8b7a1b373fa1c63609fdb8ed9b15fcdc2e8be2db"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.line_item.item_status.add_variant",
+    "en": "Added %{delta}",
+    "digest": "c93d61a8971c590f058efb819330605cf0ae291040a8003c16ad2bc164ff3eaa"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.line_item.item_status.increment_item",
+    "en": "Added %{delta}",
+    "digest": "c93d61a8971c590f058efb819330605cf0ae291040a8003c16ad2bc164ff3eaa"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.line_item.item_status.decrement_item",
+    "en": "Removed %{delta} of %{total}",
+    "digest": "be0c24514421cbe3ceabe55f2e3d30bcf1e90eea471ea27c4dd9e813a9ce351b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.line_item.item_status.decrement_fulfilled_line_item",
+    "en": "Returned %{delta} of %{total}",
+    "digest": "56806797d79cb1aea4c1d91362c35b0078cda4d52fa347881a673049ac06f9ec"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.line_item.item_status.decrement_return_line_item",
+    "en": "Removed %{delta} from return",
+    "digest": "954fa15ca77be9ae0ddf04b5f225f7dacdd8f86c348e54a1bcad32b920589500"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.not_available",
+    "en": "This order is not available",
+    "digest": "5712e466edfb9e46dffa6c08266bc550c71c7247fcb3484a2696b46de79f32d0"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.authorized",
+    "en": "Authorized",
+    "digest": "67f542ba6d8fd057de40b59420a25dbdfb4a6f780407442ada59d9595595e11f"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.pending",
+    "en": "Pending",
+    "digest": "331551b0de4157c9abc7b72b61b96a2a928fd6db3cdf029c1fc44b08ad633aa6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.paid",
+    "en": "Paid",
+    "digest": "fb81b961af456e5e748db7e1b1bff9a5e621b62718234c1937738d1adc317a17"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.unpaid",
+    "en": "Unpaid",
+    "digest": "4b80e74f3fa47867af0e94c98f56fa563ab134e0da465b18dcf63a5221881c0e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.voided",
+    "en": "Voided",
+    "digest": "9f9ae2c9bcbacae9d73f8a8413cfa5d1c7d7c0c4a163e8e31178068851a33e77"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.partially_paid",
+    "en": "Partially paid",
+    "digest": "ad6d041c9b49f924695cce3637334407dc50b9140f541db7cf97c16b88cf3b90"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.partially_refunded",
+    "en": "Partially refunded",
+    "digest": "cb89301d36fdf4973b2d0a85a32537897a4b9bbb1d1347a7af1e0aeddb3dea82"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.refunded",
+    "en": "Refunded",
+    "digest": "117f6a7cf0372277233d0477c1eb99523af847c2b8bdd41fc3cc53fab78bb80c"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.financial_status.expired",
+    "en": "Expired",
+    "digest": "424a2551d356754c882d04ac16c63e6b50b80b159549d23231001f629455756e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.fulfillment_status.fulfilled",
+    "en": "Fulfilled",
+    "digest": "b7c6220ada3d1bc4d2365d306a468e5ad4f5df7cc2d432284d9bbb3d8dad0003"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.fulfillment_status.complete",
+    "en": "Complete",
+    "digest": "143b270a32602d412babf2724ec0640dda0d5a43485e5a7520b05b53fa94b303"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.fulfillment_status.partial",
+    "en": "Partial",
+    "digest": "a4d50fb85403654840e078e3ffe72dffe37df3ae280c6d98f39a41d346c88a14"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.fulfillment_status.unfulfilled",
+    "en": "Unfulfilled",
+    "digest": "1072e4fa8c8ede0dcf30d198075ec1c6e52c26d5d6144ea2b93cbae158f1bff1"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.fulfillment_status.restocked",
+    "en": "Restocked",
+    "digest": "0ee6303e3038e72b83130cbc5508926656670498f7477f3a129f365d2ac18a1e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.transaction_status.success",
+    "en": "Success",
+    "digest": "c88a0b907419a70c27ab7c1f8e5fb54441a4d9c3567e4c928fa7b2091194aecf"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.transaction_status.pending",
+    "en": "Pending",
+    "digest": "331551b0de4157c9abc7b72b61b96a2a928fd6db3cdf029c1fc44b08ad633aa6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.transaction_status.failure",
+    "en": "Failure",
+    "digest": "7031edbcf9c42caac9e677d5a89c78efce7b26adfdef9be6f0111cd1b8961033"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.transaction_status.error",
+    "en": "Error",
+    "digest": "54a0e8c17ebb21a11f8a25b8042786ef7efe52441e6cc87e92c67e0c4c0c6e78"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cancel_reason.declined",
+    "en": "Payment declined",
+    "digest": "4421d7479f62a8491c16450cb1cc8882daafe3721c836170f659bf737ba1470e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cancel_reason.inventory",
+    "en": "Items unavailable",
+    "digest": "2e00ba716fe55018981251fa66d1c70d41e392cf82f9c63ea0705ecfefe0ff79"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cancel_reason.fraud",
+    "en": "Fraudulent order",
+    "digest": "3026cf73b466ab6fbe4d6eacc989e407fcb5384c23aa463ee27f213983fe12d7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cancel_reason.customer",
+    "en": "Customer changed/cancelled order",
+    "digest": "25bfbe182f5636477827c0b10cc75fc65987eeaa473a97b4a0485e4ff895b300"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cancel_reason.staff",
+    "en": "Staff error",
+    "digest": "340ab6aaf928b61afabb0566647dcd36891af27991c22b3168faa5d832968b31"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cancel_reason.other",
+    "en": "Other",
+    "digest": "f97e9da0e3b879f0a9df979ae260a5f7e1371edb127c1862d4f861981166cdc1"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.order.cash_on_delivery",
+    "en": "Cash on Delivery (COD)",
+    "digest": "3e718c330554c19eecc294f1ce1b8e9db169a215ef3f15fd9a6c2917e0a40824"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.not_found",
+    "en": "Cart not found",
+    "digest": "c26139152b1f8310f47e1c798ae6bc370282f6e17be0d5f7f19e3ad14e944545"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.only_n_items_available",
+    "en": "You can only add %{count} %{name} to the cart.",
+    "digest": "de0478c67cdb84a9b779aba3cb847168b41ff730865524707dceca33051ddbe7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.too_many_items_in_cart",
+    "en": "You can't add more %{name} to the cart.",
+    "digest": "f4c4743fcea12c609d6aca4afcc6dcb48cd0b9beed257563ff56e4d8a6b164fb"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.only_one_added_to_cart",
+    "en": "Only 1 item was added to your cart due to availability.",
+    "digest": "8a8dd37ab10d4981a12bf028a26df87092380b7950c71b5f27c438a94b1f27df"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.only_n_added_to_cart",
+    "en": "Only %{quantity} items were added to your cart due to availability.",
+    "digest": "3dbd1c5485602219c62106746f1ad903cf5f39da199c506a331c5b618caa04c9"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.maximum_available_quantity_reached",
+    "en": "The maximum quantity of this item is already in your cart.",
+    "digest": "db1a1f6d4a527a4c046a47bb0f403ed86827535ef9890d6dd909a8dd02c34c5b"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.less_than_minimum",
+    "en": "This item has a minimum of %{min}.",
+    "digest": "3e0b4986d712ca6bd2fe6dcc20414e3a2d494ce9900bf673d75a3c60ef3fc699"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.more_than_maximum",
+    "en": "This item has a maximum of %{max}.",
+    "digest": "d55f374ae938d9fa3569e47956fa4a014d283716cab7613f962e875fec7c29b7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.not_respect_step",
+    "en": "You can only add this item in increments of %{step}.",
+    "digest": "f78507ec1f47144b8c666e0761c67ae8512c1980c10c75956cdfb49d657ad6c9"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.all_items_in_cart",
+    "en": "All %{count} %{name} are in your cart.",
+    "digest": "00e1627f0d85dd3809a8c024eee986e126e052bcc6755f3f9fbe04bfb3753ec3"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.empty_update",
+    "en": "cannot update empty cart",
+    "digest": "dfe76b133dc85166c6e347121632d81fa65a97c2017f4abfcb2f1cf16784dd39"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.missing_parameters",
+    "en": "no valid id or line parameter",
+    "digest": "21cd429d2bc66b82ae728e8be3acadacbad0bc5d69e5a96fb4eb627fae1079dd"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.generic_error",
+    "en": "Cart Error",
+    "digest": "ee30c4179eb1436b207400b7b3660ef2a886e92ebc26e70826cbebd508b09d30"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.invalid_input",
+    "en": "%{parameter} parameter is invalid.",
+    "digest": "0917b65e5ee11f6fd9baaa2e409dcf6ba35dd5897de32d012ebb331b46585658"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.product_not_available",
+    "en": "Product is not available",
+    "digest": "9e145df5d98a3a000b118743f119f03cd19af4255084dbcffc28a6635b4b6567"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.too_many_line_items_error",
+    "en": "Your cart can't contain more than %{max} items.",
+    "digest": "03b92e8fd78e5d97be3cbad18dedadf6b016b6f6d6892816371c6f7509466dcb"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.link_expired",
+    "en": "Link expired",
+    "digest": "e61180e0dd8abee776b5b8d83bd0023c1855bd97ff945f080c8a9ff3b3b0bc2a"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.link_no_longer_exists",
+    "en": "Link no longer exists.",
+    "digest": "44d45bce8ee389ae5604f91cbe0f70322b39b76dd69788424719973d15618fb6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.stock_problems_html",
+    "en": "One or more items are no longer available. We've provided an <a href='%{link}'>updated cart</a>.",
+    "digest": "bbeb5c7f373d104e40ba1f156244bb97cb83904727eb3ebe2268aa5f6f02d4ff"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.changed",
+    "en": "Cart changed",
+    "digest": "065b31c29211fda2540699a131817adac5328f31feaae89534e06d6f78ad5d46"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.items_changed",
+    "en": "One or more items have changed.",
+    "digest": "636e6683307cf0ed9f17262e092c7695af9e4cb30aa12dc5a8dfabff93e4fdf6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.product_sold_out",
+    "en": "The product '%{name}' is already sold out.",
+    "digest": "9e82901407729a9512217db856405dc4ea186bd19f354441c88e8bcbfe54f90d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.variant_not_found",
+    "en": "Cannot find variant",
+    "digest": "e2cffe4686b4082175c22c77d40dc6215bd01b4eb13df3a6b57ac2c9a3146be2"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.variant_requires_selling_plan",
+    "en": "Variant can only be purchased with a selling plan.",
+    "digest": "23a2c0fc85f96ea73f68979fe90df8fc540640d21f11700432eba76a6604ce60"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.selling_plan_not_available_for_company_locations",
+    "en": "Only one-time purchase is available for B2B orders",
+    "digest": "ab7af227a057895af630007e4c4263577c12e91b618821fbb9c2ca2f153ca29e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.digital_product_not_available_for_company_locations",
+    "en": "This item can't be added to a B2B order",
+    "digest": "b3b475ee5e8a0de3bfe2da4ffaaeea16ee84468b8b47be4f8a7b45fd99075f9d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.buyer_cannot_purchase_for_company_locations",
+    "en": "You can't purchase for this location",
+    "digest": "ed94d303e33512140d5a474806c094ccb3229d5cf0ac2c16b4fb96413556397a"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.selling_plan_not_applicable",
+    "en": "Cannot apply selling plan to variant",
+    "digest": "d8c6a0fd52c6d7c028bc9f61a5c04af20fa439bba06892b86d126ba68c708505"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.shipping_address_not_required",
+    "en": "This cart does not require shipping",
+    "digest": "8a30794988c114724ca42b8cc77b8b27da268efb3116bf6e8d82da0e87e47fb6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.shipping_address_invalid",
+    "en": "There was a problem calculating your shipping rates. Continue to checkout to choose a shipping rate before you complete your order.",
+    "digest": "a308042fab3c584005611ba30a847b405f869caaf800e7ae16d38a9103083be6"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.bundle_requires_components",
+    "en": "The bundle product '%{name}' cannot be added to the cart.",
+    "digest": "3c35260d0cfe1199ae0cd3f1d555f46a8647fa0dd280e6ac0cc06c266728e4b7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.gift_card_with_components_not_supported",
+    "en": "The bundle product '%{name}' cannot be added to the cart.",
+    "digest": "3c35260d0cfe1199ae0cd3f1d555f46a8647fa0dd280e6ac0cc06c266728e4b7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.gift_card_price_must_be_greater_than_zero",
+    "en": "The bundle product '%{name}' cannot be added to the cart.",
+    "digest": "3c35260d0cfe1199ae0cd3f1d555f46a8647fa0dd280e6ac0cc06c266728e4b7"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.gift_card_recipient_validation_error",
+    "en": "The specified gift card recipient is invalid",
+    "digest": "270594b4fb520778f0bc953c2d766762d6b8eb8fefa9111684b071958da85d41"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.view_lines_limit_reached",
+    "en": "Lines must be less than or equal to %{limit}",
+    "digest": "187bcf2bba3cb3c03dea8eaeb7a0e4a574e11c358b1b5191a20ff879ec85061e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.cart_too_large",
+    "en": "Cart is too large.",
+    "digest": "dc00c6fc0e234df8739a5a4ef3109317ecfd797652e968c0f8a2862ef8aaaf47"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.cart_attributes_error",
+    "en": "Cart attributes contain invalid data.",
+    "digest": "21b03e2649a6076cb98c64961162fa481c5abec9b62eef5fc42d28329148cd48"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.merchandise_line_transformers.run_error",
+    "en": "An error occurred in your cart.",
+    "digest": "e3aaf28f8d91ea752df03afee7b456c53fc9929110180a4d473983950478fd81"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.cart.merchandise_not_applicable",
+    "en": "Item cannot be purchased as configured.",
+    "digest": "6ccf071ac245a5e43b92d6aae003e60581d66d58849910bc5da8747c9bd67c43"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.storefront.invalid_password",
+    "en": "Password incorrect, please try again.",
+    "digest": "c59fa6a519f2e7c115bd3774b903ce2afbec73f8c320a48889f296cae066cb58"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.tags.add_articles",
+    "en": "Narrow search to articles also having tag %{tag}",
+    "digest": "1fb1daad06f9cacd7c1a86fef883c125aa1f1d4e4f3b8adfbc10f1da833f8d54"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.tags.add_products",
+    "en": "Narrow selection to products matching tag %{tag}",
+    "digest": "60bee9c08a35a423720c87ec77e6b8c0613e92d1fc8688b5493c7f7d653da74e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.tags.remove_articles",
+    "en": "Widen search to articles that aren't tagged %{tag}",
+    "digest": "c1964d1d68cadb9fa86770ee27663e3fb4125db783442c73a3c07b673b59da61"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.notices.tags.remove_products",
+    "en": "Remove tag %{tag}",
+    "digest": "9ae31fea316fb8c2cb95cd89bad591ebb49f0f13f3746562504f4951bae5225a"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.subscribed.confirmation",
+    "en": "Thank you for subscribing to our mailing list.",
+    "digest": "ec08dbd2c08030ec8582f786b806a902a20a301803eef9e0159cf5e6547babe5"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.subscribed.disclaimer",
+    "en": "You can unsubscribe at any time.",
+    "digest": "b0c59987781fbe95fe408643b265debd83d0dea679240863c9d36cf099ce0180"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.subscribed.unsubscribe",
+    "en": "Unsubscribe",
+    "digest": "3e92efb7664f0255ffce2ed60d7eb423059101cbca4b2e2d55e3871aba70ae63"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.unsubscribed.confirmation",
+    "en": "You’ve unsubscribed from our mailing list.",
+    "digest": "f777e6190178e003c0eab08e89892d05c1c5de02aac7841fe3ed0d4726ac1a9d"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.unsubscribed.disclaimer",
+    "en": "You won’t receive any more marketing updates from us. You can subscribe again at any time.",
+    "digest": "27b0cf858419fdd76c53850f598cff17267e3a2aed106d8a418b298cb853ae7e"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.unsubscribed.preview",
+    "en": "You're previewing what customers will see when they unsubscribe.",
+    "digest": "a7be597d09f23def99967d41a66794ec9039220a238330c443ac1aa9df67a2e8"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.sms_unsubscribe_confirm.message",
+    "en": "Are you sure you want to unsubscribe from SMS marketing?",
+    "digest": "dd648e8bdd64057f19731a857331f1da8b798cdfbf4c650c9de87fe3f5d44230"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.sms_unsubscribe_confirm.button",
+    "en": "Unsubscribe",
+    "digest": "3e92efb7664f0255ffce2ed60d7eb423059101cbca4b2e2d55e3871aba70ae63"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.open_tracking.opt_in.opted_in_html",
+    "en": "<b>You’ve opted in to email open tracking.</b>",
+    "digest": "f83da60e9d60d96d6b1511c469f468cc6ecce62dc88c7d97d903c3bf3615ccc0"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.open_tracking.opt_in.visibility",
+    "en": "Email open rates will be reported anonymously. We will only see if you’ve opened an email as part of an aggregated email open rate.",
+    "digest": "c6fd0f0e88512be9620e9d495433a8f9b007c120989d5fc61620d4c1051d1728"
+  },
+  {
+    "rid": "gid://shopify/OnlineStoreThemeLocaleContent/182480240940",
+    "key": "shopify.email_marketing.open_tracking.opt_in.opt_out_html",
+    "en": "You can <a style='text-decoration:underline;' href='%{link}'>opt out</a> of email open tracking if you do not want to share this information.",
+    "digest": "0e28d7464e0bc2b09dc303891c08c70fe05cc694419d1a92c8021df8a0b43e45"
+  }
+]

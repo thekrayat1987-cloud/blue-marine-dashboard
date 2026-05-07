@@ -345,19 +345,30 @@ NAME INSPIRATION POOL — pick ONE distinctive name that fits the garment's mood
 - Heritage/places: Mubarakiya, Bandar, Diwaniya, Khaleej, Souq, Riad, Sahara
 - Moods: Midnight, Royal, Heritage, Mosaic, Velvet Bloom, Golden Hour, Desert Rose, Ocean, Sunset
 
+# GARMENT IDENTIFICATION — LOOK AT THE PHOTO FIRST
+Before writing anything, identify the garment shown in the image. Pick ONE from this list based on what you actually see:
+- **daraa (درّاعة)** — long, flowing one-piece Gulf gown, usually loose, often embroidered. Most common in this catalogue. If you see ONE flowing dress with no separate outer layer, it is a daraa.
+- **caftan (قفطان)** — long robe with a front opening or buttons down the centre.
+- **abaya (عباية)** — open-front overgarment, usually black or dark, worn over other clothing.
+- **bisht (بشت)** — a sheer/embroidered OUTER cloak worn OVER an inner garment (almost always part of a 2-piece set with a daraa underneath). DO NOT label a single flowing dress as a "bisht".
+- **set / bisht-set** — only when the photo or the COMPOSITION block clearly indicates 2+ coordinated pieces.
+⚠️ NEVER default to "bisht" if you are unsure. When in doubt between daraa and bisht, choose **daraa**. A bisht is an outer cloak worn over something — not a standalone dress.
+
 # ENGLISH TITLE RULES (en.title)
-- Format: "${sku} – Name + Garment${pieceCountEn ? ` + ${pieceCountEn}` : ""}"${pieces === 1 ? ` (one-piece item — DO NOT add a piece count)` : ""}.
+- Format: "${sku} – Name + Garment${pieceCountEn ? ` + ${pieceCountEn}` : ""}".
 - Max 65 characters total. The NAME comes first after the dash, then the garment + key detail.
-- ⚠️ For "Overcoat" or any outer Gulf garment, ALWAYS write "Bisht" — NEVER "Overcoat", "Coat", "Cloak" or "Robe" in English. The brand uses the authentic Gulf term in both languages.
-- ⚠️ PIECE-COUNT FORMAT — be consistent:
+- ⚠️ Use the garment name you identified above. Do NOT write "Bisht" unless the image actually shows an outer cloak.
+- For an actual outer Gulf cloak, ALWAYS write "Bisht" — NEVER "Overcoat", "Coat", "Cloak" or "Robe".
 ${pieces === 1
-  ? `  · This product has ONE piece — DO NOT add a piece count. Example: "${sku} – Layali Daraa".`
-  : `  · This product has ${pieces} pieces — write exactly "${pieceCountEn}" (with hyphen, capital P, capital S). Example: "${sku} – Layali Velvet ${pieceCountEn} Bisht Set".`}
-  · NEVER use "One Piece", "1-Piece", "Single Piece", "(One Piece)", "Two-Piece" (write "2-Piece" with hyphen + digit), "Three-Piece" (write "3-Piece"), "pcs".
-- Examples of good titles:
-  · 1 piece → "${sku} – Layali Daraa"
-  · 2 pieces → "${sku} – Zumurud 2-Piece Bisht Set"
-  · 3 pieces → "${sku} – Noor 3-Piece Bisht Set"
+  ? `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ONE PIECE.
+  · DO NOT add any piece count to the title. The title ends with the garment name.
+  · NEVER write "2-Piece", "3-Piece", "Set", "Bisht Set", "(One Piece)" or any count phrase.
+  · Correct examples: "${sku} – Layali Daraa", "${sku} – Amara Caftan", "${sku} – Noor Abaya".
+  · Wrong: "${sku} – Layali 2-Piece Bisht Set" (this product is ONE piece, not a set).`
+  : `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ${pieces} PIECES.
+  · Write exactly "${pieceCountEn}" (hyphen, capital P, capital S) before the garment word.
+  · Correct example: "${sku} – Zumurud ${pieceCountEn} Bisht Set".
+  · NEVER use "Two-Piece" / "Three-Piece" — always digit + hyphen + "Piece".`}
 - Color is OPTIONAL. The photo already shows the color, so you can omit it for a cleaner title — only include it when it is a defining trait (e.g. "Royal Navy", "Ivory") and helps SEO.
 - Don't reuse a name that's already in the FORBIDDEN list above. Pick a name that fits THIS specific garment.
 - Plain English. No marketing fluff. No "exquisite / captivating / stunning / regal / opulent".
@@ -368,10 +379,11 @@ ${pieces === 1
   · Example: Layali → ليالي, Zumurud → زمرّد, Noor → نور, Zafira → ظفيرة, Amara → أمارا
 - Then add the garment + key detail in formal but simple Arabic.
 - Use Gulf vocabulary: بشت، درّاعة، قفطان، عباية، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
-- ⚠️ For "overcoat" or any outer garment, ALWAYS use "بشت" — NEVER "معطف".
-- ⚠️ PIECE-COUNT FORMAT — match the English version:
+- ⚠️ Use the SAME garment word you chose in English. If English says "Daraa", Arabic says "درّاعة". If English says "Caftan", Arabic says "قفطان". Do NOT switch to "بشت" unless the English title also uses "Bisht".
+- For an actual outer cloak, use "بشت" — NEVER "معطف".
+- ⚠️ PIECE-COUNT FORMAT — match the English version exactly:
 ${pieces === 1
-  ? `  · One piece → no piece count in Arabic either.`
+  ? `  · ONE piece → NO piece count in Arabic. The title ends with the garment word. Do NOT write "طقم", "٢ قطع", "٣ قطع" or any set/count word.`
   : `  · This product has ${pieces} pieces → write "${pieceCountAr}" with Arabic-Indic numerals.`}
 - Keep the SKU prefix in Latin (do not translate the SKU).
 - Max 65 characters.
@@ -466,7 +478,13 @@ Return ONLY valid JSON (no backticks, no markdown):
 - ٣ فقرات قصيرة فقط، جملة أو جملتين لكل فقرة.
 - استخدمي "درّاعة" وليس "فستان" للإشارة للقطعة الداخلية.
 
-CRITICAL: If you find yourself writing "exquisite", "captivating", "evoking", "celebration of", "Ramadan" (unless capsule), "فستان", or any banned word — DELETE the sentence and rewrite it factually. If you write "Two-Piece" or "Three-Piece" instead of "2-Piece" / "3-Piece", REWRITE.`;
+CRITICAL CHECKS — re-read your output before returning JSON:
+1. Did you label a single flowing dress as "Bisht" or "Bisht Set"? If yes, REWRITE — it is a daraa (or caftan/abaya).
+${pieces === 1
+  ? `2. Does any title contain "2-Piece", "3-Piece", "Set", "Bisht Set", "طقم", "٢ قطع", or "٣ قطع"? This product has ONE piece — REMOVE all count/set words and rewrite the title.`
+  : `2. Does the EN title contain "${pieceCountEn}" and the AR title contain "${pieceCountAr}"? If not, REWRITE.`}
+3. Did you use any banned word (exquisite, captivating, evoking, celebration of, Ramadan unless capsule, فستان)? DELETE the sentence and rewrite factually.
+4. Did you write "Two-Piece" or "Three-Piece" instead of "2-Piece" / "3-Piece"? REWRITE.`;
 
   const callModel = (model: string) =>
     ai.models.generateContent({
