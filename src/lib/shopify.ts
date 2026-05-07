@@ -726,10 +726,14 @@ async function uploadToStagedTarget(
   }
 }
 
+export interface PushProductImage {
+  buffer: Buffer;
+  mimeType: string;
+  filename: string;
+}
+
 export interface PushProductParams {
-  imageBuffer: Buffer;
-  imageMimeType: string;
-  imageFilename: string;
+  images: PushProductImage[];
   sku: string;
   vendor: string;
   enTitle: string;
@@ -758,23 +762,29 @@ export async function pushProductToShopify(
 ): Promise<PushProductResult> {
   const warnings: string[] = [];
 
-  // SEO-friendly filename: derive from urlHandle (already slugified)
-  const ext = params.imageFilename.split(".").pop() ?? "png";
-  const seoFilename = `${slugify(params.enHandle) || slugify(params.enTitle) || "product"}.${ext}`;
-  // SEO alt text: concise, descriptive, brand-appended
+  if (params.images.length === 0) {
+    throw new Error("At least one image is required");
+  }
+
+  const seoSlug = slugify(params.enHandle) || slugify(params.enTitle) || "product";
   const seoAlt = `${params.enSeoTitle || params.enTitle} — ${params.vendor}`.slice(0, 125);
 
-  const staged = await stagedUploadCreate({
-    filename: seoFilename,
-    mimeType: params.imageMimeType,
-    fileSize: params.imageBuffer.length,
-  });
-  await uploadToStagedTarget(
-    staged,
-    params.imageBuffer,
-    params.imageMimeType,
-    seoFilename,
-  );
+  const stagedResources: string[] = [];
+  for (let i = 0; i < params.images.length; i++) {
+    const img = params.images[i];
+    const ext = img.filename.split(".").pop() ?? (img.mimeType === "image/jpeg" ? "jpg" : "png");
+    const seoFilename = params.images.length > 1
+      ? `${seoSlug}-${i + 1}.${ext}`
+      : `${seoSlug}.${ext}`;
+
+    const staged = await stagedUploadCreate({
+      filename: seoFilename,
+      mimeType: img.mimeType,
+      fileSize: img.buffer.length,
+    });
+    await uploadToStagedTarget(staged, img.buffer, img.mimeType, seoFilename);
+    stagedResources.push(staged.resourceUrl);
+  }
 
   const productCreateData = await shopifyGraphQL<{
     productCreate: {
@@ -812,13 +822,11 @@ export async function pushProductToShopify(
           },
         ],
       },
-      media: [
-        {
-          alt: seoAlt,
-          mediaContentType: "IMAGE",
-          originalSource: staged.resourceUrl,
-        },
-      ],
+      media: stagedResources.map((resourceUrl) => ({
+        alt: seoAlt,
+        mediaContentType: "IMAGE",
+        originalSource: resourceUrl,
+      })),
     },
   );
 

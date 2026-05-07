@@ -1034,6 +1034,11 @@ export default function ProductPhotoPage() {
             <ShopifyPushBox
               generationId={resultId}
               inlineImage={resultUrl}
+              inlineExtraImages={extraResults.map((r) => ({
+                id: r.id,
+                url: r.url,
+                label: POSES.find((p) => p.id === r.pose)?.label ?? r.pose,
+              }))}
               inlineDescription={description}
               inlineSku={sku.trim() || null}
             />
@@ -1711,16 +1716,42 @@ function parseInlineImage(
 function ShopifyPushBox({
   generationId,
   inlineImage,
+  inlineExtraImages,
   inlineDescription,
   inlineSku,
   compact,
 }: {
   generationId: string | null;
   inlineImage?: string;
+  inlineExtraImages?: Array<{ id: string; url: string; label?: string }>;
   inlineDescription?: ProductDescription | null;
   inlineSku?: string | null;
   compact?: boolean;
 }) {
+  const allImages: Array<{ id: string; url: string; label?: string }> = [
+    ...(inlineImage && generationId ? [{ id: generationId, url: inlineImage, label: "Photo principale" }] : []),
+    ...(inlineExtraImages ?? []),
+  ];
+  const allImageIds = allImages.map((i) => i.id).join(",");
+  const [selectedImageIds, setSelectedImageIds] = useState<Set<string>>(
+    () => new Set(allImages.map((i) => i.id)),
+  );
+  useEffect(() => {
+    setSelectedImageIds(new Set(allImages.map((i) => i.id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allImageIds]);
+
+  function toggleImage(id: string) {
+    setSelectedImageIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
   const [mode, setMode] = useState<"new" | "variant">("new");
 
   const [collections, setCollections] = useState<ShopifyCollection[]>([]);
@@ -1803,7 +1834,23 @@ function ShopifyPushBox({
     setError(null);
     setResult(null);
     try {
-      const inlineParts = parseInlineImage(inlineImage);
+      const selectedInlineImages = allImages
+        .filter((img) => selectedImageIds.has(img.id))
+        .map((img) => parseInlineImage(img.url))
+        .filter((p): p is { base64: string; mimeType: string } => p !== null);
+
+      if (selectedInlineImages.length === 0 && allImages.length > 0) {
+        throw new Error("Sélectionne au moins une photo");
+      }
+
+      // Vercel rejects request bodies > 4.5 MB. Base64 inflates ~1.37x — keep raw payload < ~3 MB combined.
+      const totalBase64Bytes = selectedInlineImages.reduce((sum, img) => sum + img.base64.length, 0);
+      if (totalBase64Bytes > 4_000_000) {
+        throw new Error(
+          `Trop de photos sélectionnées (${(totalBase64Bytes / 1_000_000).toFixed(1)} Mo). Décoche-en une et réessaie, ou ajoute-les manuellement dans Shopify Admin après la création.`,
+        );
+      }
+
       const res = await fetch("/api/shopify/push-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1811,8 +1858,7 @@ function ShopifyPushBox({
           generationId,
           price: price.trim(),
           collectionIds: selectedCollections,
-          imageBase64: inlineParts?.base64,
-          imageMimeType: inlineParts?.mimeType,
+          images: selectedInlineImages,
           description: inlineDescription ?? undefined,
           sku: inlineSku ?? undefined,
         }),
@@ -2098,6 +2144,41 @@ function ShopifyPushBox({
             />
           </div>
         </>
+      )}
+
+      {mode === "new" && allImages.length > 1 && (
+        <div>
+          <label className="text-[11px] uppercase tracking-wider text-foreground-subtle mb-1.5 block">
+            Photos à inclure ({selectedImageIds.size}/{allImages.length})
+          </label>
+          <div className="grid grid-cols-4 gap-2">
+            {allImages.map((img) => {
+              const isSelected = selectedImageIds.has(img.id);
+              return (
+                <button
+                  key={img.id}
+                  type="button"
+                  onClick={() => toggleImage(img.id)}
+                  className={`relative rounded-lg overflow-hidden border-2 transition-all aspect-[3/4] ${
+                    isSelected ? "border-accent" : "border-border opacity-50 hover:opacity-80"
+                  }`}
+                  title={img.label ?? "Photo"}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.url} alt={img.label ?? ""} className="w-full h-full object-cover" />
+                  <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-background/80 border border-border flex items-center justify-center">
+                    {isSelected && <Check className="w-3 h-3 text-accent" />}
+                  </span>
+                  {img.label && (
+                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] py-0.5 text-center truncate">
+                      {img.label}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       <div>

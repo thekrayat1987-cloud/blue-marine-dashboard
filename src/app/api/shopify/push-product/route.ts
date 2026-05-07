@@ -6,9 +6,10 @@ import type { ProductDescription } from "@/lib/gemini";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
+type InlineImage = { base64: string; mimeType: string };
+
 type InlinePayload = {
-  imageBase64: string;
-  imageMimeType: string;
+  images: InlineImage[];
   description: ProductDescription;
   sku?: string | null;
 };
@@ -19,8 +20,7 @@ async function loadFromStorage(generationId: string): Promise<InlinePayload | nu
   const image = await readGenerationImage(generationId);
   if (!image) return null;
   return {
-    imageBase64: image.buffer.toString("base64"),
-    imageMimeType: image.mimeType,
+    images: [{ base64: image.buffer.toString("base64"), mimeType: image.mimeType }],
     description: meta.description,
     sku: meta.sku,
   };
@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       generationId,
       price,
       collectionIds,
+      images: imagesFromBody,
       imageBase64,
       imageMimeType,
       description,
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
       generationId?: string;
       price?: string;
       collectionIds?: string[];
+      images?: InlineImage[];
       imageBase64?: string;
       imageMimeType?: string;
       description?: ProductDescription;
@@ -51,12 +53,17 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Prix invalide (ex: 45 ou 45.000)" }, { status: 400 });
     }
 
+    const inlineImages: InlineImage[] = Array.isArray(imagesFromBody) && imagesFromBody.length > 0
+      ? imagesFromBody.filter((i) => i?.base64 && i?.mimeType)
+      : imageBase64 && imageMimeType
+        ? [{ base64: imageBase64, mimeType: imageMimeType }]
+        : [];
+
     let payload: InlinePayload | null = null;
 
-    if (imageBase64 && imageMimeType && description) {
+    if (inlineImages.length > 0 && description) {
       payload = {
-        imageBase64,
-        imageMimeType,
+        images: inlineImages,
         description,
         sku: skuFromBody ?? null,
       };
@@ -73,13 +80,13 @@ export async function POST(request: NextRequest) {
     }
 
     const sku = payload.sku?.trim() || payload.description.sku || "";
-    const ext = payload.imageMimeType === "image/jpeg" ? "jpg" : "png";
-    const imageBuffer = Buffer.from(payload.imageBase64, "base64");
 
     const result = await pushProductToShopify({
-      imageBuffer,
-      imageMimeType: payload.imageMimeType,
-      imageFilename: `${sku || "product"}.${ext}`,
+      images: payload.images.map((img, idx) => ({
+        buffer: Buffer.from(img.base64, "base64"),
+        mimeType: img.mimeType,
+        filename: `${sku || "product"}-${idx + 1}.${img.mimeType === "image/jpeg" ? "jpg" : "png"}`,
+      })),
       sku: sku || `BM-${Date.now()}`,
       vendor: "Atelier Blue Marine",
       enTitle: payload.description.en.title,
