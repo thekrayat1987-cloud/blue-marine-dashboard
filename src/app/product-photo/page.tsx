@@ -525,30 +525,40 @@ export default function ProductPhotoPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1 rounded-lg bg-surface border border-border p-1">
-            <button
-              onClick={() => setTab("generate")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                tab === "generate" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
-              }`}
+          <div className="flex items-center gap-2">
+            <a
+              href="/product-photo/full"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-accent/15 text-accent border border-accent/30 hover:bg-accent/25 transition-colors"
+              title="Créer un produit avec plusieurs couleurs en une fois"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              Générer
-            </button>
-            <button
-              onClick={() => setTab("history")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                tab === "history" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
-              }`}
-            >
-              <HistoryIcon className="w-3.5 h-3.5" />
-              Historique
-              {history.length > 0 && (
-                <span className="ml-1 text-[10px] bg-surface-muted rounded-full px-1.5">
-                  {history.length}
-                </span>
-              )}
-            </button>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Produit complet
+            </a>
+            <div className="flex items-center gap-1 rounded-lg bg-surface border border-border p-1">
+              <button
+                onClick={() => setTab("generate")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors ${
+                  tab === "generate" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Générer
+              </button>
+              <button
+                onClick={() => setTab("history")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors ${
+                  tab === "history" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                <HistoryIcon className="w-3.5 h-3.5" />
+                Historique
+                {history.length > 0 && (
+                  <span className="ml-1 text-[10px] bg-surface-muted rounded-full px-1.5">
+                    {history.length}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
