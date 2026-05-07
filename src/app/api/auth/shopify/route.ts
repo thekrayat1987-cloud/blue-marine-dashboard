@@ -5,7 +5,7 @@ export async function GET() {
   const shop = process.env.SHOPIFY_STORE_URL!;
   const clientId = process.env.SHOPIFY_CLIENT_ID!;
   const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/shopify/callback`;
-  const scopes = "read_all_orders,read_analytics,read_customers,write_customers,read_inventory,write_inventory,read_orders,write_orders,read_products,write_products,read_content,write_content,read_translations,write_translations,read_locales,read_themes,write_themes,read_files,write_files";
+  const scopes = "read_all_orders,read_analytics,read_customers,write_customers,read_inventory,write_inventory,read_orders,write_orders,read_products,write_products,read_content,write_content,read_translations,write_translations,read_locales,read_themes,write_themes,read_files,write_files,read_metaobjects,write_metaobjects,read_metaobject_definitions,read_publications,write_publications";
 
   const authUrl = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
