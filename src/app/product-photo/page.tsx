@@ -78,21 +78,11 @@ type ReelScript = {
 
 type MarketingPack = {
   instagram: {
-    fr: { caption: string; hashtags: string[] };
+    en: { caption: string; hashtags: string[] };
     ar: { caption: string; hashtags: string[] };
   };
-  whatsapp: { fr: string; ar: string };
+  whatsapp: { en: string; ar: string };
   reel: { ar: ReelScript };
-};
-
-type PriceEstimate = {
-  lowKD: number;
-  midKD: number;
-  highKD: number;
-  recommendedKD: number;
-  reasoning: string;
-  positioning: string;
-  comparables: string[];
 };
 
 type ShopifyCollection = { id: string; title: string; handle: string };
@@ -227,13 +217,10 @@ export default function ProductPhotoPage() {
   const [marketingPack, setMarketingPack] = useState<MarketingPack | null>(null);
   const [marketingLoading, setMarketingLoading] = useState(false);
   const [marketingError, setMarketingError] = useState<string | null>(null);
-  const [marketingLang, setMarketingLang] = useState<"fr" | "ar">("fr");
+  const [marketingLang, setMarketingLang] = useState<"en" | "ar">("en");
   const [storyPosterUrl, setStoryPosterUrl] = useState<string | null>(null);
   const [storyLoading, setStoryLoading] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
-  const [priceEstimate, setPriceEstimate] = useState<PriceEstimate | null>(null);
-  const [priceLoading, setPriceLoading] = useState(false);
-  const [priceError, setPriceError] = useState<string | null>(null);
   const [skuLoading, setSkuLoading] = useState(false);
   const [skuTouched, setSkuTouched] = useState(false);
 
@@ -316,8 +303,6 @@ export default function ProductPhotoPage() {
     setMarketingError(null);
     setStoryPosterUrl(null);
     setStoryError(null);
-    setPriceEstimate(null);
-    setPriceError(null);
     const reader = new FileReader();
     reader.onload = () => setSourcePreview(reader.result as string);
     reader.readAsDataURL(file);
@@ -348,8 +333,6 @@ export default function ProductPhotoPage() {
     setMarketingError(null);
     setStoryPosterUrl(null);
     setStoryError(null);
-    setPriceEstimate(null);
-    setPriceError(null);
     try {
       const uploadFile = await compressForUpload(sourceFile);
 
@@ -525,33 +508,6 @@ export default function ProductPhotoPage() {
     a.href = storyPosterUrl;
     a.download = `bluemarine-story-${(description?.urlHandle || "produit")}-${Date.now()}.png`;
     a.click();
-  }
-
-  async function generatePrice() {
-    if (!resultUrl || !description) return;
-    const parsed = parseInlineImage(resultUrl);
-    if (!parsed) return;
-    setPriceLoading(true);
-    setPriceError(null);
-    try {
-      const res = await fetch("/api/price-estimate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageBase64: parsed.base64,
-          mimeType: parsed.mimeType,
-          productTitle: description.en.title,
-          productDescription: description.en.description,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erreur de génération");
-      setPriceEstimate(data.estimate as PriceEstimate);
-    } catch (err) {
-      setPriceError(err instanceof Error ? err.message : "Erreur inconnue");
-    } finally {
-      setPriceLoading(false);
-    }
   }
 
   const currentLoc = description ? description[activeLang] : null;
@@ -1022,15 +978,6 @@ export default function ProductPhotoPage() {
           )}
 
           {resultUrl && description && (
-            <PriceEstimateBox
-              estimate={priceEstimate}
-              loading={priceLoading}
-              error={priceError}
-              onGenerate={generatePrice}
-            />
-          )}
-
-          {resultUrl && description && (
             <ShopifyPushBox
               generationId={resultId}
               inlineImage={resultUrl}
@@ -1063,8 +1010,8 @@ function MarketingPackBox({
   pack: MarketingPack | null;
   loading: boolean;
   error: string | null;
-  lang: "fr" | "ar";
-  onLangChange: (l: "fr" | "ar") => void;
+  lang: "en" | "ar";
+  onLangChange: (l: "en" | "ar") => void;
   onGenerate: () => void;
   copiedKey: string | null;
   onCopy: (key: string, val: string) => void;
@@ -1097,12 +1044,12 @@ function MarketingPackBox({
         {pack && (
           <div className="flex items-center gap-1 rounded-lg bg-background border border-border p-1">
             <button
-              onClick={() => onLangChange("fr")}
+              onClick={() => onLangChange("en")}
               className={`px-2.5 py-1 text-[11px] rounded-md transition-colors ${
-                lang === "fr" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
+                lang === "en" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
               }`}
             >
-              FR
+              EN
             </button>
             <button
               onClick={() => onLangChange("ar")}
@@ -1119,7 +1066,7 @@ function MarketingPackBox({
       {!pack && (
         <div>
           <p className="text-xs text-foreground-muted mb-4">
-            Génère en 1 clic : caption Instagram, message WhatsApp Broadcast et script Reel/TikTok 15 sec — en français et arabe.
+            Génère en 1 clic : caption Instagram, message WhatsApp Broadcast et script Reel/TikTok 15 sec — en anglais et arabe.
           </p>
           <button
             onClick={onGenerate}
@@ -1358,113 +1305,6 @@ function StoryPosterBox({
             alt="Affiche Story Instagram"
             className="max-h-[600px] w-auto rounded-lg border border-border"
           />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PriceEstimateBox({
-  estimate,
-  loading,
-  error,
-  onGenerate,
-}: {
-  estimate: PriceEstimate | null;
-  loading: boolean;
-  error: string | null;
-  onGenerate: () => void;
-}) {
-  return (
-    <div className="rounded-2xl bg-surface border border-border p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <ShoppingBag className="w-4 h-4 text-accent" />
-          <h2 className="text-sm font-semibold text-foreground">Suggestion de prix Kuwait</h2>
-        </div>
-        {estimate && (
-          <button
-            onClick={onGenerate}
-            disabled={loading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border text-xs text-foreground-muted hover:text-foreground hover:border-accent disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-            Re-estimer
-          </button>
-        )}
-      </div>
-
-      {!estimate && (
-        <div>
-          <p className="text-xs text-foreground-muted mb-4">
-            Estimation IA basée sur le marché luxe au Koweït (matières, broderie, finitions visibles dans la photo). À utiliser comme base — ajuste selon ta marge.
-          </p>
-          <button
-            onClick={onGenerate}
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-foreground text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Analyse…
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                Estimer le prix
-              </>
-            )}
-          </button>
-          {error && (
-            <div className="mt-3 flex items-start gap-2 text-xs text-red-400">
-              <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {estimate && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-lg bg-background border border-border p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-foreground-subtle mb-1">Bas</p>
-              <p className="text-lg font-bold text-foreground">{estimate.lowKD} <span className="text-xs font-normal text-foreground-muted">KD</span></p>
-            </div>
-            <div className="rounded-lg bg-accent/10 border border-accent/30 p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-accent mb-1">Recommandé</p>
-              <p className="text-2xl font-bold text-foreground">{estimate.recommendedKD} <span className="text-xs font-normal text-foreground-muted">KD</span></p>
-            </div>
-            <div className="rounded-lg bg-background border border-border p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-foreground-subtle mb-1">Haut</p>
-              <p className="text-lg font-bold text-foreground">{estimate.highKD} <span className="text-xs font-normal text-foreground-muted">KD</span></p>
-            </div>
-          </div>
-
-          <div className="rounded-lg bg-background border border-border p-3">
-            <p className="text-[10px] uppercase tracking-wider text-foreground-subtle mb-1.5">Pourquoi ce prix</p>
-            <p className="text-sm text-foreground leading-relaxed">{estimate.reasoning}</p>
-          </div>
-
-          <div className="rounded-lg bg-background border border-border p-3">
-            <p className="text-[10px] uppercase tracking-wider text-foreground-subtle mb-1.5">Positionnement</p>
-            <p className="text-sm text-foreground leading-relaxed">{estimate.positioning}</p>
-          </div>
-
-          {estimate.comparables.length > 0 && (
-            <div className="rounded-lg bg-background border border-border p-3">
-              <p className="text-[10px] uppercase tracking-wider text-foreground-subtle mb-2">Comparables marché</p>
-              <ul className="space-y-1">
-                {estimate.comparables.map((c, i) => (
-                  <li key={i} className="text-xs text-foreground-muted flex items-start gap-2">
-                    <span className="text-accent mt-0.5">•</span>
-                    <span>{c}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       )}
     </div>
