@@ -5,6 +5,7 @@ import {
   type StylePreset,
   type PosePreset,
 } from "@/lib/gemini";
+import { getUsedPoeticNames } from "@/lib/shopify";
 import { saveGeneration } from "@/lib/storage";
 
 export const runtime = "nodejs";
@@ -57,6 +58,15 @@ export async function POST(request: NextRequest) {
     const mimeType = file.type || "image/jpeg";
     const extraStr = typeof extra === "string" ? extra : "";
 
+    let usedNames: string[] = [];
+    if (!skipDescription) {
+      try {
+        usedNames = await getUsedPoeticNames();
+      } catch (err) {
+        console.warn("Failed to fetch used poetic names from Shopify:", err);
+      }
+    }
+
     const [imageResult, descriptionResult] = await Promise.allSettled([
       generateBlueMarineImage({
         imageBase64,
@@ -75,6 +85,7 @@ export async function POST(request: NextRequest) {
             sku: sku || undefined,
             pieces,
             hasShawl,
+            usedNames,
           }),
     ]);
 

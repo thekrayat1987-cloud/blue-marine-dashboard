@@ -1,6 +1,22 @@
 import { GoogleGenAI, Modality } from "@google/genai";
+import fs from "node:fs";
+import path from "node:path";
 
 const MODEL = "gemini-2.5-flash-image";
+
+let cachedHouseModel: { data: string; mimeType: string } | null | undefined;
+
+function getHouseModel(): { data: string; mimeType: string } | null {
+  if (cachedHouseModel !== undefined) return cachedHouseModel;
+  try {
+    const file = path.join(process.cwd(), "public", "house-model.png");
+    const buf = fs.readFileSync(file);
+    cachedHouseModel = { data: buf.toString("base64"), mimeType: "image/png" };
+  } catch {
+    cachedHouseModel = null;
+  }
+  return cachedHouseModel;
+}
 
 export type StylePreset = "studio" | "lookbook" | "lifestyle" | "riad" | "palais" | "desert";
 export type PosePreset =
@@ -143,11 +159,28 @@ export async function generateBlueMarineImage(params: {
   const posePrompt = POSE_PROMPTS[params.pose];
   const compositionHint = buildCompositionHint(params.pieces ?? 1, params.hasShawl ?? false);
 
+  const houseModel = getHouseModel();
+  const hasHouseModel = !!houseModel;
+
+  const inputsExplained = hasHouseModel
+    ? `# INPUT IMAGES (read carefully — there are TWO)
+
+Image #1 = THE GARMENT. A flat or partial product shot. Use it ONLY as the design reference for the clothing the model wears.
+Image #2 = THE HOUSE MODEL. The Blue Marine atelier mannequin. Use her — and ONLY her — as the woman in the output. Same face, same skin tone, same hair, same body type, same height.
+
+Your job: dress the woman from Image #2 in the garment from Image #1, then photograph her in the requested pose and setting.
+
+DO NOT mix the two: the garment in Image #2 (her plain beige dress) is NOT the product — ignore it entirely. The woman in Image #1 (if any) is NOT the model — ignore her face/body entirely.`
+    : `# INPUT IMAGE
+The source image shows the garment. Put THAT garment, unchanged, on a tall elegant female model.`;
+
   const garmentLock = `# GARMENT FIDELITY — HIGHEST PRIORITY (read before anything else)
 
-The source image shows ONE specific garment. Your job is to put THAT garment, unchanged, on a model. Treat the garment like a real physical object you must reproduce 1:1.
+${inputsExplained}
 
-You MUST copy from the source, exactly:
+The garment image (Image #1) shows ONE specific garment. Treat the garment like a real physical object you must reproduce 1:1.
+
+You MUST copy from the garment image, exactly:
 - Every color and color zone — including the dominant color of each part (top, sleeves, skirt, belt, hem). If the skirt is orange/brown in the source, it stays orange/brown.
 - Every pattern, motif and print — geometric shapes, embroidery, prints, borders. Do not add new patterns. Do not remove existing patterns.
 - The full length, cut, silhouette, neckline, sleeves, and proportions.
@@ -163,6 +196,30 @@ You MUST NOT, under any circumstance:
 - Change the garment length (do not turn a long dress into a short one or vice-versa).
 
 If you are tempted to make the garment "more interesting", stop. The garment is already finished. You are only a photographer choosing the scene, lighting, and pose.
+${
+  hasHouseModel
+    ? `
+
+# MODEL IDENTITY LOCK — HIGHEST PRIORITY (alongside garment fidelity)
+
+The woman in the output MUST be the exact same person as in Image #2 (the house model). This is non-negotiable — every Blue Marine product photo features the SAME woman so the catalog has one consistent face.
+
+Copy from Image #2, exactly:
+- Face: same bone structure, same eyes (shape, color, spacing), same nose, same lips, same jawline, same eyebrows. Treat her face like a real person you are re-photographing.
+- Skin: same olive tone, same warm undertone, same complexion.
+- Hair: same length (past shoulders), same dark brown color, same texture (straight to softly wavy).
+- Body: same build — full natural bust, soft feminine curves, defined waist, NOT runway-thin. Tall, statuesque.
+- Age: same apparent age (late 20s to early 30s).
+
+You MUST NOT:
+- Generate a different woman, even if the pose calls for a different angle.
+- Make her younger, older, slimmer, or change her ethnicity.
+- Change her hair color, length, or texture.
+- Change her face in any way the viewer would notice side-by-side with Image #2.
+
+If the requested pose hides her face (e.g. back view, profile), her body, hair and skin still match Image #2.`
+    : ""
+}
 
 # OUTPUT FRAMING — MANDATORY
 - Aspect ratio: vertical 9:16 portrait (width:height = 9:16, i.e. a tall fashion editorial format).
@@ -190,6 +247,9 @@ If you are tempted to make the garment "more interesting", stop. The garment is 
             parts: [
               { text: prompt },
               { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
+              ...(houseModel
+                ? [{ inlineData: { mimeType: houseModel.mimeType, data: houseModel.data } }]
+                : []),
             ],
           },
         ],
@@ -243,11 +303,17 @@ export async function generateProductDescription(params: {
   sku?: string;
   pieces?: 1 | 2 | 3 | 4;
   hasShawl?: boolean;
+  usedNames?: string[];
 }): Promise<ProductDescription> {
   const ai = getClient();
   const sku = params.sku?.trim() || "AXXX";
   const pieces = params.pieces ?? 1;
   const hasShawl = params.hasShawl ?? false;
+  const usedNames = params.usedNames ?? [];
+
+  const piecesArabic: Record<1 | 2 | 3 | 4, string> = { 1: "١", 2: "٢", 3: "٣", 4: "٤" };
+  const pieceCountEn = pieces > 1 ? `${pieces}-Piece Set` : null;
+  const pieceCountAr = pieces > 1 ? `طقم ${piecesArabic[pieces]} قطع` : null;
 
   const compositionFacts: string[] = [];
   if (pieces > 1) compositionFacts.push(`${pieces}-piece coordinated set (ensemble ${pieces} pièces)`);
@@ -256,7 +322,11 @@ export async function generateProductDescription(params: {
     ? `\n\n# COMPOSITION (must be reflected in title, description and tags)\nThis product is: ${compositionFacts.join(", ")}.\n- Mention the piece count explicitly in the description (e.g. "a two-piece set", "ensemble trois pièces"... in the appropriate language).\n- If a shawl is included, mention it as a matching shawl / châle assorti / شال مطابق.\n- Add relevant tags such as "${pieces}-piece", "set"${hasShawl ? ', "shawl"' : ""}.\n`
     : "";
 
-  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait atelier making Moroccan / Middle-Eastern heritage womenswear (daraa / dra'a, caftans, abayas, layered sets, embroidered tunics).${compositionBlock}
+  const forbiddenBlock = usedNames.length
+    ? `\n\n⚠️ FORBIDDEN NAMES — already used on other products in the catalogue, you MUST pick a different one:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n`
+    : "";
+
+  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, abaya, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${forbiddenBlock}
 
 # SKU RULE — ABSOLUTE, READ FIRST
 The product SKU is exactly: ${sku}
@@ -266,63 +336,137 @@ The product SKU is exactly: ${sku}
 - DO NOT invent or substitute any other code (no "ABM…", "BM…", "ATL…", no 3-letter prefixes, no different number). The SKU is "${sku}" and only "${sku}".
 - "pageTitle" and "metaDescription" must NOT contain any SKU code.
 
-# WRITING RULES — read carefully, follow strictly
+# NAMING RULE — give the piece a POETIC NAME (one or two words)
+Each product gets a POETIC NAME that gives it an identity, then a short descriptor. Like a fashion house naming each piece. Existing examples in the catalogue: "Noor Heritage Daraa", "Zafira Mosaic Daraa", "Layal Silk Daraa", "Zaria Burgundy Daraa", "Desert Drift Daraa", "Amara Plum Daraa".
 
-1. Plain, natural English. Short sentences (max ~15 words). Read it aloud — if it sounds like a perfume ad, rewrite.
-2. Concrete details over poetry. Say "olive silk velvet, gold thread embroidery on the neckline" — not "captivating olive hue evoking timeless elegance".
+NAME INSPIRATION POOL — pick ONE distinctive name that fits the garment's mood (color, occasion, fabric):
+- Gulf feminine names: Noor, Layla, Layali, Yasmin, Amira, Zahra, Lulwa, Hessa, Dana, Sara, Hala, Maryam, Aisha, Latifa, Mariam, Sheikha, Sultana, Zafira, Amara, Zaria, Layal, Lina, Reem, Nada, Ghada
+- Arabic poetic words: Noor (light), Layali (nights), Sahar (dawn), Amal (hope), Aman (peace), Hawa (breeze), Bahar (sea), Falaj (oasis), Zumurud (emerald), Yaqut (ruby), Lu'lu (pearl), Marjan (coral)
+- Heritage/places: Mubarakiya, Bandar, Diwaniya, Khaleej, Souq, Riad, Sahara
+- Moods: Midnight, Royal, Heritage, Mosaic, Velvet Bloom, Golden Hour, Desert Rose, Ocean, Sunset
+
+# ENGLISH TITLE RULES (en.title)
+- Format: "${sku} – Name + Garment${pieceCountEn ? ` + ${pieceCountEn}` : ""}"${pieces === 1 ? ` (one-piece item — DO NOT add a piece count)` : ""}.
+- Max 65 characters total. The NAME comes first after the dash, then the garment + key detail.
+- ⚠️ For "Overcoat" or any outer Gulf garment, ALWAYS write "Bisht" — NEVER "Overcoat", "Coat", "Cloak" or "Robe" in English. The brand uses the authentic Gulf term in both languages.
+- ⚠️ PIECE-COUNT FORMAT — be consistent:
+${pieces === 1
+  ? `  · This product has ONE piece — DO NOT add a piece count. Example: "${sku} – Layali Daraa".`
+  : `  · This product has ${pieces} pieces — write exactly "${pieceCountEn}" (with hyphen, capital P, capital S). Example: "${sku} – Layali Velvet ${pieceCountEn} Bisht Set".`}
+  · NEVER use "One Piece", "1-Piece", "Single Piece", "(One Piece)", "Two-Piece" (write "2-Piece" with hyphen + digit), "Three-Piece" (write "3-Piece"), "pcs".
+- Examples of good titles:
+  · 1 piece → "${sku} – Layali Daraa"
+  · 2 pieces → "${sku} – Zumurud 2-Piece Bisht Set"
+  · 3 pieces → "${sku} – Noor 3-Piece Bisht Set"
+- Color is OPTIONAL. The photo already shows the color, so you can omit it for a cleaner title — only include it when it is a defining trait (e.g. "Royal Navy", "Ivory") and helps SEO.
+- Don't reuse a name that's already in the FORBIDDEN list above. Pick a name that fits THIS specific garment.
+- Plain English. No marketing fluff. No "exquisite / captivating / stunning / regal / opulent".
+
+# ARABIC TITLE RULES (ar.title)
+- Format: "${sku} – الاسم بالعربية + وصف قصير"
+- Use the SAME poetic name as in English, written in Arabic script (transliteration).
+  · Example: Layali → ليالي, Zumurud → زمرّد, Noor → نور, Zafira → ظفيرة, Amara → أمارا
+- Then add the garment + key detail in formal but simple Arabic.
+- Use Gulf vocabulary: بشت، درّاعة، قفطان، عباية، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
+- ⚠️ For "overcoat" or any outer garment, ALWAYS use "بشت" — NEVER "معطف".
+- ⚠️ PIECE-COUNT FORMAT — match the English version:
+${pieces === 1
+  ? `  · One piece → no piece count in Arabic either.`
+  : `  · This product has ${pieces} pieces → write "${pieceCountAr}" with Arabic-Indic numerals.`}
+- Keep the SKU prefix in Latin (do not translate the SKU).
+- Max 65 characters.
+
+# DESCRIPTION + SEO WRITING RULES — read carefully, follow strictly
+
+1. Plain, simple, natural English. Short sentences (max ~15 words). Read aloud — must sound human, not like a perfume ad.
+2. Concrete details over poetry. Say "olive silk velvet, gold thread embroidery on the neckline" — not "captivating elegance".
 3. No filler adjectives stacked together. Pick ONE adjective max per noun.
 4. Active voice. Specific verbs. Avoid "evokes / evoking", "embraces", "celebrates", "captures the essence of".
-5. Total length: 60-90 words across 3 short paragraphs. Each paragraph: 1-2 sentences only.
-6. Banned words / phrases — DO NOT USE any of these:
-   exquisite, captivating, captivate, evoke, evokes, evoking, evocative, allure, alluring, mystique, embrace, embraces, journey, celebration of, statement piece, must-have, sophisticated allure, enchanting, mesmerizing, breathtaking, stunning, gorgeous, lovely, dreamy, ethereal, gracefully, exquisitely, beautifully, masterfully, intricate (overused), cascade, cascading, adorned, adorning, luminous, radiant, opulent, lavish, regal, majestic.
+5. ⚠️ For "dress" or "inner dress" or "robe" in Arabic, ALWAYS write "درّاعة" (or "درّاعة داخلية" for inner dress). NEVER use "فستان" — that is generic and Western. The brand uses "درّاعة" for the traditional Gulf dress.
+6. ⚠️ DO NOT mention Ramadan unless the product is a literal Ramadan capsule piece. The garments are worn YEAR-ROUND (weddings, henna nights, formal evenings, family gatherings, Eid, special occasions). Tying every product to Ramadan limits SEO discovery to a 1-month window. Use general occasions: evening, wedding, henna, gathering, formal, eid, special-occasion, dinner.
+7. Total length: 60-90 words across 3 short paragraphs (EN). Same in AR.
+8. Banned words / phrases — DO NOT USE any of these:
+   exquisite, captivating, captivate, evoke, evokes, evoking, evocative, allure, alluring, mystique, embrace, embraces, journey, celebration of, statement piece, must-have, sophisticated, sophisticated allure, enchanting, mesmerizing, breathtaking, stunning, gorgeous, lovely, dreamy, ethereal, gracefully, exquisitely, beautifully, masterfully, intricate (overused), cascade, cascading, adorned, adorning, luminous, radiant, opulent, lavish, regal, majestic.
+9. AR: also avoid embellished marketing arabic. Short clear sentences.
 
-# STRUCTURE — 3 paragraphs, separated by \\n\\n
+# GOOGLE SEO — RANK HIGH IN KUWAIT SEARCHES
+Atelier Blue Marine wants to rank top-3 on Google for these intent searches in both EN + AR:
+- "abaya Kuwait", "daraa Kuwait", "bisht women Kuwait", "luxury daraa Kuwait"
+- "عباية الكويت", "درّاعة الكويت", "بشت نسائي الكويت", "أتيليه كويتي"
+- "Gulf heritage clothing", "Khaleeji daraa", "abaya online Kuwait"
+- Garment-specific: "velvet bisht", "embroidered daraa", "wedding bisht"
+SEO RULES:
+- Page title MUST include: garment type (bisht/daraa/caftan/abaya) + 1 distinctive trait + brand name. Front-load keywords: garment type comes first, brand last. (50-70 chars).
+- Page title (AR) mirrors the EN structure with "أتيليه بلو مارين" at the end.
+- Page title NEVER contains the SKU prefix.
+- Meta description MUST include: garment type, color/material, occasion (general), AND the word "Kuwait" or "Atelier Blue Marine" once.
+- Tags must include the Arabic spelling AND English of the garment type — duplicate keys help search (e.g. "bisht" AND "بشت", "daraa" AND "درّاعة").
+- Description (body_html) MUST mention: garment type by name (bisht/daraa/caftan/abaya), fabric, occasion, and where appropriate "Kuwait" or "Gulf heritage" (once, naturally).
+- Use the SKU's poetic name as the brand-distinctive token (Yaqut, Layali, Zumurud, etc.) — this is the canonical product name on Google. Include it in the page title as the distinctive trait when natural.
+
+# DESCRIPTION STRUCTURE — 3 paragraphs, separated by \\n\\n
 
 PARAGRAPH 1 — what it is. Garment type + main visual fact (color, fabric).
-PARAGRAPH 2 — one specific detail that matters (embroidery placement, cut, layering, sleeve shape).
-PARAGRAPH 3 — when to wear it (1 short sentence). Then a separate sentence about fabric/feel.
+PARAGRAPH 2 — one specific detail that matters (embroidery placement, cut, layering, sleeve, set composition).
+PARAGRAPH 3 — when to wear it (1 short sentence) + a separate sentence about fabric/feel.
+
+# TAGS — 10-12 lowercase Shopify tags optimized for Google + Shopify search
+Required mix:
+- garment type: pick from {bisht, daraa, caftan, abaya, kaftan, set, bisht-set, daraa-set}
+- color (1-2 dominant): {green, emerald, burgundy, navy, ivory, gold, black, …}
+- fabric: {velvet, silk, chiffon, embroidered, brocade, …}
+- occasion (NO ramadan unless capsule): {evening, wedding, henna, eid, gathering, formal, special-occasion}
+- style: {heritage, gulf, khaleeji, kuwait, luxury, traditional}
+- ALWAYS include 1 transliteration/locale tag like "kuwait" or "khaleeji".
+- Single-word or short hyphenated. No "#", no commas inside tags.
+
+# URL HANDLE
+- Lowercase, hyphen-separated, ASCII only.
+- Format: "${sku.toLowerCase()}-<poetic-name-slug>-<garment>" (use the poetic name from the title + 1-2 garment words).
+- Example: "a11-yaqut-emerald-bisht-set".
 
 # REFERENCE — your output must read like this (style, length, tone)
 
-TITLE: "${sku} – Olive Embroidered Caftan"
+TITLE: "${sku} – Layali Caftan"
 
 DESCRIPTION:
 A flowing caftan in olive silk velvet, with a soft sheen that shifts in the light.
 
 Hand-embroidered motifs trace the neckline, sleeves and hem in golden thread.
 
-Wear it for gatherings, dinners or evenings at home. The fabric is light and breathes well.
+Wear it for evenings, weddings or family gatherings in Kuwait. The fabric is light and breathes well.
 
-PAGE TITLE: "Olive Embroidered Caftan – Silk Velvet"
-META DESCRIPTION: "Olive silk velvet caftan with hand-embroidered neckline and sleeves. Light, flowing, made for gatherings and quiet evenings."
+PAGE TITLE: "Caftan Layali – Olive Velvet, Atelier Blue Marine"
+META DESCRIPTION: "Olive silk velvet caftan with hand-embroidered neckline. Made in Kuwait by Atelier Blue Marine for weddings, henna and formal evenings."
 
 # OUTPUT
 
 Return ONLY valid JSON (no backticks, no markdown):
 {
   "sku": "${sku}",
-  "urlHandle": "${sku.toLowerCase()}-short-slug-from-product-name",
+  "urlHandle": "${sku.toLowerCase()}-<poetic-name>-<garment>",
   "en": {
-    "title": "${sku} – <Short Product Name 3-5 words> (literal SKU prefix is mandatory)",
-    "description": "3 short paragraphs separated by \\n\\n, following the rules above. 60-90 words total. NO banned words.",
-    "pageTitle": "50-70 chars, with – separator, no SKU",
-    "metaDescription": "130-160 chars, plain and direct"
+    "title": "${sku} – <PoeticName> <Garment>${pieceCountEn ? ` ${pieceCountEn}` : ""} (literal SKU prefix mandatory, max 65 chars)",
+    "description": "3 short paragraphs separated by \\n\\n, following the rules above. 60-90 words total. NO banned words. Mention garment type + 'Kuwait' or 'Gulf heritage' naturally.",
+    "pageTitle": "[Garment] [PoeticName/Trait] – Atelier Blue Marine (garment FIRST, 50-70 chars, no SKU)",
+    "metaDescription": "130-160 chars, includes garment type + color/material + occasion + 'Kuwait' or 'Atelier Blue Marine' once"
   },
   "ar": {
-    "title": "${sku} – <اسم المنتج بالعربية ٣-٥ كلمات> (يجب الحفاظ على رمز SKU كما هو)",
-    "description": "ثلاث فقرات قصيرة مفصولة بـ \\n\\n، بأسلوب طبيعي وبسيط. ٦٠-٩٠ كلمة إجماليًا. جمل قصيرة وواضحة. لا تستخدم كلمات مكررة أو زخرفة لغوية مفرطة.",
-    "pageTitle": "عنوان SEO ٥٠-٧٠ حرفاً مع فاصل –",
-    "metaDescription": "وصف ميتا ١٣٠-١٦٠ حرفاً، مباشر وبسيط"
+    "title": "${sku} – <الاسم بالعربية> <القماش/القطعة>${pieceCountAr ? ` ${pieceCountAr}` : ""} (يجب الحفاظ على رمز SKU كما هو، ٦٥ حرفاً كحد أقصى)",
+    "description": "ثلاث فقرات قصيرة مفصولة بـ \\n\\n، بأسلوب طبيعي وبسيط. ٦٠-٩٠ كلمة إجماليًا. جمل قصيرة وواضحة. لا تستخدم كلمات مكررة أو زخرفة لغوية مفرطة. اذكري نوع القطعة و'الكويت' أو 'أتيليه بلو مارين' بشكل طبيعي.",
+    "pageTitle": "[القطعة] [الاسم] – أتيليه بلو مارين (نوع القطعة أولاً، ٥٠-٧٠ حرفاً، بدون SKU)",
+    "metaDescription": "وصف ميتا ١٣٠-١٦٠ حرفاً، يذكر نوع القطعة + اللون/القماش + المناسبة + 'الكويت' أو 'أتيليه بلو مارين' مرة واحدة"
   },
-  "tags": ["10 lowercase Shopify tags: garment type, color, fabric, occasion, style"]
+  "tags": ["10-12 lowercase Shopify tags. MUST include both EN and AR spelling of garment type (e.g. 'bisht' AND 'بشت', 'daraa' AND 'درّاعة'). Mix: garment EN+AR, color, fabric, occasion (NO ramadan unless capsule), style, kuwait/khaleeji"]
 }
 
-# ARABIC RULES (same spirit)
+# ARABIC DESCRIPTION RULES (same spirit)
 - لغة فصحى بسيطة، جمل قصيرة، تفاصيل محسوسة (لون، قماش، تطريز).
 - ابتعد عن الصياغات المنمقة والكلمات المكررة.
 - ٣ فقرات قصيرة فقط، جملة أو جملتين لكل فقرة.
+- استخدمي "درّاعة" وليس "فستان" للإشارة للقطعة الداخلية.
 
-CRITICAL: If you find yourself writing "exquisite", "captivating", "evoking", "celebration of", or any banned word — DELETE the sentence and rewrite it factually.`;
+CRITICAL: If you find yourself writing "exquisite", "captivating", "evoking", "celebration of", "Ramadan" (unless capsule), "فستان", or any banned word — DELETE the sentence and rewrite it factually. If you write "Two-Piece" or "Three-Piece" instead of "2-Piece" / "3-Piece", REWRITE.`;
 
   const callModel = (model: string) =>
     ai.models.generateContent({

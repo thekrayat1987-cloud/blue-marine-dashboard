@@ -622,6 +622,39 @@ export async function getNextSku(): Promise<string> {
   return `${bestLetter}${String(next).padStart(bestWidth, "0")}`;
 }
 
+// Mirrors the regex used in scripts/rename-products.mjs to seed the
+// "forbidden names" list so the AI doesn't reuse a poetic name already
+// in the catalogue.
+export async function getUsedPoeticNames(): Promise<string[]> {
+  const re = /^[A-Z]\d{1,4}\s*[–\-]\s*([A-Z][\w']+(?:\s+[A-Z][\w']+)?)/;
+  const names = new Set<string>();
+  let cursor: string | null = null;
+  for (let page = 0; page < 5; page++) {
+    const data: {
+      products: {
+        edges: Array<{ cursor: string; node: { title: string } }>;
+        pageInfo: { hasNextPage: boolean };
+      };
+    } = await shopifyGraphQL(
+      `query UsedNames($cursor: String) {
+        products(first: 100, after: $cursor) {
+          edges { cursor node { title } }
+          pageInfo { hasNextPage }
+        }
+      }`,
+      { cursor },
+    );
+    for (const edge of data.products.edges) {
+      const m = edge.node.title.match(re);
+      if (m) names.add(m[1]);
+    }
+    if (!data.products.pageInfo.hasNextPage) break;
+    cursor = data.products.edges[data.products.edges.length - 1]?.cursor ?? null;
+    if (!cursor) break;
+  }
+  return [...names].sort();
+}
+
 export interface ShopifyCollection {
   id: string;
   title: string;
