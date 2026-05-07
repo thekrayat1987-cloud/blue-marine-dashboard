@@ -55,23 +55,23 @@ Mood: timeless, serene, cinematic, heritage.`,
 
 const POSE_PROMPTS: Record<PosePreset, string> = {
   front:
-    "Pose: tall elegant female model, perfect frontal pose facing the camera, statuesque posture, arms relaxed beside the body, neutral confident expression. Full-body framing, centered composition, vertical 2:3 portrait aspect (taller than wide).",
+    "Pose: tall elegant female model, perfect frontal pose facing the camera, statuesque posture, arms relaxed beside the body, neutral confident expression. Full-body framing, centered composition, vertical 9:16 portrait aspect (tall fashion editorial format).",
   three_quarter:
-    "Pose: tall elegant female model in a refined three-quarter angle (body turned ~30-40° from camera), one foot slightly forward, weight on the back leg for an elongated silhouette, hand resting gently at the waist or letting fabric fall, soft confident gaze toward the camera. Full-body framing, vertical 2:3 portrait aspect (taller than wide).",
+    "Pose: tall elegant female model in a refined three-quarter angle (body turned ~30-40° from camera), one foot slightly forward, weight on the back leg for an elongated silhouette, hand resting gently at the waist or letting fabric fall, soft confident gaze toward the camera. Full-body framing, vertical 9:16 portrait aspect (tall fashion editorial format).",
   profile:
-    "Pose: tall elegant female model in a clean side profile (90°), chin slightly lifted, arms relaxed, posture statuesque to showcase the garment's silhouette and side embroidery. Full-body framing, vertical 2:3 portrait composition (taller than wide).",
+    "Pose: tall elegant female model in a clean side profile (90°), chin slightly lifted, arms relaxed, posture statuesque to showcase the garment's silhouette and side embroidery. Full-body framing, vertical 9:16 portrait composition (tall fashion editorial format).",
   back:
-    "Pose: tall elegant female model photographed from behind, head turned slightly to reveal jawline, showcasing the back of the garment (neckline, embroidery, drape). Full-body framing, vertical 2:3 portrait composition (taller than wide).",
+    "Pose: tall elegant female model photographed from behind, head turned slightly to reveal jawline, showcasing the back of the garment (neckline, embroidery, drape). Full-body framing, vertical 9:16 portrait composition (tall fashion editorial format).",
   walking:
-    "Pose: tall elegant female model captured mid-walk with natural movement, fabric flowing softly, one foot forward, slight side angle, candid look off-camera. Full-body framing, dynamic but graceful, vertical 2:3 portrait composition (taller than wide).",
+    "Pose: tall elegant female model captured mid-walk with natural movement, fabric flowing softly, one foot forward, slight side angle, candid look off-camera. Full-body framing, dynamic but graceful, vertical 9:16 portrait composition (tall fashion editorial format).",
   seated:
-    "Pose: tall elegant female model seated on a low ottoman or marble bench, fabric arranged elegantly around her, legs crossed at the ankle, hands resting in lap, refined posture, soft direct gaze. Full-body framing, vertical 2:3 portrait composition (taller than wide).",
+    "Pose: tall elegant female model seated on a low ottoman or marble bench, fabric arranged elegantly around her, legs crossed at the ankle, hands resting in lap, refined posture, soft direct gaze. Full-body framing, vertical 9:16 portrait composition (tall fashion editorial format).",
   looking_back:
-    "Pose: tall elegant female model with body turned three-quarters away from camera, head turned back over the shoulder with a soft refined gaze, showcasing both the side of the garment and the back drape. Full-body framing, vertical 2:3 portrait composition (taller than wide).",
+    "Pose: tall elegant female model with body turned three-quarters away from camera, head turned back over the shoulder with a soft refined gaze, showcasing both the side of the garment and the back drape. Full-body framing, vertical 9:16 portrait composition (tall fashion editorial format).",
   detail_close:
-    "Framing: medium close-up shot from waist up, subtle three-quarter angle, focused on the embroidery, neckline and fabric details of the garment. Hands gently touching the fabric or holding the side. Soft, flattering light on the textile. Vertical 2:3 portrait composition (taller than wide).",
+    "Framing: medium close-up shot from waist up, subtle three-quarter angle, focused on the embroidery, neckline and fabric details of the garment. Hands gently touching the fabric or holding the side. Soft, flattering light on the textile. Vertical 9:16 portrait composition (tall fashion editorial format).",
   low_angle:
-    "Pose: tall elegant female model shot from a slight low angle for a regal, statuesque effect, elongating the silhouette. Subtle three-quarter pose, chin lifted, confident neutral expression. Full-body framing, vertical 2:3 portrait composition (taller than wide).",
+    "Pose: tall elegant female model shot from a slight low angle for a regal, statuesque effect, elongating the silhouette. Subtle three-quarter pose, chin lifted, confident neutral expression. Full-body framing, vertical 9:16 portrait composition (tall fashion editorial format).",
 };
 
 let cachedClient: GoogleGenAI | null = null;
@@ -165,9 +165,9 @@ You MUST NOT, under any circumstance:
 If you are tempted to make the garment "more interesting", stop. The garment is already finished. You are only a photographer choosing the scene, lighting, and pose.
 
 # OUTPUT FRAMING — MANDATORY
-- Aspect ratio: vertical 2:3 portrait (width:height = 2:3, i.e. the image is taller than it is wide).
-- Composition: full-body model centered horizontally, with comfortable headroom above the hair and clear space below the feet so the image can be cropped safely on any e-commerce grid.
-- All generated images for Blue Marine MUST share this exact 2:3 portrait ratio so the catalog is visually uniform.`;
+- Aspect ratio: vertical 9:16 portrait (width:height = 9:16, i.e. a tall fashion editorial format).
+- Composition: full-body model centered horizontally, head visible at the top with a small headroom margin, feet clearly visible above a small floor margin at the bottom — the entire silhouette of the garment from collar to hem must fit inside the frame.
+- All generated images for Blue Marine MUST share this exact 9:16 portrait ratio so the catalog is visually uniform.`;
 
   const prompt = [
     garmentLock,
