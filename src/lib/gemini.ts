@@ -311,15 +311,19 @@ export async function generateProductDescription(params: {
   const hasShawl = params.hasShawl ?? false;
   const usedNames = params.usedNames ?? [];
 
-  const piecesArabic: Record<1 | 2 | 3 | 4, string> = { 1: "١", 2: "٢", 3: "٣", 4: "٤" };
-  const pieceCountEn = pieces > 1 ? `${pieces}-Piece Set` : null;
-  const pieceCountAr = pieces > 1 ? `طقم ${piecesArabic[pieces]} قطع` : null;
+  const piecesArabic: Record<1 | 2 | 3 | 4 | 5, string> = { 1: "١", 2: "٢", 3: "٣", 4: "٤", 5: "٥" };
+  const totalPieces = Math.min(5, pieces + (hasShawl ? 1 : 0)) as 1 | 2 | 3 | 4 | 5;
+  const pieceCountEn = totalPieces > 1 ? `${totalPieces}-Piece Set` : null;
+  const pieceCountAr = totalPieces > 1 ? `طقم ${piecesArabic[totalPieces]} قطع` : null;
 
   const compositionFacts: string[] = [];
-  if (pieces > 1) compositionFacts.push(`${pieces}-piece coordinated set (ensemble ${pieces} pièces)`);
-  if (hasShawl) compositionFacts.push("includes a matching shawl");
+  if (totalPieces > 1)
+    compositionFacts.push(
+      `${totalPieces}-piece coordinated set (ensemble ${totalPieces} pièces)${hasShawl ? ` — ${pieces} main piece${pieces > 1 ? "s" : ""} + 1 matching shawl counted as a piece` : ""}`,
+    );
+  if (hasShawl) compositionFacts.push("includes a matching shawl (counted in the total piece count)");
   const compositionBlock = compositionFacts.length
-    ? `\n\n# COMPOSITION (must be reflected in title, description and tags)\nThis product is: ${compositionFacts.join(", ")}.\n- Mention the piece count explicitly in the description (e.g. "a two-piece set", "ensemble trois pièces"... in the appropriate language).\n- If a shawl is included, mention it as a matching shawl / châle assorti / شال مطابق.\n- Add relevant tags such as "${pieces}-piece", "set"${hasShawl ? ', "shawl"' : ""}.\n`
+    ? `\n\n# COMPOSITION (must be reflected in title, description and tags)\nThis product is: ${compositionFacts.join(", ")}.\n- The shawl counts as a piece in the total. Title MUST say "${pieceCountEn}". Description MUST say "${totalPieces === 2 ? "two" : totalPieces === 3 ? "three" : totalPieces === 4 ? "four" : "five"}-piece set" (NOT a lower number).\n- If a shawl is included, mention it as a matching shawl / châle assorti / شال مطابق as one of the pieces.\n- Add relevant tags such as "${totalPieces}-piece", "set"${hasShawl ? ', "shawl"' : ""}.\n`
     : "";
 
   const forbiddenBlock = usedNames.length
@@ -359,13 +363,13 @@ Before writing anything, identify the garment shown in the image. Pick ONE from 
 - Max 65 characters total. The NAME comes first after the dash, then the garment + key detail.
 - ⚠️ Use the garment name you identified above. Do NOT write "Bisht" unless the image actually shows an outer cloak.
 - For an actual outer Gulf cloak, ALWAYS write "Bisht" — NEVER "Overcoat", "Coat", "Cloak" or "Robe".
-${pieces === 1
+${totalPieces === 1
   ? `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ONE PIECE.
   · DO NOT add any piece count to the title. The title ends with the garment name.
   · NEVER write "2-Piece", "3-Piece", "Set", "Bisht Set", "(One Piece)" or any count phrase.
   · Correct examples: "${sku} – Layali Daraa", "${sku} – Amara Caftan", "${sku} – Noor Abaya".
   · Wrong: "${sku} – Layali 2-Piece Bisht Set" (this product is ONE piece, not a set).`
-  : `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ${pieces} PIECES.
+  : `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ${totalPieces} PIECES${hasShawl ? ` (${pieces} main piece${pieces > 1 ? "s" : ""} + matching shawl)` : ""}.
   · Write exactly "${pieceCountEn}" (hyphen, capital P, capital S) before the garment word.
   · Correct example: "${sku} – Zumurud ${pieceCountEn} Bisht Set".
   · NEVER use "Two-Piece" / "Three-Piece" — always digit + hyphen + "Piece".`}
@@ -382,9 +386,9 @@ ${pieces === 1
 - ⚠️ Use the SAME garment word you chose in English. If English says "Daraa", Arabic says "درّاعة". If English says "Caftan", Arabic says "قفطان". Do NOT switch to "بشت" unless the English title also uses "Bisht".
 - For an actual outer cloak, use "بشت" — NEVER "معطف".
 - ⚠️ PIECE-COUNT FORMAT — match the English version exactly:
-${pieces === 1
+${totalPieces === 1
   ? `  · ONE piece → NO piece count in Arabic. The title ends with the garment word. Do NOT write "طقم", "٢ قطع", "٣ قطع" or any set/count word.`
-  : `  · This product has ${pieces} pieces → write "${pieceCountAr}" with Arabic-Indic numerals.`}
+  : `  · This product has ${totalPieces} pieces → write "${pieceCountAr}" with Arabic-Indic numerals.`}
 - Keep the SKU prefix in Latin (do not translate the SKU).
 - Max 65 characters.
 
@@ -480,7 +484,7 @@ Return ONLY valid JSON (no backticks, no markdown):
 
 CRITICAL CHECKS — re-read your output before returning JSON:
 1. Did you label a single flowing dress as "Bisht" or "Bisht Set"? If yes, REWRITE — it is a daraa (or caftan/abaya).
-${pieces === 1
+${totalPieces === 1
   ? `2. Does any title contain "2-Piece", "3-Piece", "Set", "Bisht Set", "طقم", "٢ قطع", or "٣ قطع"? This product has ONE piece — REMOVE all count/set words and rewrite the title.`
   : `2. Does the EN title contain "${pieceCountEn}" and the AR title contain "${pieceCountAr}"? If not, REWRITE.`}
 3. Did you use any banned word (exquisite, captivating, evoking, celebration of, Ramadan unless capsule, فستان)? DELETE the sentence and rewrite factually.
