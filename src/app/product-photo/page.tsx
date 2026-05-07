@@ -1553,6 +1553,34 @@ function parseInlineImage(
   return { mimeType: match[1], base64: match[2] };
 }
 
+async function compressInlineImage(
+  dataUrl: string,
+  maxDimension = 2048,
+  quality = 0.85,
+): Promise<{ base64: string; mimeType: string } | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(parseInlineImage(dataUrl));
+        return;
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+      const out = canvas.toDataURL("image/jpeg", quality);
+      resolve(parseInlineImage(out));
+    };
+    img.onerror = () => resolve(parseInlineImage(dataUrl));
+    img.src = dataUrl;
+  });
+}
+
 function ShopifyPushBox({
   generationId,
   inlineImage,
@@ -1597,6 +1625,7 @@ function ShopifyPushBox({
   const [collections, setCollections] = useState<ShopifyCollection[]>([]);
   const [collectionsLoading, setCollectionsLoading] = useState(false);
   const [price, setPrice] = useState("");
+  const [inventoryQty, setInventoryQty] = useState("5");
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
   const [productQuery, setProductQuery] = useState("");
@@ -1674,23 +1703,28 @@ function ShopifyPushBox({
     setError(null);
     setResult(null);
     try {
-      const selectedInlineImages = allImages
+      const selectedUrls = allImages
         .filter((img) => selectedImageIds.has(img.id))
-        .map((img) => parseInlineImage(img.url))
-        .filter((p): p is { base64: string; mimeType: string } => p !== null);
+        .map((img) => img.url);
+
+      const compressed = await Promise.all(selectedUrls.map((url) => compressInlineImage(url)));
+      const selectedInlineImages = compressed.filter(
+        (p): p is { base64: string; mimeType: string } => p !== null,
+      );
 
       if (selectedInlineImages.length === 0 && allImages.length > 0) {
         throw new Error("Sélectionne au moins une photo");
       }
 
-      // Vercel rejects request bodies > 4.5 MB. Base64 inflates ~1.37x — keep raw payload < ~3 MB combined.
+      // Vercel rejects request bodies > 4.5 MB. JPEG compression keeps each image small, but cap to be safe.
       const totalBase64Bytes = selectedInlineImages.reduce((sum, img) => sum + img.base64.length, 0);
       if (totalBase64Bytes > 4_000_000) {
         throw new Error(
-          `Trop de photos sélectionnées (${(totalBase64Bytes / 1_000_000).toFixed(1)} Mo). Décoche-en une et réessaie, ou ajoute-les manuellement dans Shopify Admin après la création.`,
+          `Photos encore trop lourdes après compression (${(totalBase64Bytes / 1_000_000).toFixed(1)} Mo). Décoche-en une et réessaie, ou ajoute-les manuellement dans Shopify Admin après la création.`,
         );
       }
 
+      const parsedQty = parseInt(inventoryQty.trim(), 10);
       const res = await fetch("/api/shopify/push-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1701,6 +1735,7 @@ function ShopifyPushBox({
           images: selectedInlineImages,
           description: inlineDescription ?? undefined,
           sku: inlineSku ?? undefined,
+          inventoryQuantity: Number.isFinite(parsedQty) && parsedQty >= 0 ? parsedQty : 5,
         }),
       });
       const data = await res.json();
@@ -2034,6 +2069,26 @@ function ShopifyPushBox({
           className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50"
         />
       </div>
+
+      {mode === "new" && (
+        <div>
+          <label className="text-[11px] uppercase tracking-wider text-foreground-subtle mb-1.5 block">
+            Quantité initiale par variante
+          </label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={inventoryQty}
+            onChange={(e) => setInventoryQty(e.target.value)}
+            placeholder="5"
+            className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50"
+          />
+          <p className="mt-1 text-[11px] text-foreground-subtle">
+            Stock seedé sur chaque variante à ton emplacement Shopify (modifiable après création).
+          </p>
+        </div>
+      )}
 
       {mode === "new" && (
         <div>

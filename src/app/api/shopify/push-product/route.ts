@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       imageMimeType,
       description,
       sku: skuFromBody,
+      inventoryQuantity,
     } = body as {
       generationId?: string;
       price?: string;
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
       imageMimeType?: string;
       description?: ProductDescription;
       sku?: string;
+      inventoryQuantity?: number;
     };
 
     if (!price || !/^\d+(\.\d{1,3})?$/.test(price)) {
@@ -101,6 +103,10 @@ export async function POST(request: NextRequest) {
       price,
       tags: payload.description.tags,
       collectionIds: Array.isArray(collectionIds) ? collectionIds : [],
+      inventoryQuantity:
+        typeof inventoryQuantity === "number" && inventoryQuantity >= 0
+          ? Math.floor(inventoryQuantity)
+          : undefined,
     });
 
     return Response.json(result);

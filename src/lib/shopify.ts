@@ -781,7 +781,13 @@ export interface PushProductParams {
   price: string;
   tags: string[];
   collectionIds: string[];
+  inventoryQuantity?: number;
 }
+
+const TRADITIONAL_CLOTHING_CATEGORY = "gid://shopify/TaxonomyCategory/aa-1-23";
+const DEFAULT_LOCATION_ID = "gid://shopify/Location/108480495916";
+const DEFAULT_INVENTORY_QUANTITY = 5;
+const DEFAULT_WEIGHT_KG = 1;
 
 export interface PushProductResult {
   productId: string;
@@ -839,6 +845,7 @@ export async function pushProductToShopify(
         handle: params.enHandle,
         tags: params.tags,
         status: "DRAFT",
+        category: TRADITIONAL_CLOTHING_CATEGORY,
         seo: { title: params.enSeoTitle, description: params.enSeoDescription },
         productOptions: [
           {
@@ -871,18 +878,23 @@ export async function pushProductToShopify(
   const product = productCreateData.productCreate.product;
   if (!product) throw new Error("productCreate returned no product");
 
-  // Set price + SKU on every Size variant (no inventory tracking)
+  // Set price, SKU, weight, tracking + seed inventory on every Size variant
+  const initialQty = params.inventoryQuantity ?? DEFAULT_INVENTORY_QUANTITY;
   try {
     const variantsData = await shopifyGraphQL<{
-      product: { variants: { edges: Array<{ node: { id: string } }> } } | null;
+      product: {
+        variants: { edges: Array<{ node: { id: string; inventoryItem: { id: string } } }> };
+      } | null;
     }>(
       `query ProductVariants($id: ID!) {
-        product(id: $id) { variants(first: 50) { edges { node { id } } } }
+        product(id: $id) {
+          variants(first: 50) { edges { node { id inventoryItem { id } } } }
+        }
       }`,
       { id: product.id },
     );
-    const variantIds = variantsData.product?.variants.edges.map((e) => e.node.id) ?? [];
-    if (variantIds.length) {
+    const variantNodes = variantsData.product?.variants.edges.map((e) => e.node) ?? [];
+    if (variantNodes.length) {
       const updateRes = await shopifyGraphQL<{
         productVariantsBulkUpdate: {
           userErrors: Array<{ field: string[]; message: string }>;
@@ -895,10 +907,16 @@ export async function pushProductToShopify(
         }`,
         {
           productId: product.id,
-          variants: variantIds.map((id) => ({
-            id,
+          variants: variantNodes.map((v) => ({
+            id: v.id,
             price: params.price,
-            inventoryItem: { sku: params.sku, tracked: false },
+            inventoryItem: {
+              sku: params.sku,
+              tracked: true,
+              measurement: {
+                weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" },
+              },
+            },
           })),
         },
       );
@@ -907,9 +925,74 @@ export async function pushProductToShopify(
           `Variant update: ${updateRes.productVariantsBulkUpdate.userErrors.map((e) => e.message).join(", ")}`,
         );
       }
+
+      // Seed inventory at the default location
+      try {
+        const setQuantitiesRes = await shopifyGraphQL<{
+          inventorySetQuantities: {
+            userErrors: Array<{ field: string[]; message: string }>;
+          };
+        }>(
+          `mutation InventorySet($input: InventorySetQuantitiesInput!) {
+            inventorySetQuantities(input: $input) {
+              userErrors { field message }
+            }
+          }`,
+          {
+            input: {
+              name: "available",
+              reason: "correction",
+              ignoreCompareQuantity: true,
+              quantities: variantNodes.map((v) => ({
+                inventoryItemId: v.inventoryItem.id,
+                locationId: DEFAULT_LOCATION_ID,
+                quantity: initialQty,
+              })),
+            },
+          },
+        );
+        if (setQuantitiesRes.inventorySetQuantities.userErrors.length) {
+          warnings.push(
+            `Inventory seed: ${setQuantitiesRes.inventorySetQuantities.userErrors.map((e) => e.message).join(", ")}`,
+          );
+        }
+      } catch (err) {
+        warnings.push(err instanceof Error ? `Inventory: ${err.message}` : "Inventory seed failed");
+      }
     }
   } catch (err) {
     warnings.push(err instanceof Error ? `Variant: ${err.message}` : "Variant update failed");
+  }
+
+  // Set Google Shopping + Facebook metafields
+  try {
+    const metaRes = await shopifyGraphQL<{
+      metafieldsSet: {
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          userErrors { field message }
+        }
+      }`,
+      {
+        metafields: [
+          { ownerId: product.id, namespace: "mm-google-shopping", key: "age_group", type: "single_line_text_field", value: "adult" },
+          { ownerId: product.id, namespace: "mm-google-shopping", key: "condition", type: "single_line_text_field", value: "new" },
+          { ownerId: product.id, namespace: "mm-google-shopping", key: "gender", type: "single_line_text_field", value: "female" },
+          { ownerId: product.id, namespace: "mm-google-shopping", key: "mpn", type: "single_line_text_field", value: params.sku },
+          { ownerId: product.id, namespace: "mc-facebook", key: "google_product_category", type: "single_line_text_field", value: "5388" },
+        ],
+      },
+    );
+    if (metaRes.metafieldsSet.userErrors.length) {
+      warnings.push(
+        `Metafields: ${metaRes.metafieldsSet.userErrors.map((e) => e.message).join(", ")}`,
+      );
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Metafields: ${err.message}` : "Metafields failed");
   }
 
   // Add to collections
