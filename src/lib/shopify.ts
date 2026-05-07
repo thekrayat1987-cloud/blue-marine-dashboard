@@ -782,6 +782,7 @@ export interface PushProductParams {
   tags: string[];
   collectionIds: string[];
   inventoryQuantity?: number;
+  principalColor?: string;
 }
 
 const TRADITIONAL_CLOTHING_CATEGORY = "gid://shopify/TaxonomyCategory/aa-1-23";
@@ -910,6 +911,14 @@ export async function pushProductToShopify(
             name: LENGTH_OPTION_NAME,
             values: LENGTH_VALUES.map((v) => ({ name: v })),
           },
+          ...(params.principalColor
+            ? [
+                {
+                  name: "Color",
+                  values: [{ name: params.principalColor }],
+                },
+              ]
+            : []),
         ],
       },
       media: stagedResources.map((resourceUrl) => ({
@@ -949,6 +958,9 @@ export async function pushProductToShopify(
           optionValues: [
             { optionName: "Size", name: size },
             { optionName: LENGTH_OPTION_NAME, name: length },
+            ...(params.principalColor
+              ? [{ optionName: "Color", name: params.principalColor }]
+              : []),
           ],
           price: params.price,
           inventoryItem: {
@@ -1354,8 +1366,22 @@ export async function addVariantToProduct(
   const colorOption = productData.product.options.find(
     (o) => o.name.toLowerCase() === "color" || o.name.toLowerCase() === "couleur",
   );
+  const sizeOption = productData.product.options.find(
+    (o) => o.name.toLowerCase() === "size",
+  );
+  const lengthOption = productData.product.options.find(
+    (o) => o.name.toLowerCase() === LENGTH_OPTION_NAME.toLowerCase(),
+  );
 
-  // 3. If no Color option, add one
+  if (!sizeOption || !lengthOption) {
+    throw new Error(
+      "Le produit principal n'a pas les options Size et Length in inch requises",
+    );
+  }
+
+  const colorOptionName = colorOption?.name ?? "Color";
+
+  // 3. Add Color option (or new color value to existing option)
   if (!colorOption) {
     const optRes = await shopifyGraphQL<{
       productOptionsCreate: {
@@ -1377,32 +1403,82 @@ export async function addVariantToProduct(
         `Color option create: ${optRes.productOptionsCreate.userErrors.map((e) => e.message).join(", ")}`,
       );
     }
+  } else if (!colorOption.values.includes(params.colorName)) {
+    const updRes = await shopifyGraphQL<{
+      productOptionUpdate: {
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation OptionUpdate($productId: ID!, $option: OptionUpdateInput!, $optionValuesToAdd: [OptionValueCreateInput!]) {
+        productOptionUpdate(productId: $productId, option: $option, optionValuesToAdd: $optionValuesToAdd) {
+          userErrors { field message }
+        }
+      }`,
+      {
+        productId: params.productId,
+        option: { id: colorOption.id },
+        optionValuesToAdd: [{ name: params.colorName }],
+      },
+    );
+    if (updRes.productOptionUpdate.userErrors.length) {
+      warnings.push(
+        `Color option update: ${updRes.productOptionUpdate.userErrors.map((e) => e.message).join(", ")}`,
+      );
+    }
   }
 
-  // 4. Create the new variant with media linked
+  // 4. Build cartesian Size × Length variants for the new color
+  type VariantInput = {
+    optionValues: Array<{ optionName: string; name: string }>;
+    price: string;
+    inventoryItem: {
+      sku: string;
+      tracked: boolean;
+      measurement: { weight: { value: number; unit: string } };
+    };
+    mediaSrc?: string[];
+  };
+  const newVariants: VariantInput[] = [];
+  let mediaAttached = false;
+  for (const size of sizeOption.values) {
+    for (const length of lengthOption.values) {
+      const variant: VariantInput = {
+        optionValues: [
+          { optionName: sizeOption.name, name: size },
+          { optionName: lengthOption.name, name: length },
+          { optionName: colorOptionName, name: params.colorName },
+        ],
+        price: params.price,
+        inventoryItem: {
+          sku: params.sku,
+          tracked: true,
+          measurement: { weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" } },
+        },
+      };
+      if (!mediaAttached) {
+        variant.mediaSrc = [staged.resourceUrl];
+        mediaAttached = true;
+      }
+      newVariants.push(variant);
+    }
+  }
+
   const variantRes = await shopifyGraphQL<{
     productVariantsBulkCreate: {
-      productVariants: Array<{ id: string }> | null;
+      productVariants: Array<{ id: string; inventoryItem: { id: string } }> | null;
       userErrors: Array<{ field: string[]; message: string }>;
     };
   }>(
     `mutation VariantCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!, $strategy: ProductVariantsBulkCreateStrategy) {
       productVariantsBulkCreate(productId: $productId, variants: $variants, strategy: $strategy) {
-        productVariants { id }
+        productVariants { id inventoryItem { id } }
         userErrors { field message }
       }
     }`,
     {
       productId: params.productId,
       strategy: "REMOVE_STANDALONE_VARIANT",
-      variants: [
-        {
-          optionValues: [{ optionName: "Color", name: params.colorName }],
-          price: params.price,
-          inventoryItem: { sku: params.sku },
-          mediaSrc: [staged.resourceUrl],
-        },
-      ],
+      variants: newVariants,
     },
   );
 
@@ -1414,22 +1490,16 @@ export async function addVariantToProduct(
     );
   }
 
-  const newVariant = variantRes.productVariantsBulkCreate.productVariants?.[0];
-  if (!newVariant) throw new Error("Aucune variante créée");
+  const createdVariants = variantRes.productVariantsBulkCreate.productVariants ?? [];
+  if (createdVariants.length === 0) throw new Error("Aucune variante créée");
 
-  // Apply customs (country of origin + HS code) + tracking on the new variant's inventory item
+  // Apply customs (country of origin + HS code) + tracking on every new inventory item
   try {
-    const invData = await shopifyGraphQL<{
-      productVariant: { inventoryItem: { id: string } | null } | null;
-    }>(
-      `query VariantInventory($id: ID!) {
-        productVariant(id: $id) { inventoryItem { id } }
-      }`,
-      { id: newVariant.id },
-    );
-    const itemId = invData.productVariant?.inventoryItem?.id;
-    if (itemId) {
-      warnings.push(...(await applyCustomsToInventoryItems([itemId])));
+    const inventoryItemIds = createdVariants
+      .map((v) => v.inventoryItem?.id)
+      .filter((id): id is string => Boolean(id));
+    if (inventoryItemIds.length) {
+      warnings.push(...(await applyCustomsToInventoryItems(inventoryItemIds)));
     }
   } catch (err) {
     warnings.push(err instanceof Error ? `Customs fields: ${err.message}` : "Customs fields update failed");
@@ -1439,7 +1509,7 @@ export async function addVariantToProduct(
   const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
 
   return {
-    variantId: newVariant.id,
+    variantId: createdVariants[0].id,
     productHandle: productData.product.handle,
     adminUrl,
     warnings,

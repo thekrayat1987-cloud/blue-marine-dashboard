@@ -85,12 +85,13 @@ export async function POST(request: NextRequest) {
     });
 
     const mainImageBuffer = Buffer.from(mainColor.imageBase64, "base64");
+    const principalColor = mainColor.name.trim();
     const mainResult = await pushProductToShopify({
       images: [
         {
           buffer: mainImageBuffer,
           mimeType: mainColor.imageMimeType,
-          filename: `${cleanSku.toLowerCase()}-${slug(mainColor.name)}.${extFor(mainColor.imageMimeType)}`,
+          filename: `${cleanSku.toLowerCase()}-${slug(principalColor)}.${extFor(mainColor.imageMimeType)}`,
         },
       ],
       sku: cleanSku,
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         typeof inventoryQuantity === "number" && inventoryQuantity >= 0
           ? Math.floor(inventoryQuantity)
           : undefined,
+      principalColor: validColors.length > 1 ? principalColor : undefined,
     });
 
     const variantResults: Array<{
