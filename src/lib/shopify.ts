@@ -796,6 +796,45 @@ const COUNTRY_OF_ORIGIN = "KW"; // Kuwait
 const SLEEVE_LENGTH_LONG_METAOBJECT_GID =
   "gid://shopify/Metaobject/185829523756"; // shopify--sleeve-length-type/long
 
+async function applyCustomsToInventoryItems(
+  inventoryItemIds: string[],
+): Promise<string[]> {
+  const warnings: string[] = [];
+  for (const itemId of inventoryItemIds) {
+    try {
+      const updRes = await shopifyGraphQL<{
+        inventoryItemUpdate: {
+          userErrors: Array<{ field: string[]; message: string }>;
+        };
+      }>(
+        `mutation InventoryItemUpdate($id: ID!, $input: InventoryItemInput!) {
+          inventoryItemUpdate(id: $id, input: $input) {
+            userErrors { field message }
+          }
+        }`,
+        {
+          id: itemId,
+          input: {
+            countryCodeOfOrigin: COUNTRY_OF_ORIGIN,
+            harmonizedSystemCode: HARMONIZED_SYSTEM_CODE,
+            tracked: true,
+          },
+        },
+      );
+      if (updRes.inventoryItemUpdate.userErrors.length) {
+        warnings.push(
+          `Inventory item ${itemId}: ${updRes.inventoryItemUpdate.userErrors.map((e) => e.message).join(", ")}`,
+        );
+      }
+    } catch (err) {
+      warnings.push(
+        err instanceof Error ? `Inventory item ${itemId}: ${err.message}` : "Inventory item update failed",
+      );
+    }
+  }
+  return warnings;
+}
+
 export interface PushProductResult {
   productId: string;
   productHandle: string;
@@ -1082,37 +1121,7 @@ export async function pushProductToShopify(
     const inventoryItemIds = (invData.product?.variants.edges ?? [])
       .map((e) => e.node.inventoryItem?.id)
       .filter((id): id is string => Boolean(id));
-    for (const itemId of inventoryItemIds) {
-      try {
-        const updRes = await shopifyGraphQL<{
-          inventoryItemUpdate: {
-            userErrors: Array<{ field: string[]; message: string }>;
-          };
-        }>(
-          `mutation InventoryItemUpdate($id: ID!, $input: InventoryItemInput!) {
-            inventoryItemUpdate(id: $id, input: $input) {
-              userErrors { field message }
-            }
-          }`,
-          {
-            id: itemId,
-            input: {
-              countryCodeOfOrigin: COUNTRY_OF_ORIGIN,
-              harmonizedSystemCode: HARMONIZED_SYSTEM_CODE,
-            },
-          },
-        );
-        if (updRes.inventoryItemUpdate.userErrors.length) {
-          warnings.push(
-            `Inventory item ${itemId}: ${updRes.inventoryItemUpdate.userErrors.map((e) => e.message).join(", ")}`,
-          );
-        }
-      } catch (err) {
-        warnings.push(
-          err instanceof Error ? `Inventory item ${itemId}: ${err.message}` : "Inventory item update failed",
-        );
-      }
-    }
+    warnings.push(...(await applyCustomsToInventoryItems(inventoryItemIds)));
   } catch (err) {
     warnings.push(err instanceof Error ? `Customs fields: ${err.message}` : "Customs fields update failed");
   }
@@ -1408,6 +1417,24 @@ export async function addVariantToProduct(
   const newVariant = variantRes.productVariantsBulkCreate.productVariants?.[0];
   if (!newVariant) throw new Error("Aucune variante créée");
 
+  // Apply customs (country of origin + HS code) + tracking on the new variant's inventory item
+  try {
+    const invData = await shopifyGraphQL<{
+      productVariant: { inventoryItem: { id: string } | null } | null;
+    }>(
+      `query VariantInventory($id: ID!) {
+        productVariant(id: $id) { inventoryItem { id } }
+      }`,
+      { id: newVariant.id },
+    );
+    const itemId = invData.productVariant?.inventoryItem?.id;
+    if (itemId) {
+      warnings.push(...(await applyCustomsToInventoryItems([itemId])));
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Customs fields: ${err.message}` : "Customs fields update failed");
+  }
+
   const numericId = params.productId.split("/").pop();
   const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
 
@@ -1540,7 +1567,7 @@ export async function addLengthToProduct(
           { optionName: LENGTH_OPTION_NAME, name: lv },
         ],
         price: variant.price,
-        inventoryItem: { sku: variant.sku ?? "", tracked: false },
+        inventoryItem: { sku: variant.sku ?? "", tracked: true },
       });
     }
   }
@@ -1548,11 +1575,13 @@ export async function addLengthToProduct(
   if (newVariants.length > 0) {
     const createRes = await shopifyGraphQL<{
       productVariantsBulkCreate: {
+        productVariants: Array<{ id: string; inventoryItem: { id: string } | null }> | null;
         userErrors: Array<{ field: string[]; message: string }>;
       };
     }>(
       `mutation VariantCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
         productVariantsBulkCreate(productId: $productId, variants: $variants) {
+          productVariants { id inventoryItem { id } }
           userErrors { field message }
         }
       }`,
@@ -1563,6 +1592,14 @@ export async function addLengthToProduct(
       warnings.push(
         `Variant create: ${createRes.productVariantsBulkCreate.userErrors.map((e) => e.message).join(", ")}`,
       );
+    }
+
+    // Apply customs (country of origin + HS code) on the newly created length variants
+    const newInventoryItemIds = (createRes.productVariantsBulkCreate.productVariants ?? [])
+      .map((v) => v.inventoryItem?.id)
+      .filter((id): id is string => Boolean(id));
+    if (newInventoryItemIds.length > 0) {
+      warnings.push(...(await applyCustomsToInventoryItems(newInventoryItemIds)));
     }
   }
 
