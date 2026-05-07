@@ -783,6 +783,7 @@ export interface PushProductParams {
   collectionIds: string[];
   inventoryQuantity?: number;
   principalColor?: string;
+  colorList?: string[];
 }
 
 const TRADITIONAL_CLOTHING_CATEGORY = "gid://shopify/TaxonomyCategory/aa-1-23";
@@ -796,6 +797,129 @@ const HARMONIZED_SYSTEM_CODE = "6204.49"; // women's other-material clothing
 const COUNTRY_OF_ORIGIN = "KW"; // Kuwait
 const SLEEVE_LENGTH_LONG_METAOBJECT_GID =
   "gid://shopify/Metaobject/185829523756"; // shopify--sleeve-length-type/long
+const AGE_GROUP_ADULT_METAOBJECT_GID =
+  "gid://shopify/Metaobject/169652355372"; // shopify--age-group/adult
+const TARGET_GENDER_FEMALE_METAOBJECT_GID =
+  "gid://shopify/Metaobject/169652289836"; // shopify--target-gender/female
+
+// French → English/Arabic color dictionary + Shopify color-pattern metaobject GID.
+// Khadija enters colors in French; Shopify default locale stores English;
+// Arabic is registered as a translation; metaobjectGid populates `shopify/color-pattern`.
+const COLOR_MAP: Record<
+  string,
+  { en: string; ar: string; metaobjectGid?: string }
+> = {
+  "rose": { en: "Pink", ar: "وردي", metaobjectGid: "gid://shopify/Metaobject/176780116268" },
+  "rose pâle": { en: "Light Pink", ar: "وردي فاتح", metaobjectGid: "gid://shopify/Metaobject/176780116268" },
+  "jaune": { en: "Yellow", ar: "أصفر", metaobjectGid: "gid://shopify/Metaobject/174696300844" },
+  "gris": { en: "Grey", ar: "رمادي", metaobjectGid: "gid://shopify/Metaobject/169946775852" },
+  "noir": { en: "Black", ar: "أسود", metaobjectGid: "gid://shopify/Metaobject/169808855340" },
+  "blanc": { en: "White", ar: "أبيض", metaobjectGid: "gid://shopify/Metaobject/174967226668" },
+  "bleu": { en: "Blue", ar: "أزرق", metaobjectGid: "gid://shopify/Metaobject/171100864812" },
+  "bleu marine": { en: "Navy", ar: "كحلي", metaobjectGid: "gid://shopify/Metaobject/185972785452" },
+  "bleu ciel": { en: "Sky Blue", ar: "سماوي", metaobjectGid: "gid://shopify/Metaobject/171100864812" },
+  "vert": { en: "Green", ar: "أخضر", metaobjectGid: "gid://shopify/Metaobject/169844736300" },
+  "rouge": { en: "Red", ar: "أحمر", metaobjectGid: "gid://shopify/Metaobject/169927180588" },
+  "olive": { en: "Olive", ar: "زيتي", metaobjectGid: "gid://shopify/Metaobject/184192794924" },
+  "bordeaux": { en: "Burgundy", ar: "عنابي", metaobjectGid: "gid://shopify/Metaobject/170104586540" },
+  "ivoire": { en: "Ivory", ar: "عاجي", metaobjectGid: "gid://shopify/Metaobject/184192958764" },
+  "beige": { en: "Beige", ar: "بيج", metaobjectGid: "gid://shopify/Metaobject/170956882220" },
+  "marron": { en: "Brown", ar: "بني", metaobjectGid: "gid://shopify/Metaobject/171073175852" },
+  "doré": { en: "Gold", ar: "ذهبي", metaobjectGid: "gid://shopify/Metaobject/170103734572" },
+  "argenté": { en: "Silver", ar: "فضي" },
+  "violet": { en: "Purple", ar: "بنفسجي", metaobjectGid: "gid://shopify/Metaobject/169943793964" },
+  "turquoise": { en: "Turquoise", ar: "تركوازي", metaobjectGid: "gid://shopify/Metaobject/171100864812" },
+  "corail": { en: "Coral", ar: "مرجاني", metaobjectGid: "gid://shopify/Metaobject/170951311660" },
+  "lavande": { en: "Lavender", ar: "خزامي", metaobjectGid: "gid://shopify/Metaobject/169943793964" },
+  "menthe": { en: "Mint", ar: "نعناعي", metaobjectGid: "gid://shopify/Metaobject/169844736300" },
+  "saumon": { en: "Salmon", ar: "سلموني", metaobjectGid: "gid://shopify/Metaobject/176780116268" },
+  "moutarde": { en: "Mustard", ar: "خردلي", metaobjectGid: "gid://shopify/Metaobject/195137863980" },
+  "kaki": { en: "Khaki", ar: "كاكي", metaobjectGid: "gid://shopify/Metaobject/184192794924" },
+  "crème": { en: "Cream", ar: "كريمي", metaobjectGid: "gid://shopify/Metaobject/184192958764" },
+  "champagne": { en: "Champagne", ar: "شامبانيا", metaobjectGid: "gid://shopify/Metaobject/170103734572" },
+  "rubis": { en: "Ruby", ar: "ياقوتي", metaobjectGid: "gid://shopify/Metaobject/169927180588" },
+  "émeraude": { en: "Emerald", ar: "زمردي", metaobjectGid: "gid://shopify/Metaobject/195137831212" },
+  "saphir": { en: "Sapphire", ar: "ياقوت أزرق", metaobjectGid: "gid://shopify/Metaobject/185972785452" },
+  "orange": { en: "Orange", ar: "برتقالي", metaobjectGid: "gid://shopify/Metaobject/170951311660" },
+  "bronze": { en: "Bronze", ar: "برونزي", metaobjectGid: "gid://shopify/Metaobject/184191582508" },
+  "prune": { en: "Plum", ar: "خوخي", metaobjectGid: "gid://shopify/Metaobject/184192925996" },
+};
+
+function translateColorName(input: string): {
+  en: string;
+  ar: string;
+  metaobjectGid?: string;
+} {
+  const norm = input.toLowerCase().trim().replace(/\s+/g, " ");
+  if (COLOR_MAP[norm]) return COLOR_MAP[norm];
+  const cap = input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
+  return { en: cap, ar: cap };
+}
+
+// Standard Size metaobject GIDs (XS-3XL, matching Size option values).
+const SIZE_METAOBJECT_GIDS = [
+  "gid://shopify/Metaobject/172699877676", // XS
+  "gid://shopify/Metaobject/172699910444", // S
+  "gid://shopify/Metaobject/172699943212", // M
+  "gid://shopify/Metaobject/172699975980", // L
+  "gid://shopify/Metaobject/172700008748", // XL
+  "gid://shopify/Metaobject/172700041516", // 2XL
+  "gid://shopify/Metaobject/172700205356", // 3XL
+];
+
+async function registerOptionValueArTranslation(
+  optionValueId: string,
+  arName: string,
+  warnings: string[],
+): Promise<void> {
+  try {
+    const tr = await shopifyGraphQL<{
+      translatableResource: {
+        translatableContent: Array<{ key: string; value: string; digest: string; locale: string }>;
+      } | null;
+    }>(
+      `query TR($id: ID!) {
+        translatableResource(resourceId: $id) {
+          translatableContent { key value digest locale }
+        }
+      }`,
+      { id: optionValueId },
+    );
+    const nameContent = tr.translatableResource?.translatableContent.find(
+      (c) => c.key === "name",
+    );
+    if (!nameContent) return;
+    const trRes = await shopifyGraphQL<{
+      translationsRegister: {
+        userErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation TR($resourceId: ID!, $translations: [TranslationInput!]!) {
+        translationsRegister(resourceId: $resourceId, translations: $translations) {
+          userErrors { field message }
+        }
+      }`,
+      {
+        resourceId: optionValueId,
+        translations: [
+          {
+            locale: "ar",
+            key: "name",
+            value: arName,
+            translatableContentDigest: nameContent.digest,
+          },
+        ],
+      },
+    );
+    if (trRes.translationsRegister.userErrors.length) {
+      warnings.push(
+        `Color AR translation: ${trRes.translationsRegister.userErrors.map((e) => e.message).join(", ")}`,
+      );
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Color AR: ${err.message}` : "Color AR translation failed");
+  }
+}
 
 async function applyCustomsToInventoryItems(
   inventoryItemIds: string[],
@@ -891,7 +1015,8 @@ export async function pushProductToShopify(
         vendor: params.vendor,
         handle: params.enHandle,
         tags: params.tags,
-        status: "ACTIVE",
+        status: "DRAFT",
+        templateSuffix: "custom",
         category: TRADITIONAL_CLOTHING_CATEGORY,
         seo: { title: params.enSeoTitle, description: params.enSeoDescription },
         productOptions: [
@@ -915,7 +1040,9 @@ export async function pushProductToShopify(
             ? [
                 {
                   name: "Color",
-                  values: [{ name: params.principalColor }],
+                  values: [
+                    { name: translateColorName(params.principalColor).en },
+                  ],
                 },
               ]
             : []),
@@ -959,7 +1086,12 @@ export async function pushProductToShopify(
             { optionName: "Size", name: size },
             { optionName: LENGTH_OPTION_NAME, name: length },
             ...(params.principalColor
-              ? [{ optionName: "Color", name: params.principalColor }]
+              ? [
+                  {
+                    optionName: "Color",
+                    name: translateColorName(params.principalColor).en,
+                  },
+                ]
               : []),
           ],
           price: params.price,
@@ -1091,20 +1223,57 @@ export async function pushProductToShopify(
         }
       }`,
       {
-        metafields: [
-          { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "age_group", type: "single_line_text_field", value: "adult" },
-          { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "condition", type: "single_line_text_field", value: "new" },
-          { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "gender", type: "single_line_text_field", value: "female" },
-          { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "mpn", type: "single_line_text_field", value: params.sku },
-          { ownerId: product.id, namespace: "mc-facebook", key: "google_product_category", type: "single_line_text_field", value: "5388" },
-          {
-            ownerId: product.id,
-            namespace: "shopify",
-            key: "sleeve-length-type",
-            type: "list.metaobject_reference",
-            value: JSON.stringify([SLEEVE_LENGTH_LONG_METAOBJECT_GID]),
-          },
-        ],
+        metafields: (() => {
+          const colorPatternGids = (params.colorList ?? [])
+            .map((c) => translateColorName(c).metaobjectGid)
+            .filter((gid): gid is string => Boolean(gid));
+          const dedupedColorGids = Array.from(new Set(colorPatternGids));
+          const base = [
+            { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "age_group", type: "single_line_text_field", value: "adult" },
+            { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "condition", type: "single_line_text_field", value: "new" },
+            { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "gender", type: "single_line_text_field", value: "female" },
+            { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "mpn", type: "single_line_text_field", value: params.sku },
+            { ownerId: product.id, namespace: "mc-facebook", key: "google_product_category", type: "single_line_text_field", value: "5388" },
+            {
+              ownerId: product.id,
+              namespace: "shopify",
+              key: "sleeve-length-type",
+              type: "list.metaobject_reference",
+              value: JSON.stringify([SLEEVE_LENGTH_LONG_METAOBJECT_GID]),
+            },
+            {
+              ownerId: product.id,
+              namespace: "shopify",
+              key: "age-group",
+              type: "list.metaobject_reference",
+              value: JSON.stringify([AGE_GROUP_ADULT_METAOBJECT_GID]),
+            },
+            {
+              ownerId: product.id,
+              namespace: "shopify",
+              key: "target-gender",
+              type: "list.metaobject_reference",
+              value: JSON.stringify([TARGET_GENDER_FEMALE_METAOBJECT_GID]),
+            },
+            {
+              ownerId: product.id,
+              namespace: "shopify",
+              key: "size",
+              type: "list.metaobject_reference",
+              value: JSON.stringify(SIZE_METAOBJECT_GIDS),
+            },
+          ];
+          if (dedupedColorGids.length > 0) {
+            base.push({
+              ownerId: product.id,
+              namespace: "shopify",
+              key: "color-pattern",
+              type: "list.metaobject_reference",
+              value: JSON.stringify(dedupedColorGids),
+            });
+          }
+          return base;
+        })(),
       },
     );
     if (metaRes.metafieldsSet.userErrors.length) {
@@ -1228,6 +1397,50 @@ export async function pushProductToShopify(
     warnings.push(err instanceof Error ? `AR: ${err.message}` : "AR translations failed");
   }
 
+  // Register Arabic translations for option NAMES and Color option VALUES
+  try {
+    const optsData = await shopifyGraphQL<{
+      product: {
+        options: Array<{
+          id: string;
+          name: string;
+          optionValues: Array<{ id: string; name: string }>;
+        }>;
+      } | null;
+    }>(
+      `query OptsForTranslate($id: ID!) {
+        product(id: $id) {
+          options { id name optionValues { id name } }
+        }
+      }`,
+      { id: product.id },
+    );
+    const OPTION_NAME_AR: Record<string, string> = {
+      "Size": "المقاس",
+      "Length in inch": "الطول بالإنش",
+      "Color": "اللون",
+    };
+    for (const opt of optsData.product?.options ?? []) {
+      const arName = OPTION_NAME_AR[opt.name];
+      if (arName) {
+        await registerOptionValueArTranslation(opt.id, arName, warnings);
+      }
+      if (opt.name.toLowerCase() === "color") {
+        for (const ov of opt.optionValues) {
+          const frEntry = Object.entries(COLOR_MAP).find(
+            ([, t]) => t.en === ov.name,
+          );
+          const arValue = frEntry?.[1].ar;
+          if (arValue) {
+            await registerOptionValueArTranslation(ov.id, arValue, warnings);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Option AR: ${err.message}` : "Option AR translations failed");
+  }
+
   const numericId = product.id.split("/").pop();
   const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
 
@@ -1324,20 +1537,28 @@ export async function addVariantToProduct(
   params: AddVariantParams,
 ): Promise<AddVariantResult> {
   const warnings: string[] = [];
+  const colorTr = translateColorName(params.colorName);
+  const colorNameEn = colorTr.en;
+  const colorNameAr = colorTr.ar;
+  const colorMetaobjectGid = colorTr.metaobjectGid;
 
   // 1. Read product first so we can use title/handle for SEO filename + alt
   const productData = await shopifyGraphQL<{
     product: {
       title: string;
       handle: string;
-      options: Array<{ id: string; name: string; values: string[] }>;
+      options: Array<{
+        id: string;
+        name: string;
+        optionValues: Array<{ id: string; name: string }>;
+      }>;
     } | null;
   }>(
     `query Product($id: ID!) {
       product(id: $id) {
         title
         handle
-        options { id name values }
+        options { id name optionValues { id name } }
       }
     }`,
     { id: params.productId },
@@ -1346,9 +1567,9 @@ export async function addVariantToProduct(
 
   // 2. SEO-friendly filename + alt
   const ext = params.imageFilename.split(".").pop() ?? "png";
-  const colorSlug = slugify(params.colorName) || "variant";
+  const colorSlug = slugify(colorNameEn) || "variant";
   const seoFilename = `${productData.product.handle}-${colorSlug}.${ext}`;
-  const seoAlt = `${productData.product.title} — ${params.colorName}`.slice(0, 125);
+  const seoAlt = `${productData.product.title} — ${colorNameEn}`.slice(0, 125);
 
   // 3. Stage upload + push image
   const staged = await stagedUploadCreate({
@@ -1380,6 +1601,8 @@ export async function addVariantToProduct(
   }
 
   const colorOptionName = colorOption?.name ?? "Color";
+  const existingColorValueNames =
+    colorOption?.optionValues.map((v) => v.name) ?? [];
 
   // 3. Add Color option (or new color value to existing option)
   if (!colorOption) {
@@ -1395,7 +1618,7 @@ export async function addVariantToProduct(
       }`,
       {
         productId: params.productId,
-        options: [{ name: "Color", values: [{ name: params.colorName }] }],
+        options: [{ name: "Color", values: [{ name: colorNameEn }] }],
       },
     );
     if (optRes.productOptionsCreate.userErrors.length) {
@@ -1403,7 +1626,7 @@ export async function addVariantToProduct(
         `Color option create: ${optRes.productOptionsCreate.userErrors.map((e) => e.message).join(", ")}`,
       );
     }
-  } else if (!colorOption.values.includes(params.colorName)) {
+  } else if (!existingColorValueNames.includes(colorNameEn)) {
     const updRes = await shopifyGraphQL<{
       productOptionUpdate: {
         userErrors: Array<{ field: string[]; message: string }>;
@@ -1417,7 +1640,7 @@ export async function addVariantToProduct(
       {
         productId: params.productId,
         option: { id: colorOption.id },
-        optionValuesToAdd: [{ name: params.colorName }],
+        optionValuesToAdd: [{ name: colorNameEn }],
       },
     );
     if (updRes.productOptionUpdate.userErrors.length) {
@@ -1427,7 +1650,7 @@ export async function addVariantToProduct(
     }
   }
 
-  // 4. Build cartesian Size × Length variants for the new color
+  // 4. Build cartesian Size × Length variants for the new color (no media here)
   type VariantInput = {
     optionValues: Array<{ optionName: string; name: string }>;
     price: string;
@@ -1436,17 +1659,17 @@ export async function addVariantToProduct(
       tracked: boolean;
       measurement: { weight: { value: number; unit: string } };
     };
-    mediaSrc?: string[];
   };
   const newVariants: VariantInput[] = [];
-  let mediaAttached = false;
-  for (const size of sizeOption.values) {
-    for (const length of lengthOption.values) {
-      const variant: VariantInput = {
+  const sizeValues = sizeOption.optionValues.map((v) => v.name);
+  const lengthValues = lengthOption.optionValues.map((v) => v.name);
+  for (const size of sizeValues) {
+    for (const length of lengthValues) {
+      newVariants.push({
         optionValues: [
           { optionName: sizeOption.name, name: size },
           { optionName: lengthOption.name, name: length },
-          { optionName: colorOptionName, name: params.colorName },
+          { optionName: colorOptionName, name: colorNameEn },
         ],
         price: params.price,
         inventoryItem: {
@@ -1454,12 +1677,7 @@ export async function addVariantToProduct(
           tracked: true,
           measurement: { weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" } },
         },
-      };
-      if (!mediaAttached) {
-        variant.mediaSrc = [staged.resourceUrl];
-        mediaAttached = true;
-      }
-      newVariants.push(variant);
+      });
     }
   }
 
@@ -1493,6 +1711,65 @@ export async function addVariantToProduct(
   const createdVariants = variantRes.productVariantsBulkCreate.productVariants ?? [];
   if (createdVariants.length === 0) throw new Error("Aucune variante créée");
 
+  // 4b. Attach the uploaded image to the product as media, then link to the first new variant
+  try {
+    const mediaRes = await shopifyGraphQL<{
+      productCreateMedia: {
+        media: Array<{ id: string }> | null;
+        mediaUserErrors: Array<{ field: string[]; message: string }>;
+      };
+    }>(
+      `mutation MediaCreate($productId: ID!, $media: [CreateMediaInput!]!) {
+        productCreateMedia(productId: $productId, media: $media) {
+          media { ... on MediaImage { id } }
+          mediaUserErrors { field message }
+        }
+      }`,
+      {
+        productId: params.productId,
+        media: [
+          {
+            alt: seoAlt,
+            mediaContentType: "IMAGE",
+            originalSource: staged.resourceUrl,
+          },
+        ],
+      },
+    );
+    if (mediaRes.productCreateMedia.mediaUserErrors.length) {
+      warnings.push(
+        `Media create: ${mediaRes.productCreateMedia.mediaUserErrors.map((e) => e.message).join(", ")}`,
+      );
+    }
+    const mediaId = mediaRes.productCreateMedia.media?.[0]?.id;
+    if (mediaId) {
+      const linkRes = await shopifyGraphQL<{
+        productVariantAppendMedia: {
+          userErrors: Array<{ field: string[]; message: string }>;
+        };
+      }>(
+        `mutation VariantAppendMedia($productId: ID!, $variantMedia: [ProductVariantAppendMediaInput!]!) {
+          productVariantAppendMedia(productId: $productId, variantMedia: $variantMedia) {
+            userErrors { field message }
+          }
+        }`,
+        {
+          productId: params.productId,
+          variantMedia: [
+            { variantId: createdVariants[0].id, mediaIds: [mediaId] },
+          ],
+        },
+      );
+      if (linkRes.productVariantAppendMedia.userErrors.length) {
+        warnings.push(
+          `Media link: ${linkRes.productVariantAppendMedia.userErrors.map((e) => e.message).join(", ")}`,
+        );
+      }
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Media: ${err.message}` : "Media attach failed");
+  }
+
   // Apply customs (country of origin + HS code) + tracking on every new inventory item
   try {
     const inventoryItemIds = createdVariants
@@ -1503,6 +1780,78 @@ export async function addVariantToProduct(
     }
   } catch (err) {
     warnings.push(err instanceof Error ? `Customs fields: ${err.message}` : "Customs fields update failed");
+  }
+
+  // Register AR translation for the new color value + extend color-pattern metafield
+  try {
+    const optsAfter = await shopifyGraphQL<{
+      product: {
+        options: Array<{
+          name: string;
+          optionValues: Array<{ id: string; name: string }>;
+        }>;
+        colorMeta: { value: string | null } | null;
+      } | null;
+    }>(
+      `query OptsAfter($id: ID!) {
+        product(id: $id) {
+          options { name optionValues { id name } }
+          colorMeta: metafield(namespace: "shopify", key: "color-pattern") { value }
+        }
+      }`,
+      { id: params.productId },
+    );
+    const colorOpt = optsAfter.product?.options.find(
+      (o) => o.name.toLowerCase() === "color",
+    );
+    const newOv = colorOpt?.optionValues.find((v) => v.name === colorNameEn);
+    if (newOv && colorNameAr && colorNameAr !== colorNameEn) {
+      await registerOptionValueArTranslation(newOv.id, colorNameAr, warnings);
+    }
+    if (colorMetaobjectGid) {
+      const existing: string[] = (() => {
+        try {
+          const v = optsAfter.product?.colorMeta?.value;
+          if (!v) return [];
+          const parsed = JSON.parse(v);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      })();
+      if (!existing.includes(colorMetaobjectGid)) {
+        const merged = [...existing, colorMetaobjectGid];
+        const setRes = await shopifyGraphQL<{
+          metafieldsSet: {
+            userErrors: Array<{ field: string[]; message: string }>;
+          };
+        }>(
+          `mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+            metafieldsSet(metafields: $metafields) {
+              userErrors { field message }
+            }
+          }`,
+          {
+            metafields: [
+              {
+                ownerId: params.productId,
+                namespace: "shopify",
+                key: "color-pattern",
+                type: "list.metaobject_reference",
+                value: JSON.stringify(merged),
+              },
+            ],
+          },
+        );
+        if (setRes.metafieldsSet.userErrors.length) {
+          warnings.push(
+            `Color-pattern update: ${setRes.metafieldsSet.userErrors.map((e) => e.message).join(", ")}`,
+          );
+        }
+      }
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Color AR/metafield: ${err.message}` : "Color AR/metafield failed");
   }
 
   const numericId = params.productId.split("/").pop();

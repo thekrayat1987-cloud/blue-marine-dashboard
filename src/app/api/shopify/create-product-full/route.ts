@@ -113,6 +113,10 @@ export async function POST(request: NextRequest) {
           ? Math.floor(inventoryQuantity)
           : undefined,
       principalColor: validColors.length > 1 ? principalColor : undefined,
+      colorList:
+        validColors.length > 1
+          ? validColors.map((c) => c.name.trim())
+          : undefined,
     });
 
     const variantResults: Array<{
