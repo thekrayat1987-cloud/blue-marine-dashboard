@@ -48,21 +48,39 @@ function newRow(): ColorRow {
   };
 }
 
-async function fileToBase64(file: File): Promise<{ base64: string; mimeType: string; previewUrl: string }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const match = /^data:(.+?);base64,(.+)$/.exec(dataUrl);
-      if (!match) {
-        reject(new Error("Lecture du fichier échouée"));
-        return;
-      }
-      resolve({ mimeType: match[1], base64: match[2], previewUrl: dataUrl });
-    };
-    reader.onerror = () => reject(new Error("Lecture du fichier échouée"));
-    reader.readAsDataURL(file);
-  });
+const MAX_DIMENSION = 1600;
+const JPEG_QUALITY = 0.85;
+
+async function compressImage(
+  file: File,
+): Promise<{ base64: string; mimeType: string; previewUrl: string }> {
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("Image illisible"));
+      image.src = objectUrl;
+    });
+
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
+    const width = Math.round(img.width * scale);
+    const height = Math.round(img.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas indisponible");
+    ctx.drawImage(img, 0, 0, width, height);
+
+    const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+    const match = /^data:(.+?);base64,(.+)$/.exec(dataUrl);
+    if (!match) throw new Error("Compression échouée");
+    return { mimeType: match[1], base64: match[2], previewUrl: dataUrl };
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 export default function FullProductPage() {
@@ -111,7 +129,7 @@ export default function FullProductPage() {
 
   async function setColorFile(rowId: string, file: File) {
     try {
-      const { base64, mimeType, previewUrl } = await fileToBase64(file);
+      const { base64, mimeType, previewUrl } = await compressImage(file);
       setColors((prev) =>
         prev.map((c) =>
           c.id === rowId ? { ...c, file, previewUrl, base64, mimeType } : c,
