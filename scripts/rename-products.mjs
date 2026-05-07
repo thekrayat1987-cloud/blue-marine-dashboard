@@ -137,7 +137,7 @@ async function generateTitles(currentTitle, sku, usedNames = []) {
     ? `\n\n⚠️ FORBIDDEN NAMES — already used on other products, you MUST pick a different one:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n`
     : "";
 
-  const prompt = `You are naming a product for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, abaya, bisht, layered sets, embroidered tunics, velvet bishts).
+  const prompt = `You are naming a product for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, bisht, layered sets, embroidered tunics, velvet bishts).
 
 Current English title: "${currentTitle}"
 SKU: ${sku}${forbiddenBlock}
@@ -172,7 +172,7 @@ ARABIC RULES
 - Use the SAME name as in English, written in Arabic script (transliteration).
   · Example: Layali → ليالي, Zumurud → زمرّد, Noor → نور, Zafira → ظفيرة, Amara → أمارا
 - Then add the garment + key detail in formal but simple Arabic.
-- Use words: بشت، درّاعة، قفطان، عباية، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
+- Use words: بشت، درّاعة، قفطان، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
 - ⚠️ For "overcoat" or any outer garment, ALWAYS use "بشت" — NEVER "معطف".
 - ⚠️ PIECE-COUNT FORMAT — match the English version:
   · One piece → no piece count in Arabic either.

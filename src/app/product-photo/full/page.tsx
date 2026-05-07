@@ -292,10 +292,10 @@ export default function FullProductPage() {
                   onChange={(e) => setPieces(Number(e.target.value) as 1 | 2 | 3 | 4)}
                   className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50"
                 >
-                  <option value={1}>1 pièce (drâa, caftan, abaya...)</option>
-                  <option value={2}>2 pièces (set)</option>
-                  <option value={3}>3 pièces (set)</option>
-                  <option value={4}>4 pièces (set)</option>
+                  <option value={1}>1 pièce (drâa, caftan, bisht...)</option>
+                  <option value={2}>2 pièces (bisht set)</option>
+                  <option value={3}>3 pièces (bisht set)</option>
+                  <option value={4}>4 pièces (bisht set)</option>
                 </select>
               </div>
 

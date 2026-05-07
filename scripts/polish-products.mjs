@@ -154,7 +154,7 @@ async function generatePolish(title, sku, pieces, imageBase64, mimeType) {
   const compositionFacts = [];
   if (pieces > 1) compositionFacts.push(`${pieces}-piece coordinated set`);
 
-  const prompt = `You are the senior copywriter of a luxury Gulf fashion agency, writing the product page for Atelier Blue Marine — a Kuwait atelier of made-to-order Gulf heritage womenswear (daraa, caftan, abaya, bisht, embroidered sets). Imagine the brand's positioning: confident, modern, rooted in Khaleeji craft, made for women across Saudi, UAE, Kuwait, Qatar, Bahrain, Oman who want heritage with contemporary cut.
+  const prompt = `You are the senior copywriter of a luxury Gulf fashion agency, writing the product page for Atelier Blue Marine — a Kuwait atelier of made-to-order Gulf heritage womenswear (daraa, caftan, bisht, embroidered sets). Imagine the brand's positioning: confident, modern, rooted in Khaleeji craft, made for women across Saudi, UAE, Kuwait, Qatar, Bahrain, Oman who want heritage with contemporary cut.
 
 Your job is NOT to "describe a product" — it is to write copy that:
   1. Makes a Khaleeji woman browsing on Instagram or Google STOP and want to wear it.
@@ -183,13 +183,13 @@ Atelier Blue Marine ships across the entire Gulf Cooperation Council:
 🇰🇼 Kuwait (home), 🇸🇦 Saudi Arabia, 🇦🇪 UAE, 🇶🇦 Qatar, 🇧🇭 Bahrain, 🇴🇲 Oman.
 
 Goal: rank top-3 on Google for these intent searches in EN + AR:
-- EN: "abaya Saudi", "abaya UAE", "abaya Dubai", "daraa Kuwait", "luxury daraa GCC", "bisht women Saudi", "Khaleeji daraa", "Gulf wedding bisht", "Riyadh abaya online", "Dubai khaleeji abaya"
-- AR: "عباية الخليج", "عباية سعودية", "عباية إماراتية", "عباية دبي", "درّاعة كويتية", "درّاعة سعودية", "بشت نسائي خليجي", "أتيليه خليجي", "عباية الرياض", "عباية الدوحة"
-- Heritage: "Khaleeji clothing", "Gulf heritage", "GCC luxury abaya"
-- Garment-specific: "velvet bisht", "embroidered daraa", "wedding bisht", "henna daraa", "evening abaya"
+- EN: "bisht Saudi", "bisht UAE", "bisht Dubai", "daraa Kuwait", "luxury daraa GCC", "bisht women Saudi", "Khaleeji daraa", "Gulf wedding bisht", "Riyadh bisht online", "Dubai khaleeji bisht"
+- AR: "بشت الخليج", "بشت سعودي", "بشت إماراتي", "بشت دبي", "درّاعة كويتية", "درّاعة سعودية", "بشت نسائي خليجي", "أتيليه خليجي", "بشت الرياض", "بشت الدوحة"
+- Heritage: "Khaleeji clothing", "Gulf heritage", "GCC luxury bisht"
+- Garment-specific: "velvet bisht", "embroidered daraa", "wedding bisht", "henna daraa", "bisht set"
 
 SEO RULES:
-- Page title MUST include: garment type (bisht/daraa/caftan/abaya) + 1 distinctive trait + brand name. Front-load keywords: garment type comes first, brand last.
+- Page title MUST include: garment type (bisht/daraa/caftan) + 1 distinctive trait + brand name. Front-load keywords: garment type comes first, brand last.
 - Meta description MUST include: garment type, color/material, occasion (general), AND a Gulf-wide signal (one of: "Khaleeji", "Gulf", "GCC", or 1-2 GCC cities like "Kuwait, Riyadh, Dubai"). Do NOT limit to Kuwait alone.
 - Description (body_html) MUST mention: garment type by name (bisht/daraa/etc), fabric, occasion, and naturally weave in 1 Gulf-wide phrase ("Khaleeji heritage", "across the Gulf", "for Kuwait, Saudi, UAE women", etc.). Mention "Atelier Blue Marine" or "Kuwait atelier" once for provenance.
 - Use the SKU's poetic name as the brand-distinctive token (Yaqut, Layali, Zumurud, etc.) — this is the canonical product name on Google.
@@ -231,7 +231,7 @@ PARAGRAPH 3 — THE OCCASION + THE WOMAN.
 
 # TAGS — 14-18 LOWERCASE TAGS FOR GCC-WIDE DISCOVERY
 - Required mix (in this priority order):
-  · garment type (2-3): {bisht, daraa, caftan, abaya, kaftan, set, bisht-set, daraa-set, velvet-bisht}
+  · garment type (2-3): {bisht, daraa, caftan, kaftan, set, bisht-set, daraa-set, velvet-bisht}
   · color (1-2 dominant): {green, emerald, burgundy, navy, ivory, gold, black, ...}
   · fabric (1-2): {velvet, silk, chiffon, embroidered, brocade, ...}
   · occasion (2-3, NO ramadan unless capsule): {evening, wedding, henna, eid, gathering, formal, special-occasion, dinner}

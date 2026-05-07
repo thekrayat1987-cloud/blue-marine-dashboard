@@ -62,7 +62,7 @@ const publicationPlan: { day: string; dayKey: string; posts: SlotTemplate[] }[] 
     { time: "20:00", type: "Story", topic: "Q&A / Questions box", caption: "Ask us anything about our collections", hashtags: "#AskBlueMarine #Kuwait", preset: "studio" },
   ]},
   { day: "Wednesday", dayKey: "wednesday", posts: [
-    { time: "12:00", type: "Reel", topic: "Style / OOTD / Lookbook", caption: "3 ways to wear the abaya or GRWM event", hashtags: "#AbayaStyle #ModestFashion #KuwaitFashion #GRWM #Lookbook", preset: "lookbook" },
+    { time: "12:00", type: "Reel", topic: "Style / OOTD / Lookbook", caption: "3 ways to wear the bisht or GRWM event", hashtags: "#BishtStyle #ModestFashion #KuwaitFashion #GRWM #Lookbook", preset: "lookbook" },
   ]},
   { day: "Thursday", dayKey: "thursday", posts: [
     { time: "17:00", type: "Carousel", topic: "Educational / Guide / Tips", caption: "How to spot quality fabric / Care guide", hashtags: "#FashionTips #QualityFabric #BlueMarine #KuwaitLife", preset: "studio" },
@@ -456,7 +456,7 @@ export default function ContentPage() {
                                   value={draftNotes}
                                   onChange={(e) => setDraftNotes(e.target.value)}
                                   rows={2}
-                                  placeholder="e.g. Use the new abaya from last week's shoot"
+                                  placeholder="e.g. Use the new bisht from last week's shoot"
                                   className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-accent"
                                 />
                               </div>

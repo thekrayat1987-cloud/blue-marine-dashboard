@@ -344,7 +344,7 @@ This product is offered in ${colorList.length} colors. The PRIMARY color (shown 
     ? `\n\n⚠️ FORBIDDEN NAMES — already used on other products in the catalogue, you MUST pick a different one:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n`
     : "";
 
-  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, abaya, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${colorsBlock}${forbiddenBlock}
+  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${colorsBlock}${forbiddenBlock}
 
 # SKU RULE — ABSOLUTE, READ FIRST
 The product SKU is exactly: ${sku}
@@ -367,9 +367,8 @@ NAME INSPIRATION POOL — pick ONE distinctive name that fits the garment's mood
 Before writing anything, identify the garment shown in the image. Pick ONE from this list based on what you actually see:
 - **daraa (درّاعة)** — long, flowing one-piece Gulf gown, usually loose, often embroidered. Most common in this catalogue. If you see ONE flowing dress with no separate outer layer, it is a daraa.
 - **caftan (قفطان)** — long robe with a front opening or buttons down the centre.
-- **abaya (عباية)** — open-front overgarment, usually black or dark, worn over other clothing.
-- **bisht (بشت)** — a sheer/embroidered OUTER cloak worn OVER an inner garment (almost always part of a 2-piece set with a daraa underneath). DO NOT label a single flowing dress as a "bisht".
-- **set / bisht-set** — only when the photo or the COMPOSITION block clearly indicates 2+ coordinated pieces.
+- **bisht (بشت)** — a sheer/embroidered OUTER cloak worn OVER an inner garment. Used as a standalone outer cloak OR as part of a 2-piece / 3-piece set with a daraa and matching shawl. DO NOT label a single flowing dress as a "bisht".
+- **set / bisht-set** — for ANY 2-piece or 3-piece coordinated outfit (outer bisht + inner daraa, optionally a matching shawl). Multi-piece sets are ALWAYS bisht-sets — never call them an "abaya set".
 ⚠️ NEVER default to "bisht" if you are unsure. When in doubt between daraa and bisht, choose **daraa**. A bisht is an outer cloak worn over something — not a standalone dress.
 
 # ENGLISH TITLE RULES (en.title)
@@ -381,7 +380,7 @@ ${totalPieces === 1
   ? `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ONE PIECE.
   · DO NOT add any piece count to the title. The title ends with the garment name.
   · NEVER write "2-Piece", "3-Piece", "Set", "Bisht Set", "(One Piece)" or any count phrase.
-  · Correct examples: "${sku} – Layali Daraa", "${sku} – Amara Caftan", "${sku} – Noor Abaya".
+  · Correct examples: "${sku} – Layali Daraa", "${sku} – Amara Caftan", "${sku} – Noor Bisht".
   · Wrong: "${sku} – Layali 2-Piece Bisht Set" (this product is ONE piece, not a set).`
   : `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ${totalPieces} PIECES${hasShawl ? ` (${pieces} main piece${pieces > 1 ? "s" : ""} + matching shawl)` : ""}.
   · Write exactly "${pieceCountEn}" (hyphen, capital P, capital S) before the garment word.
@@ -396,7 +395,7 @@ ${totalPieces === 1
 - Use the SAME poetic name as in English, written in Arabic script (transliteration).
   · Example: Layali → ليالي, Zumurud → زمرّد, Noor → نور, Zafira → ظفيرة, Amara → أمارا
 - Then add the garment + key detail in formal but simple Arabic.
-- Use Gulf vocabulary: بشت، درّاعة، قفطان، عباية، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
+- Use Gulf vocabulary: بشت، درّاعة، قفطان، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
 - ⚠️ Use the SAME garment word you chose in English. If English says "Daraa", Arabic says "درّاعة". If English says "Caftan", Arabic says "قفطان". Do NOT switch to "بشت" unless the English title also uses "Bisht".
 - For an actual outer cloak, use "بشت" — NEVER "معطف".
 - ⚠️ PIECE-COUNT FORMAT — match the English version exactly:
@@ -421,17 +420,17 @@ ${totalPieces === 1
 
 # GOOGLE SEO — RANK HIGH IN KUWAIT SEARCHES
 Atelier Blue Marine wants to rank top-3 on Google for these intent searches in both EN + AR:
-- "abaya Kuwait", "daraa Kuwait", "bisht women Kuwait", "luxury daraa Kuwait"
-- "عباية الكويت", "درّاعة الكويت", "بشت نسائي الكويت", "أتيليه كويتي"
-- "Gulf heritage clothing", "Khaleeji daraa", "abaya online Kuwait"
-- Garment-specific: "velvet bisht", "embroidered daraa", "wedding bisht"
+- "bisht Kuwait", "daraa Kuwait", "bisht women Kuwait", "luxury daraa Kuwait"
+- "بشت الكويت", "درّاعة الكويت", "بشت نسائي الكويت", "أتيليه كويتي"
+- "Gulf heritage clothing", "Khaleeji daraa", "bisht online Kuwait"
+- Garment-specific: "velvet bisht", "embroidered daraa", "wedding bisht", "bisht set"
 SEO RULES:
-- Page title MUST include: garment type (bisht/daraa/caftan/abaya) + 1 distinctive trait + brand name. Front-load keywords: garment type comes first, brand last. (50-70 chars).
+- Page title MUST include: garment type (bisht/daraa/caftan) + 1 distinctive trait + brand name. Front-load keywords: garment type comes first, brand last. (50-70 chars).
 - Page title (AR) mirrors the EN structure with "أتيليه بلو مارين" at the end.
 - Page title NEVER contains the SKU prefix.
 - Meta description MUST include: garment type, color/material, occasion (general), AND the word "Kuwait" or "Atelier Blue Marine" once.
 - Tags must be FULLY BILINGUAL (English + Arabic) for garment type, color, fabric and occasion. Duplicate keys help GCC shoppers find products in either language (e.g. "bisht" AND "بشت"; "green" AND "أخضر"; "velvet" AND "مخمل"; "wedding" AND "زفاف").
-- Description (body_html) MUST mention: garment type by name (bisht/daraa/caftan/abaya), fabric, occasion, and where appropriate "Kuwait" or "Gulf heritage" (once, naturally).
+- Description (body_html) MUST mention: garment type by name (bisht/daraa/caftan), fabric, occasion, and where appropriate "Kuwait" or "Gulf heritage" (once, naturally).
 - Use the SKU's poetic name as the brand-distinctive token (Yaqut, Layali, Zumurud, etc.) — this is the canonical product name on Google. Include it in the page title as the distinctive trait when natural.
 
 # DESCRIPTION STRUCTURE — 3 paragraphs, separated by \\n\\n
@@ -444,7 +443,7 @@ PARAGRAPH 3 — when to wear it (1 short sentence) + a separate sentence about f
 Atelier Blue Marine ships across Kuwait, Saudi, UAE, Qatar, Bahrain, Oman — Arabic shoppers must find products by typing Arabic. Every garment-type, color, fabric and occasion tag MUST be emitted as a bilingual PAIR (one EN tag + one AR tag).
 
 Required mix (PAIRS unless noted):
-- garment type — EN + AR pair: {bisht/بشت, daraa/درّاعة, caftan/قفطان, abaya/عباية, set/طقم, bisht-set/طقم-بشت, daraa-set/طقم-درّاعة}
+- garment type — EN + AR pair: {bisht/بشت, daraa/درّاعة, caftan/قفطان, set/طقم, bisht-set/طقم-بشت, daraa-set/طقم-درّاعة}
 - color (1-2 dominant) — EN + AR pair per color: {green/أخضر, emerald/زمرّدي, burgundy/عنابي, navy/كحلي, ivory/عاجي, gold/ذهبي, silver/فضي, black/أسود, white/أبيض, blue/أزرق, red/أحمر, purple/بنفسجي, pink/وردي, beige/بيج, olive/زيتي, brown/بني}
 - fabric — EN + AR pair: {velvet/مخمل, silk/حرير, chiffon/شيفون, embroidered/مطرّز, brocade/بروكار, satin/ساتان, lace/دانتيل, cotton/قطن}
 - occasion (NO ramadan unless capsule) — EN + AR pair: {evening/سهرة, wedding/زفاف, henna/حناء, eid/عيد, gathering/تجمع, formal/رسمي, special-occasion/مناسبة-خاصة}
@@ -503,11 +502,11 @@ Return ONLY valid JSON (no backticks, no markdown):
 - استخدمي "درّاعة" وليس "فستان" للإشارة للقطعة الداخلية.
 
 CRITICAL CHECKS — re-read your output before returning JSON:
-1. Did you label a single flowing dress as "Bisht" or "Bisht Set"? If yes, REWRITE — it is a daraa (or caftan/abaya).
+1. Did you label a single flowing dress as "Bisht" or "Bisht Set"? If yes, REWRITE — it is a daraa or caftan.
 ${totalPieces === 1
   ? `2. Does any title contain "2-Piece", "3-Piece", "Set", "Bisht Set", "طقم", "٢ قطع", or "٣ قطع"? This product has ONE piece — REMOVE all count/set words and rewrite the title.`
   : `2. Does the EN title contain "${pieceCountEn}" and the AR title contain "${pieceCountAr}"? If not, REWRITE.`}
-3. Did you use any banned word (exquisite, captivating, evoking, celebration of, Ramadan unless capsule, فستان)? DELETE the sentence and rewrite factually.
+3. Did you use any banned word (exquisite, captivating, evoking, celebration of, Ramadan unless capsule, فستان, abaya, عباية)? DELETE the sentence and rewrite factually.
 4. Did you write "Two-Piece" or "Three-Piece" instead of "2-Piece" / "3-Piece"? REWRITE.`;
 
   const callModel = (model: string) =>
@@ -585,7 +584,7 @@ export async function generateMarketingPack(params: {
   const ai = getClient();
   const productUrl = params.productUrl?.trim() || "https://bluemarine-atelier.com";
 
-  const prompt = `You are the brand voice of Atelier Blue Marine — a Kuwait luxury atelier crafting Moroccan and Middle-Eastern heritage womenswear (caftans, daraa, abayas, embroidered tunics).
+  const prompt = `You are the brand voice of Atelier Blue Marine — a Kuwait luxury atelier crafting Moroccan and Middle-Eastern heritage womenswear (caftans, daraa, bishts, embroidered tunics).
 
 Tone: refined luxury, warm but understated. Plain language, no marketing fluff. Never use: exquisite, captivating, evoke, allure, embrace, journey, statement piece, must-have, stunning, gorgeous, cascade, adorned, regal, opulent, lavish.
 
@@ -601,11 +600,11 @@ Product link: ${productUrl}
   "instagram": {
     "en": {
       "caption": "3-4 short lines in English. Hook on line 1 (one sensory detail or question). Body: 1-2 lines describing the piece (color, fabric, occasion). Soft CTA on last line (e.g. 'Link in bio' or 'DM to order'). 1-2 tasteful emojis MAX. Max 280 chars.",
-      "hashtags": ["array of 15 hashtags. Mix: 5 brand+product (#BlueMarine #AtelierBlueMarine #Caftan #Abaya #ModestFashion), 5 Gulf market (#Q8 #Q8Style #KuwaitFashion #GCCFashion #Khaleeji #DubaiFashion), 5 niche (#LuxuryAbaya #HandEmbroidery #SilkVelvet #EidOutfit #RamadanStyle). Pick the 15 most relevant to THIS product. No # spaces, no duplicates."]
+      "hashtags": ["array of 15 hashtags. Mix: 5 brand+product (#BlueMarine #AtelierBlueMarine #Caftan #Bisht #ModestFashion), 5 Gulf market (#Q8 #Q8Style #KuwaitFashion #GCCFashion #Khaleeji #DubaiFashion), 5 niche (#LuxuryBisht #HandEmbroidery #SilkVelvet #EidOutfit #BishtSet). Pick the 15 most relevant to THIS product. No # spaces, no duplicates."]
     },
     "ar": {
       "caption": "نفس البنية بالعربية الفصحى البسيطة، ٣-٤ أسطر قصيرة، إيموجي ١-٢ كحد أقصى، دعوة للحجز في النهاية. ٢٨٠ حرف كحد أقصى.",
-      "hashtags": ["15 Arabic + Gulf hashtags mixed: #الكويت #اطلالات_الكويت #عبايات #قفطان #ازياء_خليجية #رمضان #العيد + relevant brand/product tags. Pick the 15 most relevant."]
+      "hashtags": ["15 Arabic + Gulf hashtags mixed: #الكويت #اطلالات_الكويت #بشت #قفطان #درّاعة #ازياء_خليجية #العيد + relevant brand/product tags. Pick the 15 most relevant."]
     }
   },
   "whatsapp": {

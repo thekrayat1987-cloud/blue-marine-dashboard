@@ -147,7 +147,7 @@ export const reelsIdeas = [
     category: "Style & Fashion",
     color: "#8b5cf6",
     ideas: [
-      { title: "3 ways to wear the abaya", description: "Transition reel showing 3 different styles with the same abaya.", hook: "1 abaya, 3 completely different looks", trending: true },
+      { title: "3 ways to wear the bisht", description: "Transition reel showing 3 different styles with the same bisht.", hook: "1 bisht, 3 completely different looks", trending: true },
       { title: "Traditional OOTD", description: "GRWM (Get Ready With Me) for an event with traditional outfit.", hook: "GRWM for a Kuwaiti wedding", trending: true },
       { title: "Modern vs Traditional", description: "Split screen comparing modern and traditional style.", hook: "Tradition meets 2026", trending: true },
       { title: "Colors of the season", description: "Trending color palette for the season with products.", hook: "5 colors all of Kuwait will wear this summer", trending: false },
@@ -211,7 +211,7 @@ export const kpiDefinitions = {
 // Product categories (avgPrice en KD)
 export const productCategories = [
   { name: "Men's Dishdashas", avgPrice: 55, margin: 65, bestSeller: true },
-  { name: "Women's Abayas", avgPrice: 75, margin: 70, bestSeller: true },
+  { name: "Women's Bishts", avgPrice: 75, margin: 70, bestSeller: true },
   { name: "Jalabiya", avgPrice: 60, margin: 68, bestSeller: false },
   { name: "Accessories (Ghutra, Agal)", avgPrice: 15, margin: 75, bestSeller: false },
   { name: "Ramadan Collections", avgPrice: 90, margin: 60, bestSeller: true },
