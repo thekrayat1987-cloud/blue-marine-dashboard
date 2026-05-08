@@ -171,7 +171,7 @@ The woman is the same person as in Image #${houseModelIndex} — same face, same
     `POSE: ${posePrompt}`,
     compositionHint ? `COMPOSITION: ${compositionHint}` : null,
     params.extraInstructions ? `ADDITIONAL: ${params.extraInstructions}` : null,
-    `OUTPUT FRAMING: Vertical portrait (tall fashion editorial format). Full-body shot, model centered, head visible at top with small headroom, feet visible above small floor margin — the entire garment from collar to hem fits inside the frame.`,
+    `OUTPUT FRAMING — MANDATORY FULL-BODY: Vertical portrait (tall fashion editorial format). FULL-BODY shot — the frame MUST include the model from a small headroom above the head down to a small floor margin BELOW THE FEET. Both shoes / feet must be fully visible inside the frame. DO NOT crop at waist, hips, thighs, knees or ankles. IGNORE the framing of the garment reference images (they may be mid-shots, close-ups or hands holding the fabric — irrelevant). The output is always full-body, never mid-shot${params.pose === "detail_close" ? "" : ", unless the pose is detail_close (which is not the case here, so use full-body)"}.`,
     `FINAL CHECK: Compare your mental output to ${garmentRefShort} panel by panel — same colors on every panel? Same patterns and embroidery? Same length and cut? Same fabric finish? If any difference exists, fix it. The garment must be a 1:1 reproduction of ${garmentRefShort}.`,
   ]
     .filter(Boolean)

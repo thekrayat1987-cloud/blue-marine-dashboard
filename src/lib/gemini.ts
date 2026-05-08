@@ -222,9 +222,14 @@ The woman in the output is the same person as in Image #${houseModelIndex} — s
     : ""
 }
 
-# OUTPUT FRAMING
+# OUTPUT FRAMING — MANDATORY FULL-BODY
 - Vertical 9:16 portrait (tall fashion editorial format).
-- Full-body shot, model centered, head visible at top with small headroom, feet visible above small floor margin — the entire garment from collar to hem fits inside the frame.`;
+- FULL-BODY shot. The frame MUST include the model from a small headroom above the head down to a small floor margin BELOW THE FEET. Both shoes / feet must be fully visible inside the frame.
+- DO NOT crop at the waist, hips, thighs, knees, ankles or any point above the floor. If the feet are not visible, the framing is WRONG — re-frame and zoom out.
+- IGNORE the framing of the garment reference images. They may be mid-shots, close-ups, hands holding the fabric, etc. — that is irrelevant. The OUTPUT framing is always full-body, never mid-shot, unless the pose is "detail_close".
+- The entire garment, from collar to hem, plus the model's shoes / feet, must fit inside the frame with comfortable margin.${
+  params.pose === "detail_close" ? `\n- EXCEPTION: this generation uses the detail_close pose, so a waist-up framing is allowed.` : ""
+}`;
 
   const prompt = [
     garmentLock,
