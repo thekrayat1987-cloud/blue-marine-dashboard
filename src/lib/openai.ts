@@ -196,8 +196,8 @@ Reproduce EXACTLY from ${garmentRefShort}: all colors on every panel (top, sleev
 
 NEVER recolor or tint the garment to match the scene. Never add a color (navy, blue, gold, floral, paisley) that is not visible in the reference. Never replace a panel with a different color or fabric. Never "improve" the design — it is already finished. The scene exists only as a backdrop and must not influence the garment in any way.`,
     hasHouseModel
-      ? `RULE #2 — WOMAN IS A 1:1 REPRODUCTION OF IMAGE #${houseModelIndex}
-The woman is the same person as in Image #${houseModelIndex} — same face, same skin tone, same hair (length, color, texture), same body build (full natural bust, soft curves, defined waist, NOT runway-thin), same apparent age (late 20s / early 30s). Even on back/profile shots, hair / skin / body must match Image #${houseModelIndex}. Do not generate a different woman.`
+      ? `RULE #2 — WOMAN IS THE SAME PERSON AS IMAGE #${houseModelIndex} (RE-PHOTOGRAPHED, not pasted)
+The woman is the same person as in Image #${houseModelIndex} — same face structure, skin tone, hair (length, color, texture), body build (full natural bust, soft curves, defined waist, NOT runway-thin), apparent age (late 20s / early 30s). RE-RENDER her in the new scene, do NOT cut-and-paste her face from Image #${houseModelIndex} onto a new body. Single coherent photo. Head-to-body proportion: head is ~1/7–1/8 of total height (natural anatomy, NEVER oversized). Lighting on the face MUST match the scene's lighting (direction, warmth, intensity, shadows) and the lighting on the body — no mismatched-light face. Skin tone consistent between face, neck, and hands.`
       : null,
     `SCENE (backdrop only — does NOT affect the garment): ${stylePrompt}`,
     `POSE: ${posePrompt}`,

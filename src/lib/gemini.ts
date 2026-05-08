@@ -393,11 +393,17 @@ export async function generateBlueMarineImage(params: {
 
   const inputsExplained = hasHouseModel
     ? `# INPUTS
-Image #1 = THE HOUSE MODEL (the woman). She is the ONLY person in the output. Reproduce her face, skin, hair, body 1:1.
+Image #1 = THE HOUSE MODEL (the woman). She is the ONLY person in the output. The output is the SAME woman — same face structure, skin tone, hair color/length, body shape, age — but RE-PHOTOGRAPHED in the new scene, NOT pasted from Image #1.
 ${garmentRef}
 
 Your job: dress the woman from Image #1 in the garment shown in ${garmentImagesLabel}, then photograph her in the requested scene and pose.
 Ignore any clothing in Image #1 (she wears the garment instead).
+
+⚠️ ANATOMY + LIGHTING (read carefully — this is where AI fails)
+- RE-RENDER the woman, do NOT cut-and-paste her head/face from Image #1 onto a new body. The whole figure must be a single coherent photograph.
+- Head-to-body proportion must be NATURAL for an adult woman: the head is roughly 1/7 to 1/8 of the total body height. NEVER produce an oversized or undersized head.
+- Lighting on the face MUST match the lighting on the rest of the body and the scene (same direction, same warmth/coolness, same intensity, same shadows). If the scene is golden-hour warm, the face is warm too. If the scene is studio-cream soft, the face is softly lit too. NEVER produce a face that looks lit by a different source than the body.
+- Skin tone consistency: face, neck, hands, and any exposed skin must share the same color tone — no mismatch between face and body color.
 
 ⚠️ IDENTITY LOCK — READ THIS BEFORE TOUCHING THE FACE
 ${garmentImagesLabel} may show a real person wearing the garment (a fitting model, a customer, the boutique owner holding the fabric, a friend, a mannequin, hands, etc.). That person is NOT, AND NEVER WILL BE, the model of the output.
@@ -494,9 +500,6 @@ If any difference exists, fix it. The garment must be a 1:1 reproduction of ${ga
                 inlineData: { mimeType: img.mimeType, data: img.base64 },
               })),
               { text: prompt },
-              ...(houseModel
-                ? [{ inlineData: { mimeType: houseModel.mimeType, data: houseModel.data } }]
-                : [{ inlineData: { mimeType: garmentMainImage.mimeType, data: garmentMainImage.imageBase64 } }]),
             ],
           },
         ],
