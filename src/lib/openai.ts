@@ -2,7 +2,7 @@ import OpenAI, { toFile } from "openai";
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
-import type { StylePreset, PosePreset } from "./gemini";
+import { flatlayGarmentImage, type StylePreset, type PosePreset } from "./gemini";
 
 const IMAGE_MODEL = "gpt-image-1";
 
@@ -132,7 +132,31 @@ export async function generateBlueMarineImageOpenAI(params: {
 
   const houseModel = getHouseModel();
   const hasHouseModel = !!houseModel;
-  const additionalImages = params.additionalImages ?? [];
+  const rawAdditional = params.additionalImages ?? [];
+
+  // Pre-process: strip any person from the garment images via Gemini before
+  // sending them to gpt-image-1, so the main step has no human face/body to inherit.
+  let mainImage = { imageBase64: params.imageBase64, mimeType: params.mimeType };
+  let additionalImages = rawAdditional;
+  if (hasHouseModel && process.env.BLUE_MARINE_DISABLE_FLATLAY !== "1") {
+    try {
+      const cleaned = await Promise.all([
+        flatlayGarmentImage(mainImage),
+        ...rawAdditional.map((img) =>
+          flatlayGarmentImage({ imageBase64: img.base64, mimeType: img.mimeType }),
+        ),
+      ]);
+      mainImage = cleaned[0];
+      additionalImages = cleaned.slice(1).map((c) => ({
+        base64: c.imageBase64,
+        mimeType: c.mimeType,
+      }));
+    } catch (err) {
+      console.warn(
+        `[openai:flatlay] pre-processing failed, using original images — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+      );
+    }
+  }
   const garmentImageCount = 1 + additionalImages.length;
   const hasMultipleGarmentViews = garmentImageCount > 1;
   const garmentLastIndex = garmentImageCount;
@@ -183,10 +207,10 @@ The woman is the same person as in Image #${houseModelIndex} — same face, same
     .filter(Boolean)
     .join("\n\n");
 
-  const garmentBuffer = Buffer.from(params.imageBase64, "base64");
-  const garmentExt = params.mimeType === "image/png" ? "png" : "jpg";
+  const garmentBuffer = Buffer.from(mainImage.imageBase64, "base64");
+  const garmentExt = mainImage.mimeType === "image/png" ? "png" : "jpg";
   const garmentFile = await toFile(garmentBuffer, `garment.${garmentExt}`, {
-    type: params.mimeType,
+    type: mainImage.mimeType,
   });
 
   const imageInputs = [garmentFile];

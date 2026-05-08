@@ -138,6 +138,100 @@ function buildCompositionHint(pieces: 1 | 2 | 3 | 4, hasShawl: boolean): string 
   return parts.length > 0 ? `Composition: ${parts.join(" ")}` : null;
 }
 
+// Pre-process: extract the garment to a clean flat-lay so the main image-generation step
+// CANNOT inherit a face/body from the source photo. If the source already has no person
+// the result is just a re-rendered flat-lay — still safe to feed into the next step.
+export async function flatlayGarmentImage(params: {
+  imageBase64: string;
+  mimeType: string;
+}): Promise<{ imageBase64: string; mimeType: string }> {
+  const ai = getClient();
+  const prompt = `Extract ONLY the garment from this image. Re-render it as a clean flat-lay product photo on a pure white background.
+
+# STRICT RULES — ZERO HUMAN BODY ALLOWED
+- The output must contain ZERO body parts: NO face, NO head, NO eyes, NO mouth, NO hair, NO neck, NO shoulders, NO torso skin, NO arms, NO hands, NO fingers, NO fingernails, NO legs, NO feet, NO skin pixels of any kind.
+- NO mannequin, NO dummy, NO bust form, NO torso form, NO ghost-mannequin, NO human silhouette of any kind.
+- NO other product, NO accessory, NO furniture, NO room, NO scene.
+- Show the garment ALONE, displayed as a flat-lay or floating against pure white.
+
+# PRESERVE THE GARMENT 1:1
+- Same colors on every panel (top, sleeves, body, skirt, hem, belt, trim) — same hue, same saturation.
+- Same patterns, embroidery, motifs, prints, borders. Do not add. Do not remove.
+- Same length, cut, silhouette, neckline, sleeve shape, proportions.
+- Same fabric finish (matte / satin / velvet / sheer).
+- Same trims, belts, ties, buttons, embroidery placement.
+
+# OUTPUT
+- Background: pure white (#FFFFFF), no shadow textures, no gradient, no scene.
+- Vertical aspect ratio.
+- Full garment visible, from collar to hem, with comfortable margin.
+- The output is a clean clothing reference, ready to be re-photographed on a different model.`;
+
+  const response = await withRetry(
+    () =>
+      ai.models.generateContent({
+        model: MODEL,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
+              { text: prompt },
+            ],
+          },
+        ],
+        config: {
+          responseModalities: [Modality.IMAGE],
+        },
+      }),
+    "flatlay",
+  );
+
+  const candidate = response.candidates?.[0];
+  const parts = candidate?.content?.parts ?? [];
+  for (const part of parts) {
+    if (part.inlineData?.data) {
+      return {
+        imageBase64: part.inlineData.data,
+        mimeType: part.inlineData.mimeType ?? "image/png",
+      };
+    }
+  }
+  throw new Error("Flatlay step did not return an image");
+}
+
+async function flatlayBatch(
+  main: { imageBase64: string; mimeType: string },
+  additional: Array<{ base64: string; mimeType: string }>,
+): Promise<{
+  main: { imageBase64: string; mimeType: string };
+  additional: Array<{ base64: string; mimeType: string }>;
+}> {
+  if (process.env.BLUE_MARINE_DISABLE_FLATLAY === "1") {
+    return { main, additional };
+  }
+  try {
+    const cleaned = await Promise.all([
+      flatlayGarmentImage(main),
+      ...additional.map((img) =>
+        flatlayGarmentImage({ imageBase64: img.base64, mimeType: img.mimeType }),
+      ),
+    ]);
+    return {
+      main: cleaned[0],
+      additional: cleaned.slice(1).map((c) => ({
+        base64: c.imageBase64,
+        mimeType: c.mimeType,
+      })),
+    };
+  } catch (err) {
+    console.warn(
+      `[gemini:flatlay] pre-processing failed, using original images — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+    );
+    return { main, additional };
+  }
+}
+
 export async function generateBlueMarineImage(params: {
   imageBase64: string;
   mimeType: string;
@@ -155,38 +249,58 @@ export async function generateBlueMarineImage(params: {
 
   const houseModel = getHouseModel();
   const hasHouseModel = !!houseModel;
-  const additionalImages = params.additionalImages ?? [];
+  const rawAdditional = params.additionalImages ?? [];
+
+  // Pre-process: strip any person from the garment images so the main step has no
+  // human face/body to inherit from. Falls back to the originals if the flatlay step
+  // fails (network, model issue, etc.).
+  const cleaned = hasHouseModel
+    ? await flatlayBatch(
+        { imageBase64: params.imageBase64, mimeType: params.mimeType },
+        rawAdditional,
+      )
+    : { main: { imageBase64: params.imageBase64, mimeType: params.mimeType }, additional: rawAdditional };
+  const garmentMainImage = cleaned.main;
+  const additionalImages = cleaned.additional;
+
   const garmentImageCount = 1 + additionalImages.length;
   const hasMultipleGarmentViews = garmentImageCount > 1;
-  const garmentLastIndex = garmentImageCount;
-  const houseModelIndex = garmentLastIndex + 1;
+  // Image order in the request: house model FIRST (anchor for identity), then garments.
+  const houseModelIndex = hasHouseModel ? 1 : 0;
+  const garmentFirstIndex = hasHouseModel ? 2 : 1;
+  const garmentLastIndex = garmentFirstIndex + garmentImageCount - 1;
+
+  const garmentImagesLabel = hasMultipleGarmentViews
+    ? `Images #${garmentFirstIndex}–#${garmentLastIndex}`
+    : `Image #${garmentFirstIndex}`;
 
   const garmentRef = hasMultipleGarmentViews
-    ? `Images #1 to #${garmentLastIndex} = THE SAME SINGLE GARMENT shown from different angles / closeups (front, back, detail, fabric, etc.). They are MULTIPLE VIEWS of ONE single product — NOT multiple different products. Combine the views to understand the full garment, then reproduce that one garment 1:1.`
-    : `Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.`;
+    ? `${garmentImagesLabel} = THE SAME SINGLE GARMENT shown from different angles / closeups (front, back, detail, fabric, etc.). They are MULTIPLE VIEWS of ONE single product — NOT multiple different products. Combine the views to understand the full garment, then reproduce that one garment 1:1.`
+    : `${garmentImagesLabel} = THE GARMENT (the only product reference). Reproduce it 1:1.`;
 
-  const garmentImagesLabel = hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`;
   const inputsExplained = hasHouseModel
     ? `# INPUTS
+Image #1 = THE HOUSE MODEL (the woman). She is the ONLY person in the output. Reproduce her face, skin, hair, body 1:1.
 ${garmentRef}
-Image #${houseModelIndex} = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
 
-Your job: dress the woman from Image #${houseModelIndex} in the garment shown in ${garmentImagesLabel}, then photograph her in the requested scene and pose.
-Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead).
+Your job: dress the woman from Image #1 in the garment shown in ${garmentImagesLabel}, then photograph her in the requested scene and pose.
+Ignore any clothing in Image #1 (she wears the garment instead).
 
-⚠️ IDENTITY LOCK — CRITICAL
-${garmentImagesLabel} may show a real person wearing the garment (a fitting model, a customer, a mannequin, hands holding the fabric, etc.). That person is NOT the model of the output.
-- DISCARD EVERYTHING about any person visible in ${garmentImagesLabel}: face, eyes, eyebrows, mouth, nose, jaw, hair (length, color, style), skin tone, body shape, height, weight, age, posture, hands.
-- Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape).
-- The ONLY human in the output is the woman from Image #${houseModelIndex}. Her face, hair, skin, and body shape are the ONLY ones that appear — never blend, never average, never substitute with the person from ${garmentImagesLabel}.
-- If you feel tempted to copy the silhouette or face from ${garmentImagesLabel} because it shows the garment "in action", STOP. Re-read this rule and use Image #${houseModelIndex} instead.`
+⚠️ IDENTITY LOCK — READ THIS BEFORE TOUCHING THE FACE
+${garmentImagesLabel} may show a real person wearing the garment (a fitting model, a customer, the boutique owner holding the fabric, a friend, a mannequin, hands, etc.). That person is NOT, AND NEVER WILL BE, the model of the output.
+- The face/head/hair/skin/body of the woman in your output comes EXCLUSIVELY from Image #1. Period.
+- DISCARD EVERYTHING about any person visible in ${garmentImagesLabel}: face, eyes, eyebrows, eyelashes, mouth, lips, nose, jaw, cheekbones, hair (length, color, parting, style), skin tone, body shape, height, weight, age, posture, hands, fingernails.
+- Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape, pattern).
+- DO NOT blend, average, mix, or interpolate between the woman in Image #1 and the person in ${garmentImagesLabel}. The result must be IMAGE #1's woman, not a similar-looking woman.
+- If the person in ${garmentImagesLabel} has long brown hair and Image #1's woman has different hair, USE IMAGE #1's hair. If skin tones differ, USE IMAGE #1's skin tone. If face shapes differ, USE IMAGE #1's face shape.
+- A reader looking at the output and at Image #1 must say "this is the same woman". A reader looking at the output and ${garmentImagesLabel} must say "this is a different woman wearing the same garment".`
     : `# INPUT
 ${garmentRef}
 Put THAT single garment, unchanged, on a tall elegant female model.`;
 
   const garmentRefShort = hasMultipleGarmentViews
-    ? `the garment shown across Images #1–#${garmentLastIndex}`
-    : `Image #1`;
+    ? `the garment shown across ${garmentImagesLabel}`
+    : garmentImagesLabel;
 
   const garmentLock = `# RULE #1 — GARMENT IS A 1:1 REPRODUCTION
 
@@ -194,7 +308,7 @@ ${inputsExplained}
 
 The garment in your output must look IDENTICAL to ${garmentRefShort} — as if you photographed the same physical garment in a new setting. You are a photographer, not a designer.${
     hasMultipleGarmentViews
-      ? `\n\nThe multiple garment images (Images #1–#${garmentLastIndex}) all show the SAME ONE garment from different angles. Use them together as references. DO NOT mix them as if they were separate items. There is only one garment.`
+      ? `\n\nThe multiple garment images (${garmentImagesLabel}) all show the SAME ONE garment from different angles. Use them together as references. DO NOT mix them as if they were separate items. There is only one garment.`
       : ""
   }
 
@@ -256,15 +370,17 @@ If any difference exists, fix it. The garment must be a 1:1 reproduction of ${ga
           {
             role: "user",
             parts: [
-              { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
-              ...additionalImages.map((img) => ({
-                inlineData: { mimeType: img.mimeType, data: img.base64 },
-              })),
               ...(houseModel
                 ? [{ inlineData: { mimeType: houseModel.mimeType, data: houseModel.data } }]
                 : []),
+              { inlineData: { mimeType: garmentMainImage.mimeType, data: garmentMainImage.imageBase64 } },
+              ...additionalImages.map((img) => ({
+                inlineData: { mimeType: img.mimeType, data: img.base64 },
+              })),
               { text: prompt },
-              { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
+              ...(houseModel
+                ? [{ inlineData: { mimeType: houseModel.mimeType, data: houseModel.data } }]
+                : [{ inlineData: { mimeType: garmentMainImage.mimeType, data: garmentMainImage.imageBase64 } }]),
             ],
           },
         ],
