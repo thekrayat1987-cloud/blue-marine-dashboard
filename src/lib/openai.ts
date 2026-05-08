@@ -2,7 +2,7 @@ import OpenAI, { toFile } from "openai";
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
-import { flatlayGarmentImage, type StylePreset, type PosePreset } from "./gemini";
+import { maskHeadsInGarmentImage, type StylePreset, type PosePreset } from "./gemini";
 
 const IMAGE_MODEL = "gpt-image-1";
 
@@ -134,16 +134,16 @@ export async function generateBlueMarineImageOpenAI(params: {
   const hasHouseModel = !!houseModel;
   const rawAdditional = params.additionalImages ?? [];
 
-  // Pre-process: strip any person from the garment images via Gemini before
-  // sending them to gpt-image-1, so the main step has no human face/body to inherit.
+  // Pre-process: mask any human head in the garment images so gpt-image-1 cannot
+  // anchor on the source person's face. Garment pixels are preserved 1:1.
   let mainImage = { imageBase64: params.imageBase64, mimeType: params.mimeType };
   let additionalImages = rawAdditional;
-  if (hasHouseModel && process.env.BLUE_MARINE_DISABLE_FLATLAY !== "1") {
+  if (hasHouseModel && process.env.BLUE_MARINE_DISABLE_HEAD_MASK !== "1") {
     try {
       const cleaned = await Promise.all([
-        flatlayGarmentImage(mainImage),
+        maskHeadsInGarmentImage(mainImage),
         ...rawAdditional.map((img) =>
-          flatlayGarmentImage({ imageBase64: img.base64, mimeType: img.mimeType }),
+          maskHeadsInGarmentImage({ imageBase64: img.base64, mimeType: img.mimeType }),
         ),
       ]);
       mainImage = cleaned[0];
@@ -153,7 +153,7 @@ export async function generateBlueMarineImageOpenAI(params: {
       }));
     } catch (err) {
       console.warn(
-        `[openai:flatlay] pre-processing failed, using original images — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+        `[openai:mask] pre-processing failed, using original images — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
       );
     }
   }
@@ -177,7 +177,9 @@ export async function generateBlueMarineImageOpenAI(params: {
 
 Your job: dress the woman from Image #${houseModelIndex} in ${garmentRefShort}, then photograph her in the requested scene and pose. Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead).
 
-IDENTITY LOCK — CRITICAL: ${garmentImagesLabel} may show a real person wearing the garment (fitting model, customer, mannequin, hands holding fabric). That person is NOT the model of the output. DISCARD their face, eyes, mouth, nose, jaw, hair (length, color, style), skin tone, body shape, height, weight, age, posture, hands. Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape). The ONLY human in the output is the woman from Image #${houseModelIndex} — never blend her with the person from ${garmentImagesLabel}, never average them, never substitute.`
+IDENTITY LOCK — CRITICAL: ${garmentImagesLabel} may show a real person wearing the garment (fitting model, customer, mannequin, hands holding fabric). That person is NOT the model of the output. DISCARD their face, eyes, mouth, nose, jaw, hair (length, color, style), skin tone, body shape, height, weight, age, posture, hands. Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape). The ONLY human in the output is the woman from Image #${houseModelIndex} — never blend her with the person from ${garmentImagesLabel}, never average them, never substitute.
+
+BLACK PRIVACY MASK: ${garmentImagesLabel} may contain a solid black rectangle over the wearer's head/face. That rectangle is a privacy mask, NOT part of the garment. Do NOT reproduce the rectangle in the output. The garment is unaltered everywhere else — reproduce all colors and patterns outside the mask exactly. The output shows the full uncovered woman from Image #${houseModelIndex} wearing the unmasked garment.`
     : `INPUT: ${garmentRef}
 Put THAT single garment, unchanged, on a tall elegant female model.`;
 

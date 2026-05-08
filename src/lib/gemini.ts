@@ -1,4 +1,5 @@
 import { GoogleGenAI, Modality } from "@google/genai";
+import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -138,9 +139,108 @@ function buildCompositionHint(pieces: 1 | 2 | 3 | 4, hasShawl: boolean): string 
   return parts.length > 0 ? `Composition: ${parts.join(" ")}` : null;
 }
 
-// Pre-process: extract the garment to a clean flat-lay so the main image-generation step
-// CANNOT inherit a face/body from the source photo. If the source already has no person
-// the result is just a re-rendered flat-lay — still safe to feed into the next step.
+// Pre-process: ask Gemini to locate any human heads in the image, then sharp-mask
+// them with a black rectangle. Garment pixels are NEVER altered — only the face/head
+// region is overlaid. The main image-generation step then has no face anchor and must
+// fall back on the house model image for identity.
+type BBox = { x: number; y: number; width: number; height: number };
+
+async function detectHeadsInImage(params: {
+  imageBase64: string;
+  mimeType: string;
+}): Promise<BBox[]> {
+  const ai = getClient();
+  const prompt = `Look at this image and locate every visible human head (full face, partial face, profile, 3/4 angle, even partly hidden by hair or fabric).
+
+Return ONLY valid JSON in this exact shape (no markdown, no commentary):
+{
+  "heads": [
+    { "x": <number>, "y": <number>, "width": <number>, "height": <number> }
+  ]
+}
+
+Rules for each box:
+- All values are normalized 0.0–1.0 relative to the FULL image (x and width along the horizontal axis, y and height along the vertical axis with y=0 at the top).
+- The box covers the WHOLE head: top of hair, both ears, chin, plus a generous margin of ~10–15% on every side. Better TOO BIG than too small.
+- Include hair that extends above or beside the face.
+- If the photo shows hands or torso but no head/face is visible, return { "heads": [] }.
+- If multiple people are visible, return one box per head.
+
+Return only the JSON object.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: TEXT_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
+            { text: prompt },
+          ],
+        },
+      ],
+      config: { responseMimeType: "application/json" },
+    });
+    const text = response.text;
+    if (!text) return [];
+    const parsed = JSON.parse(text) as { heads?: BBox[] };
+    return Array.isArray(parsed.heads) ? parsed.heads : [];
+  } catch (err) {
+    console.warn(
+      `[gemini:detect-heads] failed — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+    );
+    return [];
+  }
+}
+
+export async function maskHeadsInGarmentImage(params: {
+  imageBase64: string;
+  mimeType: string;
+}): Promise<{ imageBase64: string; mimeType: string }> {
+  const heads = await detectHeadsInImage(params);
+  if (heads.length === 0) return params;
+
+  const inputBuffer = Buffer.from(params.imageBase64, "base64");
+  const meta = await sharp(inputBuffer).metadata();
+  if (!meta.width || !meta.height) return params;
+
+  const W = meta.width;
+  const H = meta.height;
+  const rects = heads
+    .map((h) => {
+      // Pad the box outward by 8% of its size to catch hair the model may have missed.
+      const padX = h.width * 0.08;
+      const padY = h.height * 0.08;
+      const x0 = Math.max(0, (h.x - padX) * W);
+      const y0 = Math.max(0, (h.y - padY) * H);
+      const x1 = Math.min(W, (h.x + h.width + padX) * W);
+      const y1 = Math.min(H, (h.y + h.height + padY) * H);
+      const x = Math.floor(x0);
+      const y = Math.floor(y0);
+      const w = Math.ceil(x1 - x0);
+      const hPx = Math.ceil(y1 - y0);
+      if (w <= 0 || hPx <= 0) return "";
+      return `<rect x="${x}" y="${y}" width="${w}" height="${hPx}" fill="black" />`;
+    })
+    .filter(Boolean)
+    .join("");
+
+  if (!rects) return params;
+
+  const svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">${rects}</svg>`;
+  const masked = await sharp(inputBuffer)
+    .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
+    .png()
+    .toBuffer();
+
+  return {
+    imageBase64: masked.toString("base64"),
+    mimeType: "image/png",
+  };
+}
+
+// Pre-process: extract the garment to a clean flat-lay (kept for fallback / experimentation).
 export async function flatlayGarmentImage(params: {
   imageBase64: string;
   mimeType: string;
@@ -200,21 +300,21 @@ export async function flatlayGarmentImage(params: {
   throw new Error("Flatlay step did not return an image");
 }
 
-async function flatlayBatch(
+export async function maskBatch(
   main: { imageBase64: string; mimeType: string },
   additional: Array<{ base64: string; mimeType: string }>,
 ): Promise<{
   main: { imageBase64: string; mimeType: string };
   additional: Array<{ base64: string; mimeType: string }>;
 }> {
-  if (process.env.BLUE_MARINE_DISABLE_FLATLAY === "1") {
+  if (process.env.BLUE_MARINE_DISABLE_HEAD_MASK === "1") {
     return { main, additional };
   }
   try {
     const cleaned = await Promise.all([
-      flatlayGarmentImage(main),
+      maskHeadsInGarmentImage(main),
       ...additional.map((img) =>
-        flatlayGarmentImage({ imageBase64: img.base64, mimeType: img.mimeType }),
+        maskHeadsInGarmentImage({ imageBase64: img.base64, mimeType: img.mimeType }),
       ),
     ]);
     return {
@@ -226,7 +326,7 @@ async function flatlayBatch(
     };
   } catch (err) {
     console.warn(
-      `[gemini:flatlay] pre-processing failed, using original images — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+      `[gemini:mask] pre-processing failed, using original images — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
     );
     return { main, additional };
   }
@@ -252,10 +352,10 @@ export async function generateBlueMarineImage(params: {
   const rawAdditional = params.additionalImages ?? [];
 
   // Pre-process: strip any person from the garment images so the main step has no
-  // human face/body to inherit from. Falls back to the originals if the flatlay step
-  // fails (network, model issue, etc.).
+  // human face/head to inherit from. Garment pixels are preserved 1:1 — only the head
+  // region is overlaid with a black rectangle. Falls back to the originals on failure.
   const cleaned = hasHouseModel
-    ? await flatlayBatch(
+    ? await maskBatch(
         { imageBase64: params.imageBase64, mimeType: params.mimeType },
         rawAdditional,
       )
@@ -293,7 +393,10 @@ ${garmentImagesLabel} may show a real person wearing the garment (a fitting mode
 - Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape, pattern).
 - DO NOT blend, average, mix, or interpolate between the woman in Image #1 and the person in ${garmentImagesLabel}. The result must be IMAGE #1's woman, not a similar-looking woman.
 - If the person in ${garmentImagesLabel} has long brown hair and Image #1's woman has different hair, USE IMAGE #1's hair. If skin tones differ, USE IMAGE #1's skin tone. If face shapes differ, USE IMAGE #1's face shape.
-- A reader looking at the output and at Image #1 must say "this is the same woman". A reader looking at the output and ${garmentImagesLabel} must say "this is a different woman wearing the same garment".`
+- A reader looking at the output and at Image #1 must say "this is the same woman". A reader looking at the output and ${garmentImagesLabel} must say "this is a different woman wearing the same garment".
+
+⚠️ BLACK PRIVACY MASK
+${garmentImagesLabel} may contain a SOLID BLACK RECTANGLE over the wearer's head/face. That rectangle is a PRIVACY MASK applied by the system, NOT part of the garment. Do NOT reproduce the black rectangle anywhere in your output. Do NOT treat it as fabric, embroidery, color, or design. The garment is unaltered everywhere else — reproduce all colors, patterns and details outside the masked region exactly. The output shows the woman from Image #1 with no mask of any kind, wearing the full uncovered garment.`
     : `# INPUT
 ${garmentRef}
 Put THAT single garment, unchanged, on a tall elegant female model.`;
