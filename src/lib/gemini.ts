@@ -165,14 +165,21 @@ export async function generateBlueMarineImage(params: {
     ? `Images #1 to #${garmentLastIndex} = THE SAME SINGLE GARMENT shown from different angles / closeups (front, back, detail, fabric, etc.). They are MULTIPLE VIEWS of ONE single product — NOT multiple different products. Combine the views to understand the full garment, then reproduce that one garment 1:1.`
     : `Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.`;
 
+  const garmentImagesLabel = hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`;
   const inputsExplained = hasHouseModel
     ? `# INPUTS
 ${garmentRef}
 Image #${houseModelIndex} = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
 
-Your job: dress the woman from Image #${houseModelIndex} in the garment shown in ${hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`}, then photograph her in the requested scene and pose.
+Your job: dress the woman from Image #${houseModelIndex} in the garment shown in ${garmentImagesLabel}, then photograph her in the requested scene and pose.
 Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead).
-Ignore any person in ${hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`} (only the garment matters).`
+
+⚠️ IDENTITY LOCK — CRITICAL
+${garmentImagesLabel} may show a real person wearing the garment (a fitting model, a customer, a mannequin, hands holding the fabric, etc.). That person is NOT the model of the output.
+- DISCARD EVERYTHING about any person visible in ${garmentImagesLabel}: face, eyes, eyebrows, mouth, nose, jaw, hair (length, color, style), skin tone, body shape, height, weight, age, posture, hands.
+- Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape).
+- The ONLY human in the output is the woman from Image #${houseModelIndex}. Her face, hair, skin, and body shape are the ONLY ones that appear — never blend, never average, never substitute with the person from ${garmentImagesLabel}.
+- If you feel tempted to copy the silhouette or face from ${garmentImagesLabel} because it shows the garment "in action", STOP. Re-read this rule and use Image #${houseModelIndex} instead.`
     : `# INPUT
 ${garmentRef}
 Put THAT single garment, unchanged, on a tall elegant female model.`;

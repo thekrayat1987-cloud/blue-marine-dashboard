@@ -139,12 +139,15 @@ export async function generateBlueMarineImageOpenAI(params: {
     ? `the garment shown across Images #1–#${garmentLastIndex}`
     : `Image #1`;
 
+  const garmentImagesLabel = hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`;
   const inputsExplained = hasHouseModel
     ? `INPUTS:
 - ${garmentRef}
 - Image #${houseModelIndex} = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
 
-Your job: dress the woman from Image #${houseModelIndex} in ${garmentRefShort}, then photograph her in the requested scene and pose. Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead). Ignore any person in ${hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`} (only the garment matters).`
+Your job: dress the woman from Image #${houseModelIndex} in ${garmentRefShort}, then photograph her in the requested scene and pose. Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead).
+
+IDENTITY LOCK — CRITICAL: ${garmentImagesLabel} may show a real person wearing the garment (fitting model, customer, mannequin, hands holding fabric). That person is NOT the model of the output. DISCARD their face, eyes, mouth, nose, jaw, hair (length, color, style), skin tone, body shape, height, weight, age, posture, hands. Use ${garmentImagesLabel} ONLY as a clothing reference (fabric, color, embroidery, cut, length, drape). The ONLY human in the output is the woman from Image #${houseModelIndex} — never blend her with the person from ${garmentImagesLabel}, never average them, never substitute.`
     : `INPUT: ${garmentRef}
 Put THAT single garment, unchanged, on a tall elegant female model.`;
 
