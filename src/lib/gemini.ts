@@ -150,7 +150,7 @@ async function detectHeadsInImage(params: {
   mimeType: string;
 }): Promise<BBox[]> {
   const ai = getClient();
-  const prompt = `Look at this image and locate every visible human head (full face, partial face, profile, 3/4 angle, even partly hidden by hair or fabric).
+  const prompt = `Look at this image and locate every visible human FACE (eyes + nose + mouth area only).
 
 Return ONLY valid JSON in this exact shape (no markdown, no commentary):
 {
@@ -160,11 +160,12 @@ Return ONLY valid JSON in this exact shape (no markdown, no commentary):
 }
 
 Rules for each box:
-- All values are normalized 0.0–1.0 relative to the FULL image (x and width along the horizontal axis, y and height along the vertical axis with y=0 at the top).
-- The box covers the WHOLE head: top of hair, both ears, chin, plus a generous margin of ~10–15% on every side. Better TOO BIG than too small.
-- Include hair that extends above or beside the face.
-- If the photo shows hands or torso but no head/face is visible, return { "heads": [] }.
-- If multiple people are visible, return one box per head.
+- All values normalized 0.0–1.0 (x, width along horizontal; y, height along vertical with y=0 at the top).
+- The box covers ONLY the FACE proper: from the upper forehead down to JUST ABOVE THE CHIN. Stop at the jaw line — do NOT include the chin, the neck, the collar, the necklace, or any clothing/embroidery below the jaw.
+- The box should be TIGHT: hair or ears extending out are fine to include, but DO NOT extend the box downward beyond the lower lip / jaw.
+- If only a partial face is visible (e.g., chin and lips only at the edge of the frame), still mark just that small region — never extend beyond the visible facial features.
+- If no face is visible (only hands, fabric, garment, room), return { "heads": [] }.
+- If multiple people, one box per face.
 
 Return only the JSON object.`;
 
@@ -207,20 +208,32 @@ export async function maskHeadsInGarmentImage(params: {
 
   const W = meta.width;
   const H = meta.height;
+  const totalArea = W * H;
   const rects = heads
     .map((h) => {
-      // Pad the box outward by 8% of its size to catch hair the model may have missed.
-      const padX = h.width * 0.08;
-      const padY = h.height * 0.08;
+      // Asymmetric padding: extend up/sides (to cover hair/ears) but NEVER down
+      // (to protect the neckline / collar / embroidery just below the chin).
+      // Also shrink the box slightly upward at the bottom for extra safety.
+      const padX = h.width * 0.05;
+      const padTop = h.height * 0.10;
+      const shrinkBottom = h.height * 0.08;
       const x0 = Math.max(0, (h.x - padX) * W);
-      const y0 = Math.max(0, (h.y - padY) * H);
+      const y0 = Math.max(0, (h.y - padTop) * H);
       const x1 = Math.min(W, (h.x + h.width + padX) * W);
-      const y1 = Math.min(H, (h.y + h.height + padY) * H);
+      const y1 = Math.min(H, (h.y + h.height - shrinkBottom) * H);
       const x = Math.floor(x0);
       const y = Math.floor(y0);
       const w = Math.ceil(x1 - x0);
       const hPx = Math.ceil(y1 - y0);
       if (w <= 0 || hPx <= 0) return "";
+      // Safety: skip any box that covers more than 25% of the image — it's almost
+      // certainly a hallucination or a too-loose detection that would destroy garment.
+      if (w * hPx > totalArea * 0.25) {
+        console.warn(
+          `[gemini:mask] skipping oversized box (${((w * hPx) / totalArea * 100).toFixed(1)}% of image) — likely hallucination`,
+        );
+        return "";
+      }
       return `<rect x="${x}" y="${y}" width="${w}" height="${hPx}" fill="black" />`;
     })
     .filter(Boolean)
