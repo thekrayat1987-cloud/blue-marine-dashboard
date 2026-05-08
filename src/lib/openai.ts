@@ -1,9 +1,15 @@
 import OpenAI, { toFile } from "openai";
+import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
 import type { StylePreset, PosePreset } from "./gemini";
 
 const IMAGE_MODEL = "gpt-image-1";
+
+// gpt-image-1 only supports 1024x1536 in portrait — the rest of the catalog is 9:16
+// (864x1536). Center-crop horizontally to match.
+const TARGET_WIDTH = 864;
+const TARGET_HEIGHT = 1536;
 
 let cachedHouseModel: { data: Buffer; mimeType: string } | null | undefined;
 
@@ -215,6 +221,30 @@ The woman is the same person as in Image #${houseModelIndex} — same face, same
   if (!data?.b64_json) {
     throw new Error("OpenAI did not return an image");
   }
+
+  try {
+    const inputBuffer = Buffer.from(data.b64_json, "base64");
+    const meta = await sharp(inputBuffer).metadata();
+    if (meta.width && meta.height && (meta.width !== TARGET_WIDTH || meta.height !== TARGET_HEIGHT)) {
+      const left = Math.max(0, Math.round((meta.width - TARGET_WIDTH) / 2));
+      const top = Math.max(0, Math.round((meta.height - TARGET_HEIGHT) / 2));
+      const cropWidth = Math.min(TARGET_WIDTH, meta.width - left);
+      const cropHeight = Math.min(TARGET_HEIGHT, meta.height - top);
+      const cropped = await sharp(inputBuffer)
+        .extract({ left, top, width: cropWidth, height: cropHeight })
+        .png()
+        .toBuffer();
+      return {
+        imageBase64: cropped.toString("base64"),
+        mimeType: "image/png",
+      };
+    }
+  } catch (err) {
+    console.warn(
+      `[openai:image] sharp crop failed, returning raw OpenAI output — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+    );
+  }
+
   return {
     imageBase64: data.b64_json,
     mimeType: "image/png",
