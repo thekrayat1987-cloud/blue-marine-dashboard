@@ -35,8 +35,6 @@ type CreateResult = {
   warnings: string[];
 };
 
-const STORE_DOMAIN = "bluemarineatelier.com";
-
 function newRow(): ColorRow {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -447,15 +445,6 @@ export default function FullProductPage() {
                   <h3 className="text-sm font-semibold text-foreground">Produit créé !</h3>
                 </div>
                 <div className="space-y-2 text-sm">
-                  <a
-                    href={`https://${STORE_DOMAIN}/products/${result.productHandle}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 text-accent hover:underline"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Voir sur la boutique
-                  </a>
                   <a
                     href={result.adminUrl}
                     target="_blank"
