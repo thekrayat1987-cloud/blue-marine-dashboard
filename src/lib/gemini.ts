@@ -31,42 +31,35 @@ export type PosePreset =
   | "low_angle";
 
 const STYLE_PROMPTS: Record<StylePreset, string> = {
-  studio: `Photograph the EXACT garment from the source image, worn by a model, in a luxury studio setting for Blue Marine Atelier.
-Background: smooth seamless studio backdrop with a subtle warm gradient (cream to beige).
-Lighting: soft, even studio lighting with no harsh shadows; gentle highlights on fabric to reveal embroidery and texture.
+  studio: `Scene: luxury studio backdrop, subtle warm cream-to-beige gradient.
+Lighting: soft, even studio lighting; gentle highlights on fabric to reveal embroidery and texture; no harsh shadows.
 Mood: refined, minimalist luxury, contemporary heritage.
-Post-processing: faithful color reproduction, moderate contrast, warm overall tone, polished finish.
-The background palette must NOT bleed into the garment colors — the garment keeps its exact original colors regardless of the scene's color palette.`,
+The scene is a backdrop only. The garment is reproduced 1:1 from Image #1.`,
 
-  lookbook: `Photograph the EXACT garment from the source image, worn by a model, in an editorial lookbook setting for Blue Marine Atelier.
-Setting: minimalist architectural interior with arches, warm marble or sandstone textures, subtle Moorish-inspired details.
-Lighting: golden-hour natural light filtering through, soft warm glow on the fabric.
-Background palette only: bordeaux, gold, ivory accents. The garment itself keeps its exact original colors and patterns — do not tint or recolor it to match the room.
-Mood: timeless luxury, modern oriental elegance.`,
+  lookbook: `Scene: minimalist architectural interior with arches, warm marble/sandstone textures, subtle Moorish details.
+Lighting: golden-hour natural light filtering through, soft warm glow.
+Mood: timeless luxury, modern oriental elegance.
+The scene is a backdrop only. The garment is reproduced 1:1 from Image #1.`,
 
-  lifestyle: `Photograph the EXACT garment from the source image, worn by a model, in a lifestyle campaign setting for Blue Marine Atelier.
-Setting: serene Mediterranean/oriental scene — white-washed walls, lush greenery, soft sunlight, or terrace with sea view.
-Lighting: golden hour, warm and luminous, with soft natural shadows.
-The garment colors must remain identical to the source — only the surrounding scene uses warm Mediterranean tones.
-Mood: aspirational, refined, oriental contemporary luxury.`,
+  lifestyle: `Scene: serene Mediterranean/oriental setting — white-washed walls, lush greenery, soft sunlight, or terrace with sea view.
+Lighting: golden hour, warm and luminous, soft natural shadows.
+Mood: aspirational, refined, oriental contemporary luxury.
+The scene is a backdrop only. The garment is reproduced 1:1 from Image #1.`,
 
-  riad: `Photograph the EXACT garment from the source image, worn by a model, inside an authentic Moroccan riad for Blue Marine Atelier.
-Setting: interior courtyard of a traditional riad — zellige tile mosaics on walls and floor, a central marble fountain, carved cedar arches, hanging brass lanterns, terracotta plants.
-Lighting: soft diffused daylight from above through the open courtyard, gentle dappled shadows on the model and tiles.
-Background palette only: deep teal and cobalt zellige, warm terracotta, brass, ivory walls. The garment keeps its exact original colors — do not let the zellige tones bleed into the fabric.
-Mood: heritage luxury, intimate, contemplative.`,
+  riad: `Scene: interior courtyard of a traditional Moroccan riad — zellige tile mosaics, central marble fountain, carved cedar arches, hanging brass lanterns, terracotta plants.
+Lighting: soft diffused daylight from above through the open courtyard, gentle dappled shadows.
+Mood: heritage luxury, intimate, contemplative.
+The scene is a backdrop only. The garment is reproduced 1:1 from Image #1.`,
 
-  palais: `Photograph the EXACT garment from the source image, worn by a model, inside a Gulf/Moroccan palace interior for Blue Marine Atelier.
-Setting: grand palace interior — black and white marble floor, gilded mouldings, a tall crystal chandelier, ornate mirrors, deep velvet drapes in burgundy or midnight blue.
-Lighting: warm chandelier glow with soft golden highlights on the fabric, subtle ambient shadows for depth and drama.
-Background palette only: midnight blue, burgundy, polished gold, ivory marble. The garment keeps its exact original colors — drapes and decor do not transfer their colors to the fabric.
-Mood: opulent evening occasion, refined, ceremonial.`,
+  palais: `Scene: grand palace interior — marble floor, gilded mouldings, crystal chandelier, ornate mirrors, velvet drapes.
+Lighting: warm chandelier glow with soft highlights, subtle ambient shadows for depth.
+Mood: opulent evening occasion, refined, ceremonial.
+The scene is a backdrop only. The garment is reproduced 1:1 from Image #1.`,
 
-  desert: `Photograph the EXACT garment from the source image, worn by a model, in a cinematic desert setting for Blue Marine Atelier.
-Setting: vast golden sand dunes at golden hour, soft wind ripples in the sand, distant horizon, no harsh sun.
-Lighting: warm, low-angle golden hour light raking across the dunes, long soft shadows, gentle glow on the fabric.
-Background palette only: warm sand, ochre, soft rose-gold sky. The garment keeps its exact original colors and patterns against this neutral background.
-Mood: timeless, serene, cinematic, heritage.`,
+  desert: `Scene: vast golden sand dunes at golden hour, soft wind ripples, distant horizon, no harsh sun.
+Lighting: warm low-angle golden-hour light raking across the dunes, long soft shadows.
+Mood: timeless, serene, cinematic, heritage.
+The scene is a backdrop only. The garment is reproduced 1:1 from Image #1.`,
 };
 
 const POSE_PROMPTS: Record<PosePreset, string> = {
@@ -163,76 +156,63 @@ export async function generateBlueMarineImage(params: {
   const hasHouseModel = !!houseModel;
 
   const inputsExplained = hasHouseModel
-    ? `# INPUT IMAGES (read carefully — there are TWO)
+    ? `# INPUTS
+Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.
+Image #2 = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
 
-Image #1 = THE GARMENT. A flat or partial product shot. Use it ONLY as the design reference for the clothing the model wears.
-Image #2 = THE HOUSE MODEL. The Blue Marine atelier mannequin. Use her — and ONLY her — as the woman in the output. Same face, same skin tone, same hair, same body type, same height.
+Your job: dress the woman from Image #2 in the garment from Image #1, then photograph her in the requested scene and pose.
+Ignore any clothing in Image #2 (she wears the garment from Image #1 instead).
+Ignore any person in Image #1 (only the garment matters).`
+    : `# INPUT
+Image #1 shows the garment. Put THAT garment, unchanged, on a tall elegant female model.`;
 
-Your job: dress the woman from Image #2 in the garment from Image #1, then photograph her in the requested pose and setting.
-
-DO NOT mix the two: the garment in Image #2 (her plain beige dress) is NOT the product — ignore it entirely. The woman in Image #1 (if any) is NOT the model — ignore her face/body entirely.`
-    : `# INPUT IMAGE
-The source image shows the garment. Put THAT garment, unchanged, on a tall elegant female model.`;
-
-  const garmentLock = `# GARMENT FIDELITY — HIGHEST PRIORITY (read before anything else)
+  const garmentLock = `# RULE #1 — GARMENT IS A 1:1 REPRODUCTION OF IMAGE #1
 
 ${inputsExplained}
 
-The garment image (Image #1) shows ONE specific garment. Treat the garment like a real physical object you must reproduce 1:1.
+The garment in your output must look IDENTICAL to Image #1 — as if you photographed the same physical garment in a new setting. You are a photographer, not a designer.
 
-You MUST copy from the garment image, exactly:
-- Every color and color zone — including the dominant color of each part (top, sleeves, skirt, belt, hem). If the skirt is orange/brown in the source, it stays orange/brown.
-- Every pattern, motif and print — geometric shapes, embroidery, prints, borders. Do not add new patterns. Do not remove existing patterns.
-- The full length, cut, silhouette, neckline, sleeves, and proportions.
-- The fabric type and finish (matte, sheen, velvet, satin) as visible in the source.
+Reproduce EXACTLY from Image #1:
+- All colors on every panel (top, sleeves, body, skirt, hem, belt, trim). Same hue, same saturation, same zones.
+- All patterns, embroidery, motifs, prints, borders. Do not add. Do not remove. Do not "complete".
+- Length, cut, silhouette, neckline, sleeve shape, proportions.
+- Fabric finish (matte / satin / velvet / sheer).
 - Trims, belts, ties, buttons, embroidery placement.
 
-You MUST NOT, under any circumstance:
-- Add navy blue, midnight blue, or any color not present in the source garment.
-- Add floral patterns, paisley, or any motif not present in the source garment.
-- Replace the skirt or any panel with a different fabric or color.
-- "Complete" or "enrich" the design because it looks simple. Simplicity is intentional.
-- Let the background scene or palette tint or recolor the garment.
-- Change the garment length (do not turn a long dress into a short one or vice-versa).
+NEVER:
+- Recolor or tint the garment to match the scene.
+- Add a color (navy, blue, gold, floral, paisley, etc.) that is not visible in Image #1.
+- Replace any panel with a different color or fabric.
+- "Improve" or "enrich" the design — it is already finished.
+- Change the length, cut, or proportions.
 
-If you are tempted to make the garment "more interesting", stop. The garment is already finished. You are only a photographer choosing the scene, lighting, and pose.
-${
+The scene exists only as a backdrop behind the model. It must not influence the garment in any way.${
   hasHouseModel
     ? `
 
-# MODEL IDENTITY LOCK — HIGHEST PRIORITY (alongside garment fidelity)
+# RULE #2 — WOMAN IS A 1:1 REPRODUCTION OF IMAGE #2
 
-The woman in the output MUST be the exact same person as in Image #2 (the house model). This is non-negotiable — every Blue Marine product photo features the SAME woman so the catalog has one consistent face.
-
-Copy from Image #2, exactly:
-- Face: same bone structure, same eyes (shape, color, spacing), same nose, same lips, same jawline, same eyebrows. Treat her face like a real person you are re-photographing.
-- Skin: same olive tone, same warm undertone, same complexion.
-- Hair: same length (past shoulders), same dark brown color, same texture (straight to softly wavy).
-- Body: same build — full natural bust, soft feminine curves, defined waist, NOT runway-thin. Tall, statuesque.
-- Age: same apparent age (late 20s to early 30s).
-
-You MUST NOT:
-- Generate a different woman, even if the pose calls for a different angle.
-- Make her younger, older, slimmer, or change her ethnicity.
-- Change her hair color, length, or texture.
-- Change her face in any way the viewer would notice side-by-side with Image #2.
-
-If the requested pose hides her face (e.g. back view, profile), her body, hair and skin still match Image #2.`
+The woman in the output is the same person as in Image #2 — same face, same skin tone, same hair (length, color, texture), same body build (full natural bust, soft curves, defined waist, NOT runway-thin), same apparent age (late 20s / early 30s). Even on back/profile shots, hair / skin / body must match Image #2. Do not generate a different woman.`
     : ""
 }
 
-# OUTPUT FRAMING — MANDATORY
-- Aspect ratio: vertical 9:16 portrait (width:height = 9:16, i.e. a tall fashion editorial format).
-- Composition: full-body model centered horizontally, head visible at the top with a small headroom margin, feet clearly visible above a small floor margin at the bottom — the entire silhouette of the garment from collar to hem must fit inside the frame.
-- All generated images for Blue Marine MUST share this exact 9:16 portrait ratio so the catalog is visually uniform.`;
+# OUTPUT FRAMING
+- Vertical 9:16 portrait (tall fashion editorial format).
+- Full-body shot, model centered, head visible at top with small headroom, feet visible above small floor margin — the entire garment from collar to hem fits inside the frame.`;
 
   const prompt = [
     garmentLock,
-    stylePrompt,
-    posePrompt,
+    `# SCENE (backdrop only — does NOT affect garment)\n${stylePrompt}`,
+    `# POSE\n${posePrompt}`,
     compositionHint,
-    params.extraInstructions ? `Additional instructions: ${params.extraInstructions}` : null,
-    "FINAL CHECK before generating: compare your mental image to the source. Same colors on every part? Same patterns? Same length? Same cut? If anything differs, fix it before outputting.",
+    params.extraInstructions ? `# ADDITIONAL\n${params.extraInstructions}` : null,
+    `# FINAL CHECK BEFORE GENERATING
+Compare your mental output to Image #1 panel by panel:
+- Same colors on every panel? (no scene tint, no added navy/blue/gold/floral)
+- Same patterns and embroidery? (none added, none removed)
+- Same length and cut?
+- Same fabric finish?
+If any difference exists, fix it. The garment must be a 1:1 reproduction of Image #1.`,
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -245,11 +225,12 @@ If the requested pose hides her face (e.g. back view, profile), her body, hair a
           {
             role: "user",
             parts: [
-              { text: prompt },
               { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
               ...(houseModel
                 ? [{ inlineData: { mimeType: houseModel.mimeType, data: houseModel.data } }]
                 : []),
+              { text: prompt },
+              { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
             ],
           },
         ],
