@@ -22,6 +22,7 @@ import {
   Video,
   Music2,
   Hash,
+  Plus,
 } from "lucide-react";
 
 type Preset = "studio" | "lookbook" | "lifestyle" | "riad" | "palais" | "desert";
@@ -306,6 +307,29 @@ export default function ProductPhotoPage() {
     const reader = new FileReader();
     reader.onload = () => setSourcePreview(reader.result as string);
     reader.readAsDataURL(file);
+  }
+
+  function resetForNewProduct() {
+    setSourceFile(null);
+    setSourcePreview(null);
+    setResultUrl(null);
+    setResultId(null);
+    setActiveResultPose(null);
+    setExtraResults([]);
+    setDescription(null);
+    setDescriptionError(null);
+    setError(null);
+    setMarketingPack(null);
+    setMarketingError(null);
+    setStoryPosterUrl(null);
+    setStoryError(null);
+    setExtra("");
+    setPieces(1);
+    setHasShawl(false);
+    setSkuTouched(false);
+    suggestNextSku({ force: true });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function onPick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -998,6 +1022,7 @@ export default function ProductPhotoPage() {
               }))}
               inlineDescription={description}
               inlineSku={sku.trim() || null}
+              onReset={resetForNewProduct}
             />
           )}
         </div>
@@ -1598,6 +1623,7 @@ function ShopifyPushBox({
   inlineDescription,
   inlineSku,
   compact,
+  onReset,
 }: {
   generationId: string | null;
   inlineImage?: string;
@@ -1605,6 +1631,7 @@ function ShopifyPushBox({
   inlineDescription?: ProductDescription | null;
   inlineSku?: string | null;
   compact?: boolean;
+  onReset?: () => void;
 }) {
   const allImages: Array<{ id: string; url: string; label?: string }> = [
     ...(inlineImage && generationId ? [{ id: generationId, url: inlineImage, label: "Photo principale" }] : []),
@@ -1824,6 +1851,27 @@ function ShopifyPushBox({
             <ExternalLink className="w-3.5 h-3.5" />
             Ouvrir dans Shopify
           </a>
+          {onReset && (
+            <button
+              type="button"
+              onClick={() => {
+                setResult(null);
+                setError(null);
+                setPrice("");
+                setSelectedCollections([]);
+                setSelectedProduct(null);
+                setColorName("");
+                setVariantSku("");
+                setProductQuery("");
+                setMode("new");
+                onReset();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface border border-border text-foreground text-xs font-medium hover:border-accent/50 hover:text-accent"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Créer un autre produit
+            </button>
+          )}
         </div>
         {result.warnings.length > 0 && (
           <div className="text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 space-y-1">
