@@ -1,0 +1,76 @@
+{
+  "_doc": "Direction β — each duplicate-group product gets a unique Khaleeji feminine first name. Strategy: replace the FIRST WORD of the EN title (after the SKU prefix) with the new EN name, and replace the FIRST WORD of the AR title with the AR name. Keep all other words in the title (garment, piece count, fabric) unchanged.",
+  "renames": [
+    { "sku": "A10",  "en": "Hessa",     "ar": "حصة" },
+    { "sku": "A27",  "en": "Joori",     "ar": "جوري" },
+    { "sku": "A46",  "en": "Lulwa",     "ar": "لولوة" },
+    { "sku": "A56",  "en": "Aljowhara", "ar": "الجوهرة" },
+
+    { "sku": "A102", "en": "Mona",      "ar": "منى" },
+    { "sku": "A103", "en": "Latifa",    "ar": "لطيفة" },
+    { "sku": "A104", "en": "Shaikha",   "ar": "شيخة" },
+    { "sku": "A93",  "en": "Asalah",    "ar": "أصالة" },
+    { "sku": "A100", "en": "Shamma",    "ar": "شما" },
+    { "sku": "A109", "en": "Dalal",     "ar": "دلال" },
+    { "sku": "A79",  "en": "Tarfa",     "ar": "طرفة" },
+    { "sku": "A87",  "en": "Hanouf",    "ar": "هنوف" },
+
+    { "sku": "A105", "en": "Anoud",     "ar": "العنود" },
+    { "sku": "A107", "en": "Refal",     "ar": "رفال" },
+
+    { "sku": "A108", "en": "Maitha",    "ar": "ميثاء" },
+    { "sku": "A69",  "en": "Hatoon",    "ar": "هتون" },
+    { "sku": "A78",  "en": "Najwa",     "ar": "نجوى" },
+
+    { "sku": "A110", "en": "Hayfa",     "ar": "هيفاء" },
+    { "sku": "A114", "en": "Mai",       "ar": "مي" },
+
+    { "sku": "A70",  "en": "Bashayer",  "ar": "بشاير" },
+    { "sku": "A115", "en": "Areej",     "ar": "أريج" },
+    { "sku": "A62",  "en": "Anbar",     "ar": "عنبر" },
+    { "sku": "A73",  "en": "Hayat",     "ar": "حياة" },
+    { "sku": "A74",  "en": "Munia",     "ar": "منية" },
+    { "sku": "A91",  "en": "Mayasa",    "ar": "ميّاسة" },
+
+    { "sku": "A119", "en": "Munira",    "ar": "منيرة" },
+    { "sku": "A88",  "en": "Aljazi",    "ar": "الجازي" },
+
+    { "sku": "A13",  "en": "Sharifa",   "ar": "شريفة" },
+    { "sku": "A16",  "en": "Hawra",     "ar": "حوراء" },
+
+    { "sku": "A14",  "en": "Khulood",   "ar": "خلود" },
+    { "sku": "A31",  "en": "Asayel",    "ar": "أصايل" },
+    { "sku": "A80",  "en": "Ghazal",    "ar": "غزال" },
+
+    { "sku": "A25",  "en": "Wadha",     "ar": "وضحى" },
+    { "sku": "A26",  "en": "Sabika",    "ar": "سبيكة" },
+    { "sku": "A28",  "en": "Iman",      "ar": "إيمان" },
+    { "sku": "A32",  "en": "Ghadeer",   "ar": "غدير" },
+    { "sku": "A47",  "en": "Aljouri",   "ar": "الجوري" },
+
+    { "sku": "A33",  "en": "Tahani",    "ar": "تهاني" },
+    { "sku": "A45",  "en": "Mozah",     "ar": "موزا" },
+    { "sku": "A49",  "en": "Reef",      "ar": "ريف" },
+    { "sku": "A50",  "en": "Razan",     "ar": "رزان" },
+
+    { "sku": "A35",  "en": "Tooq",      "ar": "طوق" },
+    { "sku": "A42",  "en": "Joud",      "ar": "جود" },
+    { "sku": "A48",  "en": "Nawal",     "ar": "نوال" },
+
+    { "sku": "A36",  "en": "Wijdan",    "ar": "وجدان" },
+    { "sku": "A38",  "en": "Tala",      "ar": "تالا" },
+
+    { "sku": "A37",  "en": "Ghaida",    "ar": "غيداء" },
+    { "sku": "A59",  "en": "Haya",      "ar": "هيا" },
+
+    { "sku": "A51",  "en": "Maysoon",   "ar": "ميسون" },
+    { "sku": "A52",  "en": "Rajwa",     "ar": "رجوى" },
+
+    { "sku": "A54",  "en": "Nouf",      "ar": "نوف" },
+    { "sku": "C94",  "en": "Hind",      "ar": "هند" },
+
+    { "sku": "A76",  "en": "Shouq",     "ar": "شوق" },
+    { "sku": "A89",  "en": "Ohood",     "ar": "عهود" },
+    { "sku": "A99",  "en": "Salwa",     "ar": "سلوى" }
+  ]
+}
