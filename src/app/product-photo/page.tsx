@@ -119,17 +119,17 @@ const POSES: { id: Pose; label: string; emoji: string }[] = [
   { id: "detail_close", label: "Détail / Buste", emoji: "✨" },
 ];
 
-// Vercel rejects request bodies > 4.5 MB at the edge with a plain-text 413 — keep payload comfortably below.
-const UPLOAD_MAX_BYTES = 4 * 1024 * 1024;
-const COMPRESS_MAX_DIMENSION = 2048;
+// Vercel rejects request bodies > 4.5 MB at the edge with a plain-text 413 — keep total payload comfortably below.
+const TOTAL_UPLOAD_MAX_BYTES = 4 * 1024 * 1024;
+const PER_FILE_FLOOR_BYTES = 700 * 1024;
 
-async function compressForUpload(file: File): Promise<File> {
-  if (file.size <= UPLOAD_MAX_BYTES && file.type === "image/jpeg") {
+async function compressForUpload(file: File, perFileBudget: number, maxDimension: number): Promise<File> {
+  if (file.size <= perFileBudget && file.type === "image/jpeg") {
     return file;
   }
 
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, COMPRESS_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
   const targetW = Math.round(bitmap.width * scale);
   const targetH = Math.round(bitmap.height * scale);
 
@@ -141,23 +141,31 @@ async function compressForUpload(file: File): Promise<File> {
   ctx.drawImage(bitmap, 0, 0, targetW, targetH);
   bitmap.close();
 
-  for (const quality of [0.9, 0.8, 0.7, 0.55]) {
+  for (const quality of [0.9, 0.8, 0.7, 0.6, 0.5, 0.4]) {
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, "image/jpeg", quality),
     );
-    if (blob && blob.size <= UPLOAD_MAX_BYTES) {
+    if (blob && blob.size <= perFileBudget) {
       const baseName = file.name.replace(/\.[^.]+$/, "") || "photo";
       return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
     }
   }
   // Last resort — return the smallest we got even if still over limit.
   const fallback = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/jpeg", 0.5),
+    canvas.toBlob(resolve, "image/jpeg", 0.4),
   );
   if (fallback) {
     return new File([fallback], "photo.jpg", { type: "image/jpeg" });
   }
   return file;
+}
+
+async function compressBatchForUpload(files: File[]): Promise<File[]> {
+  const count = Math.max(1, files.length);
+  const perFileBudget = Math.max(PER_FILE_FLOOR_BYTES, Math.floor(TOTAL_UPLOAD_MAX_BYTES / count));
+  // Multi-image uploads cap dimension lower so the combined payload stays under Vercel's 4.5 MB edge limit.
+  const maxDimension = count >= 3 ? 1280 : count === 2 ? 1600 : 2048;
+  return Promise.all(files.map((f) => compressForUpload(f, perFileBudget, maxDimension)));
 }
 
 const VALID_PRESETS: Preset[] = ["studio", "lookbook", "lifestyle", "riad", "palais", "desert"];
@@ -323,7 +331,7 @@ export default function ProductPhotoPage() {
     setStoryPosterUrl(null);
     setStoryError(null);
     try {
-      const uploadFiles = await Promise.all(sourceFiles.map((f) => compressForUpload(f)));
+      const uploadFiles = await compressBatchForUpload(sourceFiles);
 
       type GenResp = {
         image?: string;
@@ -416,7 +424,7 @@ export default function ProductPhotoPage() {
     setStoryPosterUrl(null);
     setStoryError(null);
     try {
-      const uploadFiles = await Promise.all(sourceFiles.map((f) => compressForUpload(f)));
+      const uploadFiles = await compressBatchForUpload(sourceFiles);
       const fd = new FormData();
       for (const uf of uploadFiles) fd.append("images", uf);
       fd.append("preset", preset);
