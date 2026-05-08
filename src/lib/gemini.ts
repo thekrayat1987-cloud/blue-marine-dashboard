@@ -861,13 +861,28 @@ export async function generateMarketingPack(params: {
   productTitle: string;
   productDescription: string;
   productUrl?: string;
+  vibeKeywords?: string;
 }): Promise<MarketingPack> {
   const ai = getClient();
   const productUrl = params.productUrl?.trim() || "https://bluemarine-atelier.com";
+  const vibe = params.vibeKeywords?.trim();
+
+  const vibeBlock = vibe
+    ? `
+
+# VIBE GUIDANCE (from Khadija for THIS specific photo)
+
+Khadija picked these keywords/mood words to guide the tone of this pack: "${vibe}"
+
+Apply this vibe to the Instagram caption, the WhatsApp message, and the reel hook/CTA — let it shape the mood, color palette of words, and occasion framing. Weave the spirit of these words into the copy naturally; do NOT just list them. They are NOT hashtags. If a keyword is in Arabic, respect Arabic copy; if in French/English, translate the spirit into the target language. Never break the banned-words rule even if a banned word appears in this list.`
+    : "";
 
   const prompt = `You are the brand voice of Atelier Blue Marine — a Kuwait luxury atelier crafting Moroccan and Middle-Eastern heritage womenswear (caftans, daraa, bishts, embroidered tunics).
 
 Tone: refined luxury, warm but understated. Plain language, no marketing fluff. Never use: exquisite, captivating, evoke, allure, embrace, journey, statement piece, must-have, stunning, gorgeous, cascade, adorned, regal, opulent, lavish.
+
+BANNED ARABIC WORDS (do NOT use, in any form, singular or plural, including derivatives): إطلالة، إطلالات، اطلالة، اطلالات، لإطلالة. Khadija dislikes this word. Rewrite the sentence using concrete alternatives: مظهر، تصميم، قطعة، لوك، أناقة, or describe the garment directly without this opener.
+${vibeBlock}
 
 # CONTEXT
 
@@ -885,7 +900,7 @@ Product link: ${productUrl}
     },
     "ar": {
       "caption": "نفس البنية بالعربية الفصحى البسيطة، ٣-٤ أسطر قصيرة، إيموجي ١-٢ كحد أقصى، دعوة للحجز في النهاية. ٢٨٠ حرف كحد أقصى.",
-      "hashtags": ["15 Arabic + Gulf hashtags mixed: #الكويت #اطلالات_الكويت #بشت #قفطان #درّاعة #ازياء_خليجية #العيد + relevant brand/product tags. Pick the 15 most relevant."]
+      "hashtags": ["15 Arabic + Gulf hashtags mixed: #الكويت #ازياء_الكويت #فاشن_الكويت #بشت #قفطان #درّاعة #ازياء_خليجية #العيد + relevant brand/product tags. Pick the 15 most relevant. NEVER use #اطلالات_الكويت or any hashtag derived from إطلالة."]
     }
   },
   "whatsapp": {
@@ -909,7 +924,7 @@ Product link: ${productUrl}
 
 # RULES
 - Total reel target duration: 15 seconds, so 4 scenes of ~3 sec each.
-- Hashtags: lowercase except hashtag words that are proper nouns. No spaces inside a tag. Use Arabic hashtags with underscores where needed (e.g. #اطلالات_الكويت).
+- Hashtags: lowercase except hashtag words that are proper nouns. No spaces inside a tag. Use Arabic hashtags with underscores where needed (e.g. #ازياء_الكويت، #فاشن_الكويت).
 - Be concrete: name the actual color, fabric and one specific detail (embroidery placement, sleeve cut) drawn from the product description and image.
 - Arabic must be natural Modern Standard Arabic, simple and warm — not flowery.
 - WhatsApp messages: write like a real boutique owner messaging a client, not a brand bot.

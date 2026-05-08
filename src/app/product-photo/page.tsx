@@ -216,6 +216,7 @@ export default function ProductPhotoPage() {
   const [marketingLoading, setMarketingLoading] = useState(false);
   const [marketingError, setMarketingError] = useState<string | null>(null);
   const [marketingLang, setMarketingLang] = useState<"en" | "ar">("en");
+  const [marketingVibe, setMarketingVibe] = useState("");
   const [storyPosterUrl, setStoryPosterUrl] = useState<string | null>(null);
   const [storyLoading, setStoryLoading] = useState(false);
   const [storyError, setStoryError] = useState<string | null>(null);
@@ -291,6 +292,7 @@ export default function ProductPhotoPage() {
     setError(null);
     setMarketingPack(null);
     setMarketingError(null);
+    setMarketingVibe("");
     setStoryPosterUrl(null);
     setStoryError(null);
     setExtra("");
@@ -510,6 +512,7 @@ export default function ProductPhotoPage() {
           productUrl: description.urlHandle
             ? `https://bluemarine-atelier.com/products/${description.urlHandle}`
             : undefined,
+          vibeKeywords: marketingVibe.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -1095,6 +1098,8 @@ export default function ProductPhotoPage() {
               onGenerate={generateMarketing}
               copiedKey={copiedKey}
               onCopy={copyText}
+              vibe={marketingVibe}
+              onVibeChange={setMarketingVibe}
             />
           )}
 
@@ -1122,6 +1127,21 @@ export default function ProductPhotoPage() {
               onReset={resetForNewProduct}
             />
           )}
+
+          {!resultUrl && description && sourcePreviews.length > 0 && (
+            <ShopifyPushBox
+              generationId="src-only"
+              inlineImage={sourcePreviews[0]}
+              inlineExtraImages={sourcePreviews.slice(1).map((url, idx) => ({
+                id: `src-${idx + 1}`,
+                url,
+                label: `Photo ${idx + 2}`,
+              }))}
+              inlineDescription={description}
+              inlineSku={sku.trim() || null}
+              onReset={resetForNewProduct}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -1137,6 +1157,8 @@ function MarketingPackBox({
   onGenerate,
   copiedKey,
   onCopy,
+  vibe,
+  onVibeChange,
 }: {
   pack: MarketingPack | null;
   loading: boolean;
@@ -1146,6 +1168,8 @@ function MarketingPackBox({
   onGenerate: () => void;
   copiedKey: string | null;
   onCopy: (key: string, val: string) => void;
+  vibe: string;
+  onVibeChange: (v: string) => void;
 }) {
   const ig = pack?.instagram[lang];
   const wa = pack?.whatsapp[lang];
@@ -1199,6 +1223,22 @@ function MarketingPackBox({
           <p className="text-xs text-foreground-muted mb-4">
             Génère en 1 clic : caption Instagram, message WhatsApp Broadcast et script Reel/TikTok 15 sec — en anglais et arabe.
           </p>
+          <div className="mb-4">
+            <label className="block text-[11px] uppercase tracking-wider text-foreground-subtle mb-1.5">
+              Vibe / mots-clés <span className="normal-case tracking-normal text-foreground-muted">(optionnel)</span>
+            </label>
+            <textarea
+              value={vibe}
+              onChange={(e) => onVibeChange(e.target.value)}
+              disabled={loading}
+              placeholder="ex: coucher de soleil doré, mariage, romantique — أو بالعربي: بساطة، فخامة هادئة"
+              rows={2}
+              className="w-full text-sm px-3 py-2 rounded-lg bg-background border border-border text-foreground placeholder:text-foreground-subtle focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50 resize-none"
+            />
+            <p className="mt-1 text-[11px] text-foreground-subtle">
+              Ces mots guideront le ton du pack (caption, WhatsApp, reel) selon la photo.
+            </p>
+          </div>
           <button
             onClick={onGenerate}
             disabled={loading}

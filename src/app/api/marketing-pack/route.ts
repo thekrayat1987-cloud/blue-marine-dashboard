@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
       productTitle?: string;
       productDescription?: string;
       productUrl?: string;
+      vibeKeywords?: string;
     };
 
     if (!body.imageBase64 || !body.mimeType) {
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
       productTitle: body.productTitle.trim(),
       productDescription: body.productDescription.trim(),
       productUrl: body.productUrl?.trim() || undefined,
+      vibeKeywords: body.vibeKeywords?.trim() || undefined,
     });
 
     return Response.json({ pack });
