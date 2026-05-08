@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     const piecesRaw = formData.get("pieces");
     const hasShawl = formData.get("hasShawl") === "true";
     const skipDescription = formData.get("skipDescription") === "true";
+    const skipImage = formData.get("skipImage") === "true";
     const sku = typeof skuRaw === "string" ? skuRaw.trim() : "";
     const piecesParsed = typeof piecesRaw === "string" ? parseInt(piecesRaw, 10) : 1;
     const pieces = ([1, 2, 3, 4].includes(piecesParsed) ? piecesParsed : 1) as 1 | 2 | 3 | 4;
@@ -58,8 +59,10 @@ export async function POST(request: NextRequest) {
     const mimeType = file.type || "image/jpeg";
     const extraStr = typeof extra === "string" ? extra : "";
 
+    const wantDescription = skipImage ? true : !skipDescription;
+
     let usedNames: string[] = [];
-    if (!skipDescription) {
+    if (wantDescription) {
       try {
         usedNames = await getUsedPoeticNames();
       } catch (err) {
@@ -68,28 +71,30 @@ export async function POST(request: NextRequest) {
     }
 
     const [imageResult, descriptionResult] = await Promise.allSettled([
-      generateBlueMarineImage({
-        imageBase64,
-        mimeType,
-        preset,
-        pose,
-        pieces,
-        hasShawl,
-        extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
-      }),
-      skipDescription
+      skipImage
         ? Promise.resolve(null)
-        : generateProductDescription({
+        : generateBlueMarineImage({
+            imageBase64,
+            mimeType,
+            preset,
+            pose,
+            pieces,
+            hasShawl,
+            extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
+          }),
+      wantDescription
+        ? generateProductDescription({
             imageBase64,
             mimeType,
             sku: sku || undefined,
             pieces,
             hasShawl,
             usedNames,
-          }),
+          })
+        : Promise.resolve(null),
     ]);
 
-    if (imageResult.status === "rejected") {
+    if (!skipImage && imageResult.status === "rejected") {
       const message =
         imageResult.reason instanceof Error
           ? imageResult.reason.message
@@ -106,12 +111,26 @@ export async function POST(request: NextRequest) {
           : "Erreur description"
         : null;
 
-    const generatedBuffer = Buffer.from(imageResult.value.imageBase64, "base64");
+    if (skipImage) {
+      return Response.json({
+        id: null,
+        image: null,
+        description,
+        descriptionError,
+      });
+    }
+
+    const imageValue = imageResult.status === "fulfilled" ? imageResult.value : null;
+    if (!imageValue) {
+      return Response.json({ error: "Échec de génération" }, { status: 500 });
+    }
+
+    const generatedBuffer = Buffer.from(imageValue.imageBase64, "base64");
     let savedId: string | null = null;
     try {
       const meta = await saveGeneration({
         imageBuffer: generatedBuffer,
-        mimeType: imageResult.value.mimeType,
+        mimeType: imageValue.mimeType,
         preset,
         pose,
         sku,
@@ -125,9 +144,9 @@ export async function POST(request: NextRequest) {
 
     return Response.json({
       id: savedId,
-      image: `data:${imageResult.value.mimeType};base64,${imageResult.value.imageBase64}`,
-      mimeType: imageResult.value.mimeType,
-      imageBase64: imageResult.value.imageBase64,
+      image: `data:${imageValue.mimeType};base64,${imageValue.imageBase64}`,
+      mimeType: imageValue.mimeType,
+      imageBase64: imageValue.imageBase64,
       description,
       descriptionError,
     });

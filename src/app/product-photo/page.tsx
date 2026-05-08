@@ -11,8 +11,6 @@ import {
   Copy,
   Check,
   FileText,
-  History as HistoryIcon,
-  Trash2,
   RefreshCw,
   ShoppingBag,
   ExternalLink,
@@ -50,17 +48,6 @@ type ProductDescription = {
   en: LocalizedDescription;
   ar: LocalizedDescription;
   tags: string[];
-};
-
-type GenerationMeta = {
-  id: string;
-  createdAt: string;
-  sku: string | null;
-  preset: Preset;
-  pose: Pose;
-  extra: string | null;
-  mimeType: string;
-  description: ProductDescription | null;
 };
 
 type ReelScene = {
@@ -210,11 +197,6 @@ export default function ProductPhotoPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeLang, setActiveLang] = useState<"en" | "ar">("en");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [tab, setTab] = useState<"generate" | "history">("generate");
-  const [history, setHistory] = useState<GenerationMeta[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [historyQuery, setHistoryQuery] = useState("");
-  const [selectedItem, setSelectedItem] = useState<GenerationMeta | null>(null);
   const [marketingPack, setMarketingPack] = useState<MarketingPack | null>(null);
   const [marketingLoading, setMarketingLoading] = useState(false);
   const [marketingError, setMarketingError] = useState<string | null>(null);
@@ -247,51 +229,6 @@ export default function ProductPhotoPage() {
     suggestNextSku();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  async function refreshHistory() {
-    setHistoryLoading(true);
-    try {
-      const res = await fetch("/api/generations");
-      const data = await res.json();
-      setHistory(Array.isArray(data.items) ? data.items : []);
-    } catch {
-      // ignore
-    } finally {
-      setHistoryLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (tab === "history") refreshHistory();
-  }, [tab]);
-
-  async function deleteItem(id: string) {
-    if (!confirm("Supprimer définitivement cette génération ?")) return;
-    await fetch(`/api/generations/${id}`, { method: "DELETE" });
-    setHistory((h) => h.filter((g) => g.id !== id));
-    if (selectedItem?.id === id) setSelectedItem(null);
-  }
-
-  function downloadFromHistory(item: GenerationMeta) {
-    const a = document.createElement("a");
-    a.href = `/api/generations/${item.id}/image`;
-    const ext = item.mimeType === "image/jpeg" ? "jpg" : "png";
-    a.download = `bluemarine-${item.sku ?? "untitled"}-${item.preset}-${item.pose}.${ext}`;
-    a.click();
-  }
-
-  const filteredHistory = historyQuery.trim()
-    ? history.filter((h) => {
-        const q = historyQuery.toLowerCase();
-        return (
-          h.sku?.toLowerCase().includes(q) ||
-          h.preset.toLowerCase().includes(q) ||
-          h.pose.toLowerCase().includes(q) ||
-          h.description?.en.title.toLowerCase().includes(q) ||
-          h.description?.ar.title.toLowerCase().includes(q)
-        );
-      })
-    : history;
 
   function handleFile(file: File) {
     setSourceFile(file);
@@ -435,6 +372,54 @@ export default function ProductPhotoPage() {
     }
   }
 
+  async function generateDescriptionOnly() {
+    if (!sourceFile) return;
+    setLoading(true);
+    setError(null);
+    setDescriptionError(null);
+    setResultUrl(null);
+    setResultId(null);
+    setActiveResultPose(null);
+    setExtraResults([]);
+    setDescription(null);
+    setMarketingPack(null);
+    setMarketingError(null);
+    setStoryPosterUrl(null);
+    setStoryError(null);
+    try {
+      const uploadFile = await compressForUpload(sourceFile);
+      const fd = new FormData();
+      fd.append("image", uploadFile);
+      fd.append("preset", preset);
+      fd.append("pose", poses[0] ?? "three_quarter");
+      if (extra.trim()) fd.append("extra", extra.trim());
+      if (sku.trim()) fd.append("sku", sku.trim());
+      fd.append("pieces", String(pieces));
+      if (hasShawl) fd.append("hasShawl", "true");
+      fd.append("skipImage", "true");
+
+      const res = await fetch("/api/generate-image", { method: "POST", body: fd });
+      const raw = await res.text();
+      let data: {
+        description?: ProductDescription;
+        descriptionError?: string;
+        error?: string;
+      };
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(`Erreur serveur (${res.status}) — ${raw.slice(0, 120)}`);
+      }
+      if (!res.ok) throw new Error(data.error ?? "Échec de génération");
+      if (data.description) setDescription(data.description);
+      if (data.descriptionError) setDescriptionError(data.descriptionError);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function selectExtraResult(target: { pose: Pose; url: string; id: string }) {
     if (!resultUrl || !resultId || !activeResultPose) return;
     const previousPrimary = { pose: activeResultPose, url: resultUrl, id: resultId };
@@ -558,48 +543,14 @@ export default function ProductPhotoPage() {
               <ShoppingBag className="w-3.5 h-3.5" />
               Produit complet
             </a>
-            <div className="flex items-center gap-1 rounded-lg bg-surface border border-border p-1">
-              <button
-                onClick={() => setTab("generate")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                  tab === "generate" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Générer
-              </button>
-              <button
-                onClick={() => setTab("history")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                  tab === "history" ? "bg-accent text-foreground" : "text-foreground-muted hover:text-foreground"
-                }`}
-              >
-                <HistoryIcon className="w-3.5 h-3.5" />
-                Historique
-                {history.length > 0 && (
-                  <span className="ml-1 text-[10px] bg-surface-muted rounded-full px-1.5">
-                    {history.length}
-                  </span>
-                )}
-              </button>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-accent text-foreground">
+              <Sparkles className="w-3.5 h-3.5" />
+              Générer
             </div>
           </div>
         </div>
       </header>
 
-      {tab === "history" ? (
-        <HistoryPanel
-          items={filteredHistory}
-          loading={historyLoading}
-          query={historyQuery}
-          onQuery={setHistoryQuery}
-          onRefresh={refreshHistory}
-          onDownload={downloadFromHistory}
-          onDelete={deleteItem}
-          selected={selectedItem}
-          onSelect={setSelectedItem}
-        />
-      ) : (
       <div className="p-8 grid lg:grid-cols-2 gap-6 max-w-7xl">
         {/* LEFT — Input */}
         <div className="space-y-6">
@@ -800,6 +751,24 @@ export default function ProductPhotoPage() {
                 {poses.length > 1
                   ? `Générer ${poses.length} photos + fiche produit`
                   : "Générer la photo + fiche produit"}
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={generateDescriptionOnly}
+            disabled={!sourceFile || loading}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-surface border border-border text-foreground-muted text-xs font-medium hover:text-foreground hover:border-accent/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Génération en cours...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                Générer uniquement la fiche produit (sans photos)
               </>
             )}
           </button>
@@ -1027,7 +996,6 @@ export default function ProductPhotoPage() {
           )}
         </div>
       </div>
-      )}
     </div>
   );
 }
@@ -1340,202 +1308,6 @@ function StoryPosterBox({
             alt="Affiche Story Instagram"
             className="max-h-[600px] w-auto rounded-lg border border-border"
           />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function HistoryPanel({
-  items,
-  loading,
-  query,
-  onQuery,
-  onRefresh,
-  onDownload,
-  onDelete,
-  selected,
-  onSelect,
-}: {
-  items: GenerationMeta[];
-  loading: boolean;
-  query: string;
-  onQuery: (q: string) => void;
-  onRefresh: () => void;
-  onDownload: (item: GenerationMeta) => void;
-  onDelete: (id: string) => void;
-  selected: GenerationMeta | null;
-  onSelect: (item: GenerationMeta | null) => void;
-}) {
-  return (
-    <div className="p-8 space-y-6 max-w-7xl">
-      <div className="flex items-center gap-3">
-        <input
-          value={query}
-          onChange={(e) => onQuery(e.target.value)}
-          placeholder="Rechercher par SKU, style, pose, titre..."
-          className="flex-1 rounded-lg bg-surface border border-border px-4 py-2.5 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50"
-        />
-        <button
-          onClick={onRefresh}
-          className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-surface border border-border text-xs text-foreground-muted hover:text-foreground hover:border-border-strong"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          Rafraîchir
-        </button>
-      </div>
-
-      {loading && items.length === 0 ? (
-        <div className="flex items-center justify-center py-20 text-foreground-subtle">
-          <Loader2 className="w-6 h-6 animate-spin" />
-        </div>
-      ) : items.length === 0 ? (
-        <div className="rounded-xl bg-surface border border-border p-12 text-center">
-          <ImageIcon className="w-10 h-10 mx-auto text-foreground-subtle mb-3" />
-          <p className="text-sm text-foreground-muted mb-1">Aucune génération pour le moment</p>
-          <p className="text-xs text-foreground-subtle">
-            Tes photos générées seront sauvegardées ici automatiquement.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {items.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onSelect(item)}
-              className="group rounded-xl bg-surface border border-border hover:border-accent/40 transition-colors overflow-hidden text-left"
-            >
-              <div className="aspect-[3/4] bg-background/50 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/api/generations/${item.id}/image`}
-                  alt={item.description?.en.title ?? item.id}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-accent">{item.sku ?? "—"}</span>
-                  <span className="text-[10px] text-foreground-subtle">
-                    {new Date(item.createdAt).toLocaleDateString("fr-FR", {
-                      day: "2-digit",
-                      month: "short",
-                    })}
-                  </span>
-                </div>
-                <p className="text-xs text-foreground truncate">
-                  {item.description?.en.title ?? "Sans description"}
-                </p>
-                <p className="text-[10px] text-foreground-subtle">
-                  {item.preset} · {item.pose.replace("_", " ")}
-                </p>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
-          onClick={() => onSelect(null)}
-        >
-          <div
-            className="bg-surface border border-border rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-auto grid md:grid-cols-2 gap-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bg-background/50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/api/generations/${selected.id}/image`}
-                alt=""
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-mono text-accent">{selected.sku ?? "—"}</p>
-                  <h3 className="text-base font-semibold text-foreground mt-1">
-                    {selected.description?.en.title ?? "Sans titre"}
-                  </h3>
-                  <p className="text-[11px] text-foreground-subtle mt-1">
-                    {selected.preset} · {selected.pose.replace("_", " ")} ·{" "}
-                    {new Date(selected.createdAt).toLocaleString("fr-FR")}
-                  </p>
-                </div>
-                <button
-                  onClick={() => onSelect(null)}
-                  className="text-foreground-subtle hover:text-foreground text-xl leading-none"
-                >
-                  ×
-                </button>
-              </div>
-
-              {selected.description && (
-                <div className="space-y-3 text-sm border-t border-border pt-4">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-foreground-subtle">
-                      Description (EN)
-                    </label>
-                    <p className="text-foreground mt-1 whitespace-pre-line text-xs leading-relaxed">
-                      {selected.description.en.description}
-                    </p>
-                  </div>
-                  <div dir="rtl">
-                    <label
-                      className="text-[10px] uppercase tracking-wider text-foreground-subtle"
-                      dir="ltr"
-                    >
-                      الوصف (AR)
-                    </label>
-                    <p className="text-foreground mt-1 whitespace-pre-line text-xs leading-relaxed">
-                      {selected.description.ar.description}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-1" dir="ltr">
-                    {selected.description.tags.map((t, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  onClick={() => onDownload(selected)}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-foreground text-xs font-medium hover:bg-accent/90"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Télécharger l&apos;image
-                </button>
-                <button
-                  onClick={() => onDelete(selected.id)}
-                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 text-xs font-medium hover:bg-red-500/20"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Supprimer
-                </button>
-              </div>
-
-              {selected.description && (
-                <div className="pt-2 border-t border-border">
-                  <ShopifyPushBox
-                    generationId={selected.id}
-                    inlineDescription={selected.description}
-                    inlineSku={selected.sku}
-                    compact
-                  />
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </div>
