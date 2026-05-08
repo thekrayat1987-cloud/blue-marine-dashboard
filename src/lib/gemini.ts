@@ -146,6 +146,7 @@ export async function generateBlueMarineImage(params: {
   pieces?: 1 | 2 | 3 | 4;
   hasShawl?: boolean;
   extraInstructions?: string;
+  additionalImages?: Array<{ base64: string; mimeType: string }>;
 }): Promise<{ imageBase64: string; mimeType: string }> {
   const ai = getClient();
   const stylePrompt = STYLE_PROMPTS[params.preset];
@@ -154,25 +155,43 @@ export async function generateBlueMarineImage(params: {
 
   const houseModel = getHouseModel();
   const hasHouseModel = !!houseModel;
+  const additionalImages = params.additionalImages ?? [];
+  const garmentImageCount = 1 + additionalImages.length;
+  const hasMultipleGarmentViews = garmentImageCount > 1;
+  const garmentLastIndex = garmentImageCount;
+  const houseModelIndex = garmentLastIndex + 1;
+
+  const garmentRef = hasMultipleGarmentViews
+    ? `Images #1 to #${garmentLastIndex} = THE SAME SINGLE GARMENT shown from different angles / closeups (front, back, detail, fabric, etc.). They are MULTIPLE VIEWS of ONE single product — NOT multiple different products. Combine the views to understand the full garment, then reproduce that one garment 1:1.`
+    : `Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.`;
 
   const inputsExplained = hasHouseModel
     ? `# INPUTS
-Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.
-Image #2 = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
+${garmentRef}
+Image #${houseModelIndex} = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
 
-Your job: dress the woman from Image #2 in the garment from Image #1, then photograph her in the requested scene and pose.
-Ignore any clothing in Image #2 (she wears the garment from Image #1 instead).
-Ignore any person in Image #1 (only the garment matters).`
+Your job: dress the woman from Image #${houseModelIndex} in the garment shown in ${hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`}, then photograph her in the requested scene and pose.
+Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead).
+Ignore any person in ${hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`} (only the garment matters).`
     : `# INPUT
-Image #1 shows the garment. Put THAT garment, unchanged, on a tall elegant female model.`;
+${garmentRef}
+Put THAT single garment, unchanged, on a tall elegant female model.`;
 
-  const garmentLock = `# RULE #1 — GARMENT IS A 1:1 REPRODUCTION OF IMAGE #1
+  const garmentRefShort = hasMultipleGarmentViews
+    ? `the garment shown across Images #1–#${garmentLastIndex}`
+    : `Image #1`;
+
+  const garmentLock = `# RULE #1 — GARMENT IS A 1:1 REPRODUCTION
 
 ${inputsExplained}
 
-The garment in your output must look IDENTICAL to Image #1 — as if you photographed the same physical garment in a new setting. You are a photographer, not a designer.
+The garment in your output must look IDENTICAL to ${garmentRefShort} — as if you photographed the same physical garment in a new setting. You are a photographer, not a designer.${
+    hasMultipleGarmentViews
+      ? `\n\nThe multiple garment images (Images #1–#${garmentLastIndex}) all show the SAME ONE garment from different angles. Use them together as references. DO NOT mix them as if they were separate items. There is only one garment.`
+      : ""
+  }
 
-Reproduce EXACTLY from Image #1:
+Reproduce EXACTLY from ${garmentRefShort}:
 - All colors on every panel (top, sleeves, body, skirt, hem, belt, trim). Same hue, same saturation, same zones.
 - All patterns, embroidery, motifs, prints, borders. Do not add. Do not remove. Do not "complete".
 - Length, cut, silhouette, neckline, sleeve shape, proportions.
@@ -181,7 +200,7 @@ Reproduce EXACTLY from Image #1:
 
 NEVER:
 - Recolor or tint the garment to match the scene.
-- Add a color (navy, blue, gold, floral, paisley, etc.) that is not visible in Image #1.
+- Add a color (navy, blue, gold, floral, paisley, etc.) that is not visible in the reference.
 - Replace any panel with a different color or fabric.
 - "Improve" or "enrich" the design — it is already finished.
 - Change the length, cut, or proportions.
@@ -190,9 +209,9 @@ The scene exists only as a backdrop behind the model. It must not influence the 
   hasHouseModel
     ? `
 
-# RULE #2 — WOMAN IS A 1:1 REPRODUCTION OF IMAGE #2
+# RULE #2 — WOMAN IS A 1:1 REPRODUCTION OF IMAGE #${houseModelIndex}
 
-The woman in the output is the same person as in Image #2 — same face, same skin tone, same hair (length, color, texture), same body build (full natural bust, soft curves, defined waist, NOT runway-thin), same apparent age (late 20s / early 30s). Even on back/profile shots, hair / skin / body must match Image #2. Do not generate a different woman.`
+The woman in the output is the same person as in Image #${houseModelIndex} — same face, same skin tone, same hair (length, color, texture), same body build (full natural bust, soft curves, defined waist, NOT runway-thin), same apparent age (late 20s / early 30s). Even on back/profile shots, hair / skin / body must match Image #${houseModelIndex}. Do not generate a different woman.`
     : ""
 }
 
@@ -207,12 +226,12 @@ The woman in the output is the same person as in Image #2 — same face, same sk
     compositionHint,
     params.extraInstructions ? `# ADDITIONAL\n${params.extraInstructions}` : null,
     `# FINAL CHECK BEFORE GENERATING
-Compare your mental output to Image #1 panel by panel:
+Compare your mental output to ${garmentRefShort} panel by panel:
 - Same colors on every panel? (no scene tint, no added navy/blue/gold/floral)
 - Same patterns and embroidery? (none added, none removed)
 - Same length and cut?
 - Same fabric finish?
-If any difference exists, fix it. The garment must be a 1:1 reproduction of Image #1.`,
+If any difference exists, fix it. The garment must be a 1:1 reproduction of ${garmentRefShort}.`,
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -226,6 +245,9 @@ If any difference exists, fix it. The garment must be a 1:1 reproduction of Imag
             role: "user",
             parts: [
               { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
+              ...additionalImages.map((img) => ({
+                inlineData: { mimeType: img.mimeType, data: img.base64 },
+              })),
               ...(houseModel
                 ? [{ inlineData: { mimeType: houseModel.mimeType, data: houseModel.data } }]
                 : []),

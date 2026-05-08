@@ -23,6 +23,7 @@ import {
   Plus,
 } from "lucide-react";
 
+type Provider = "gemini" | "openai";
 type Preset = "studio" | "lookbook" | "lifestyle" | "riad" | "palais" | "desert";
 type Pose =
   | "front"
@@ -169,8 +170,9 @@ function readPresetFromUrl(): Preset {
 
 export default function ProductPhotoPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [sourceFile, setSourceFile] = useState<File | null>(null);
-  const [sourcePreview, setSourcePreview] = useState<string | null>(null);
+  const [sourceFiles, setSourceFiles] = useState<File[]>([]);
+  const [sourcePreviews, setSourcePreviews] = useState<string[]>([]);
+  const MAX_GARMENT_IMAGES = 4;
   const [preset, setPreset] = useState<Preset>("studio");
 
   useEffect(() => {
@@ -186,6 +188,11 @@ export default function ProductPhotoPage() {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("bluemarine-auto-download");
     return stored === null ? true : stored === "true";
+  });
+  const [provider, setProvider] = useState<Provider>(() => {
+    if (typeof window === "undefined") return "gemini";
+    const stored = window.localStorage.getItem("bluemarine-image-provider");
+    return stored === "openai" ? "openai" : "gemini";
   });
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [resultId, setResultId] = useState<string | null>(null);
@@ -230,8 +237,16 @@ export default function ProductPhotoPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleFile(file: File) {
-    setSourceFile(file);
+  function handleFiles(files: File[]) {
+    if (files.length === 0) return;
+    setSourceFiles((prev) => {
+      const next = [...prev];
+      for (const f of files) {
+        if (next.length >= MAX_GARMENT_IMAGES) break;
+        next.push(f);
+      }
+      return next;
+    });
     setResultUrl(null);
     setResultId(null);
     setDescription(null);
@@ -241,14 +256,24 @@ export default function ProductPhotoPage() {
     setMarketingError(null);
     setStoryPosterUrl(null);
     setStoryError(null);
-    const reader = new FileReader();
-    reader.onload = () => setSourcePreview(reader.result as string);
-    reader.readAsDataURL(file);
+    for (const file of files.slice(0, MAX_GARMENT_IMAGES)) {
+      const reader = new FileReader();
+      reader.onload = () =>
+        setSourcePreviews((prev) =>
+          prev.length >= MAX_GARMENT_IMAGES ? prev : [...prev, reader.result as string],
+        );
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function removeSourceImage(index: number) {
+    setSourceFiles((prev) => prev.filter((_, i) => i !== index));
+    setSourcePreviews((prev) => prev.filter((_, i) => i !== index));
   }
 
   function resetForNewProduct() {
-    setSourceFile(null);
-    setSourcePreview(null);
+    setSourceFiles([]);
+    setSourcePreviews([]);
     setResultUrl(null);
     setResultId(null);
     setActiveResultPose(null);
@@ -270,18 +295,21 @@ export default function ProductPhotoPage() {
   }
 
   function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) handleFiles(files);
+    e.target.value = "";
   }
 
   function onDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) handleFile(file);
+    const files = Array.from(e.dataTransfer.files ?? []).filter((f) =>
+      f.type.startsWith("image/"),
+    );
+    if (files.length > 0) handleFiles(files);
   }
 
   async function generate() {
-    if (!sourceFile || poses.length === 0) return;
+    if (sourceFiles.length === 0 || poses.length === 0) return;
     setLoading(true);
     setError(null);
     setDescriptionError(null);
@@ -295,7 +323,7 @@ export default function ProductPhotoPage() {
     setStoryPosterUrl(null);
     setStoryError(null);
     try {
-      const uploadFile = await compressForUpload(sourceFile);
+      const uploadFiles = await Promise.all(sourceFiles.map((f) => compressForUpload(f)));
 
       type GenResp = {
         image?: string;
@@ -307,9 +335,10 @@ export default function ProductPhotoPage() {
 
       const buildFormData = (poseId: Pose, skipDesc: boolean) => {
         const fd = new FormData();
-        fd.append("image", uploadFile);
+        for (const uf of uploadFiles) fd.append("images", uf);
         fd.append("preset", preset);
         fd.append("pose", poseId);
+        fd.append("provider", provider);
         if (extra.trim()) fd.append("extra", extra.trim());
         if (sku.trim()) fd.append("sku", sku.trim());
         fd.append("pieces", String(pieces));
@@ -373,7 +402,7 @@ export default function ProductPhotoPage() {
   }
 
   async function generateDescriptionOnly() {
-    if (!sourceFile) return;
+    if (sourceFiles.length === 0) return;
     setLoading(true);
     setError(null);
     setDescriptionError(null);
@@ -387,9 +416,9 @@ export default function ProductPhotoPage() {
     setStoryPosterUrl(null);
     setStoryError(null);
     try {
-      const uploadFile = await compressForUpload(sourceFile);
+      const uploadFiles = await Promise.all(sourceFiles.map((f) => compressForUpload(f)));
       const fd = new FormData();
-      fd.append("image", uploadFile);
+      for (const uf of uploadFiles) fd.append("images", uf);
       fd.append("preset", preset);
       fd.append("pose", poses[0] ?? "three_quarter");
       if (extra.trim()) fd.append("extra", extra.trim());
@@ -555,31 +584,89 @@ export default function ProductPhotoPage() {
         {/* LEFT — Input */}
         <div className="space-y-6">
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h2 className="text-sm font-semibold text-foreground mb-4">1. Photo source</h2>
+            <div className="flex items-baseline justify-between mb-4">
+              <h2 className="text-sm font-semibold text-foreground">1. Photo source</h2>
+              {sourcePreviews.length > 0 && (
+                <span className="text-xs text-foreground-subtle">
+                  {sourcePreviews.length} / {MAX_GARMENT_IMAGES} images
+                </span>
+              )}
+            </div>
             <div
               onDrop={onDrop}
               onDragOver={(e) => e.preventDefault()}
-              onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg border-2 border-dashed border-border hover:border-accent/40 transition-colors p-8 cursor-pointer text-center"
+              onClick={() => {
+                if (sourcePreviews.length === 0) fileInputRef.current?.click();
+              }}
+              className={`rounded-lg border-2 border-dashed border-border hover:border-accent/40 transition-colors p-6 text-center ${
+                sourcePreviews.length === 0 ? "cursor-pointer" : ""
+              }`}
             >
-              {sourcePreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={sourcePreview} alt="source" className="max-h-64 mx-auto rounded-lg" />
+              {sourcePreviews.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {sourcePreviews.map((src, i) => (
+                    <div key={i} className="relative group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={src}
+                        alt={`source ${i + 1}`}
+                        className="w-full h-40 object-cover rounded-lg border border-border"
+                      />
+                      <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-white text-[10px] font-medium">
+                        #{i + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeSourceImage(i);
+                        }}
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 hover:bg-black text-white text-xs flex items-center justify-center"
+                        aria-label={`Retirer image ${i + 1}`}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  {sourcePreviews.length < MAX_GARMENT_IMAGES && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="h-40 rounded-lg border-2 border-dashed border-border hover:border-accent/40 flex flex-col items-center justify-center gap-1 text-foreground-muted hover:text-foreground transition-colors"
+                    >
+                      <Plus className="w-6 h-6" />
+                      <span className="text-xs">Ajouter un angle</span>
+                    </button>
+                  )}
+                </div>
               ) : (
-                <div className="flex flex-col items-center gap-2 text-foreground-muted">
+                <div className="flex flex-col items-center gap-2 text-foreground-muted py-2">
                   <Upload className="w-8 h-8" />
-                  <p className="text-sm">Glisse ton image ici ou clique pour choisir</p>
-                  <p className="text-xs text-foreground-subtle">JPG, PNG · compression auto</p>
+                  <p className="text-sm">Glisse tes images ici ou clique pour choisir</p>
+                  <p className="text-xs text-foreground-subtle">
+                    1 à {MAX_GARMENT_IMAGES} angles du même vêtement · JPG, PNG · compression auto
+                  </p>
                 </div>
               )}
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={onPick}
                 className="hidden"
               />
             </div>
+            {sourcePreviews.length > 1 && (
+              <p className="text-[11px] text-foreground-subtle mt-3 leading-snug">
+                Image #1 = vue principale (utilisée aussi pour la fiche produit). Images suivantes
+                = angles / détails du <strong>même</strong> vêtement, pour donner plus de
+                références à l&apos;IA.
+              </p>
+            )}
           </div>
 
           <div className="rounded-xl bg-surface border border-border p-6">
@@ -705,6 +792,39 @@ export default function ProductPhotoPage() {
                 placeholder="Ex: mannequin brun, ceinture dorée, fond plus sombre..."
               />
             </div>
+            <div>
+              <h2 className="text-sm font-semibold text-foreground mb-2">7. Moteur IA</h2>
+              <div className="flex items-center gap-1 rounded-lg bg-background border border-border p-1 w-fit">
+                {([
+                  { id: "gemini" as Provider, label: "Gemini", hint: "Rapide · ~0,04 $/image" },
+                  { id: "openai" as Provider, label: "OpenAI", hint: "Premium · ~0,17 $/image" },
+                ]).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setProvider(p.id);
+                      if (typeof window !== "undefined") {
+                        window.localStorage.setItem("bluemarine-image-provider", p.id);
+                      }
+                    }}
+                    className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
+                      provider === p.id
+                        ? "bg-accent text-foreground"
+                        : "text-foreground-muted hover:text-foreground"
+                    }`}
+                    title={p.hint}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-foreground-subtle mt-1">
+                {provider === "openai"
+                  ? "gpt-image-1 — meilleure fidélité tissus/broderies, ~4× plus cher. Idéal pour photos hero."
+                  : "gemini-2.5-flash-image — meilleur rapport qualité/prix. Recommandé par défaut."}
+              </p>
+            </div>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
               <label className="flex items-center gap-2 text-xs text-foreground-muted cursor-pointer">
                 <input
@@ -737,7 +857,7 @@ export default function ProductPhotoPage() {
 
           <button
             onClick={generate}
-            disabled={!sourceFile || loading || poses.length === 0}
+            disabled={sourceFiles.length === 0 || loading || poses.length === 0}
             className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-accent text-foreground text-sm font-semibold hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
@@ -757,7 +877,7 @@ export default function ProductPhotoPage() {
 
           <button
             onClick={generateDescriptionOnly}
-            disabled={!sourceFile || loading}
+            disabled={sourceFiles.length === 0 || loading}
             className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-surface border border-border text-foreground-muted text-xs font-medium hover:text-foreground hover:border-accent/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
@@ -801,7 +921,7 @@ export default function ProductPhotoPage() {
               {loading ? (
                 <div className="flex flex-col items-center gap-3 text-foreground-subtle">
                   <Loader2 className="w-8 h-8 animate-spin text-accent" />
-                  <p className="text-xs">Gemini transforme ton image...</p>
+                  <p className="text-xs">{provider === "openai" ? "OpenAI" : "Gemini"} transforme ton image...</p>
                 </div>
               ) : resultUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element

@@ -5,11 +5,14 @@ import {
   type StylePreset,
   type PosePreset,
 } from "@/lib/gemini";
+import { generateBlueMarineImageOpenAI } from "@/lib/openai";
 import { getUsedPoeticNames } from "@/lib/shopify";
 import { saveGeneration } from "@/lib/storage";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+type ImageProvider = "gemini" | "openai";
 
 const ALLOWED_PRESETS: StylePreset[] = ["studio", "lookbook", "lifestyle", "riad", "palais", "desert"];
 const ALLOWED_POSES: PosePreset[] = [
@@ -28,7 +31,14 @@ const MAX_BYTES = 8 * 1024 * 1024;
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get("image");
+    const filesMulti = formData.getAll("images").filter((v): v is File => v instanceof File);
+    const fileSingle = formData.get("image");
+    const files: File[] =
+      filesMulti.length > 0
+        ? filesMulti
+        : fileSingle instanceof File
+          ? [fileSingle]
+          : [];
     const presetRaw = formData.get("preset");
     const poseRaw = formData.get("pose");
     const extra = formData.get("extra");
@@ -37,15 +47,23 @@ export async function POST(request: NextRequest) {
     const hasShawl = formData.get("hasShawl") === "true";
     const skipDescription = formData.get("skipDescription") === "true";
     const skipImage = formData.get("skipImage") === "true";
+    const providerRaw = formData.get("provider");
+    const provider: ImageProvider =
+      providerRaw === "openai" ? "openai" : "gemini";
     const sku = typeof skuRaw === "string" ? skuRaw.trim() : "";
     const piecesParsed = typeof piecesRaw === "string" ? parseInt(piecesRaw, 10) : 1;
     const pieces = ([1, 2, 3, 4].includes(piecesParsed) ? piecesParsed : 1) as 1 | 2 | 3 | 4;
 
-    if (!(file instanceof File)) {
+    if (files.length === 0) {
       return Response.json({ error: "Aucune image fournie" }, { status: 400 });
     }
-    if (file.size > MAX_BYTES) {
-      return Response.json({ error: "Image trop volumineuse (max 8 Mo)" }, { status: 400 });
+    if (files.length > 4) {
+      return Response.json({ error: "Maximum 4 images du vêtement" }, { status: 400 });
+    }
+    for (const f of files) {
+      if (f.size > MAX_BYTES) {
+        return Response.json({ error: "Image trop volumineuse (max 8 Mo)" }, { status: 400 });
+      }
     }
     const preset = ALLOWED_PRESETS.includes(presetRaw as StylePreset)
       ? (presetRaw as StylePreset)
@@ -54,9 +72,15 @@ export async function POST(request: NextRequest) {
       ? (poseRaw as PosePreset)
       : "three_quarter";
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const imageBase64 = buffer.toString("base64");
-    const mimeType = file.type || "image/jpeg";
+    const garmentImages = await Promise.all(
+      files.map(async (f) => ({
+        base64: Buffer.from(await f.arrayBuffer()).toString("base64"),
+        mimeType: f.type || "image/jpeg",
+      })),
+    );
+    const imageBase64 = garmentImages[0].base64;
+    const mimeType = garmentImages[0].mimeType;
+    const additionalImages = garmentImages.slice(1);
     const extraStr = typeof extra === "string" ? extra : "";
 
     const wantDescription = skipImage ? true : !skipDescription;
@@ -70,9 +94,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const [imageResult, descriptionResult] = await Promise.allSettled([
-      skipImage
-        ? Promise.resolve(null)
+    const imagePromise = skipImage
+      ? Promise.resolve(null)
+      : provider === "openai"
+        ? generateBlueMarineImageOpenAI({
+            imageBase64,
+            mimeType,
+            preset,
+            pose,
+            pieces,
+            hasShawl,
+            extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
+          })
         : generateBlueMarineImage({
             imageBase64,
             mimeType,
@@ -81,7 +114,11 @@ export async function POST(request: NextRequest) {
             pieces,
             hasShawl,
             extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
-          }),
+            additionalImages,
+          });
+
+    const [imageResult, descriptionResult] = await Promise.allSettled([
+      imagePromise,
       wantDescription
         ? generateProductDescription({
             imageBase64,
