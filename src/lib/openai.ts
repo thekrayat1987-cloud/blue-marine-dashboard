@@ -117,6 +117,7 @@ export async function generateBlueMarineImageOpenAI(params: {
   pieces?: 1 | 2 | 3 | 4;
   hasShawl?: boolean;
   extraInstructions?: string;
+  additionalImages?: Array<{ base64: string; mimeType: string }>;
 }): Promise<{ imageBase64: string; mimeType: string }> {
   const client = getClient();
   const stylePrompt = STYLE_PROMPTS[params.preset];
@@ -125,33 +126,50 @@ export async function generateBlueMarineImageOpenAI(params: {
 
   const houseModel = getHouseModel();
   const hasHouseModel = !!houseModel;
+  const additionalImages = params.additionalImages ?? [];
+  const garmentImageCount = 1 + additionalImages.length;
+  const hasMultipleGarmentViews = garmentImageCount > 1;
+  const garmentLastIndex = garmentImageCount;
+  const houseModelIndex = garmentLastIndex + 1;
+
+  const garmentRef = hasMultipleGarmentViews
+    ? `Images #1 to #${garmentLastIndex} = THE SAME SINGLE GARMENT shown from different angles / closeups (front, back, detail, fabric, etc.). They are MULTIPLE VIEWS of ONE single product — NOT multiple different products. Combine the views to understand the full garment, then reproduce that one garment 1:1.`
+    : `Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.`;
+  const garmentRefShort = hasMultipleGarmentViews
+    ? `the garment shown across Images #1–#${garmentLastIndex}`
+    : `Image #1`;
 
   const inputsExplained = hasHouseModel
     ? `INPUTS:
-- Image #1 = THE GARMENT (the only product reference). Reproduce it 1:1.
-- Image #2 = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
+- ${garmentRef}
+- Image #${houseModelIndex} = THE HOUSE MODEL (the woman). Reproduce her face, skin, hair, body 1:1.
 
-Your job: dress the woman from Image #2 in the garment from Image #1, then photograph her in the requested scene and pose. Ignore any clothing in Image #2 (she wears the garment from Image #1 instead). Ignore any person in Image #1 (only the garment matters).`
-    : `INPUT: Image #1 shows the garment. Put THAT garment, unchanged, on a tall elegant female model.`;
+Your job: dress the woman from Image #${houseModelIndex} in ${garmentRefShort}, then photograph her in the requested scene and pose. Ignore any clothing in Image #${houseModelIndex} (she wears the garment instead). Ignore any person in ${hasMultipleGarmentViews ? `Images #1–#${garmentLastIndex}` : `Image #1`} (only the garment matters).`
+    : `INPUT: ${garmentRef}
+Put THAT single garment, unchanged, on a tall elegant female model.`;
 
   const prompt = [
-    `RULE #1 — GARMENT IS A 1:1 REPRODUCTION OF IMAGE #1`,
+    `RULE #1 — GARMENT IS A 1:1 REPRODUCTION`,
     inputsExplained,
-    `The garment in your output must look IDENTICAL to Image #1 — as if you photographed the same physical garment in a new setting. You are a photographer, not a designer.
+    `The garment in your output must look IDENTICAL to ${garmentRefShort} — as if you photographed the same physical garment in a new setting. You are a photographer, not a designer.${
+      hasMultipleGarmentViews
+        ? ` The multiple garment images (Images #1–#${garmentLastIndex}) all show the SAME ONE garment from different angles. Use them together as references. DO NOT mix them as if they were separate items. There is only one garment.`
+        : ""
+    }
 
-Reproduce EXACTLY from Image #1: all colors on every panel (top, sleeves, body, skirt, hem, belt, trim) — same hue, same saturation, same zones; all patterns, embroidery, motifs, prints, borders (do not add, do not remove, do not "complete"); length, cut, silhouette, neckline, sleeve shape, proportions; fabric finish (matte / satin / velvet / sheer); trims, belts, ties, buttons, embroidery placement.
+Reproduce EXACTLY from ${garmentRefShort}: all colors on every panel (top, sleeves, body, skirt, hem, belt, trim) — same hue, same saturation, same zones; all patterns, embroidery, motifs, prints, borders (do not add, do not remove, do not "complete"); length, cut, silhouette, neckline, sleeve shape, proportions; fabric finish (matte / satin / velvet / sheer); trims, belts, ties, buttons, embroidery placement.
 
-NEVER recolor or tint the garment to match the scene. Never add a color (navy, blue, gold, floral, paisley) that is not visible in Image #1. Never replace a panel with a different color or fabric. Never "improve" the design — it is already finished. The scene exists only as a backdrop and must not influence the garment in any way.`,
+NEVER recolor or tint the garment to match the scene. Never add a color (navy, blue, gold, floral, paisley) that is not visible in the reference. Never replace a panel with a different color or fabric. Never "improve" the design — it is already finished. The scene exists only as a backdrop and must not influence the garment in any way.`,
     hasHouseModel
-      ? `RULE #2 — WOMAN IS A 1:1 REPRODUCTION OF IMAGE #2
-The woman is the same person as in Image #2 — same face, same skin tone, same hair (length, color, texture), same body build (full natural bust, soft curves, defined waist, NOT runway-thin), same apparent age (late 20s / early 30s). Even on back/profile shots, hair / skin / body must match Image #2. Do not generate a different woman.`
+      ? `RULE #2 — WOMAN IS A 1:1 REPRODUCTION OF IMAGE #${houseModelIndex}
+The woman is the same person as in Image #${houseModelIndex} — same face, same skin tone, same hair (length, color, texture), same body build (full natural bust, soft curves, defined waist, NOT runway-thin), same apparent age (late 20s / early 30s). Even on back/profile shots, hair / skin / body must match Image #${houseModelIndex}. Do not generate a different woman.`
       : null,
     `SCENE (backdrop only — does NOT affect the garment): ${stylePrompt}`,
     `POSE: ${posePrompt}`,
     compositionHint ? `COMPOSITION: ${compositionHint}` : null,
     params.extraInstructions ? `ADDITIONAL: ${params.extraInstructions}` : null,
     `OUTPUT FRAMING: Vertical portrait (tall fashion editorial format). Full-body shot, model centered, head visible at top with small headroom, feet visible above small floor margin — the entire garment from collar to hem fits inside the frame.`,
-    `FINAL CHECK: Compare your mental output to Image #1 panel by panel — same colors on every panel? Same patterns and embroidery? Same length and cut? Same fabric finish? If any difference exists, fix it. The garment must be a 1:1 reproduction of Image #1.`,
+    `FINAL CHECK: Compare your mental output to ${garmentRefShort} panel by panel — same colors on every panel? Same patterns and embroidery? Same length and cut? Same fabric finish? If any difference exists, fix it. The garment must be a 1:1 reproduction of ${garmentRefShort}.`,
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -163,6 +181,13 @@ The woman is the same person as in Image #2 — same face, same skin tone, same 
   });
 
   const imageInputs = [garmentFile];
+  for (let i = 0; i < additionalImages.length; i++) {
+    const img = additionalImages[i];
+    const ext = img.mimeType === "image/png" ? "png" : "jpg";
+    const buf = Buffer.from(img.base64, "base64");
+    const f = await toFile(buf, `garment-angle-${i + 2}.${ext}`, { type: img.mimeType });
+    imageInputs.push(f);
+  }
   if (houseModel) {
     const modelFile = await toFile(houseModel.data, "house-model.png", {
       type: houseModel.mimeType,

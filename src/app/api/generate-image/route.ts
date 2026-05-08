@@ -94,28 +94,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const generateImageFn =
+      provider === "openai" ? generateBlueMarineImageOpenAI : generateBlueMarineImage;
     const imagePromise = skipImage
       ? Promise.resolve(null)
-      : provider === "openai"
-        ? generateBlueMarineImageOpenAI({
-            imageBase64,
-            mimeType,
-            preset,
-            pose,
-            pieces,
-            hasShawl,
-            extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
-          })
-        : generateBlueMarineImage({
-            imageBase64,
-            mimeType,
-            preset,
-            pose,
-            pieces,
-            hasShawl,
-            extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
-            additionalImages,
-          });
+      : generateImageFn({
+          imageBase64,
+          mimeType,
+          preset,
+          pose,
+          pieces,
+          hasShawl,
+          extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
+          additionalImages,
+        });
 
     const [imageResult, descriptionResult] = await Promise.allSettled([
       imagePromise,
