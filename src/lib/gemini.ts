@@ -335,14 +335,18 @@ The product SKU is exactly: ${sku}
 - DO NOT invent or substitute any other code (no "ABM…", "BM…", "ATL…", no 3-letter prefixes, no different number). The SKU is "${sku}" and only "${sku}".
 - "pageTitle" and "metaDescription" must NOT contain any SKU code.
 
-# NAMING RULE — give the piece a POETIC NAME (one or two words)
-Each product gets a POETIC NAME that gives it an identity, then a short descriptor. Like a fashion house naming each piece. Existing examples in the catalogue: "Noor Heritage Daraa", "Zafira Mosaic Daraa", "Layal Silk Daraa", "Zaria Burgundy Daraa", "Desert Drift Daraa", "Amara Plum Daraa".
+# NAMING RULE — give the piece a UNIQUE KHALEEJI FEMININE NAME
+Each product gets a single Khaleeji (Gulf) feminine first name as its identity, then the garment word. Like a Gulf fashion house giving each piece its own woman's name. Examples in the catalogue: "Hessa 3-Piece Bisht Set", "Lulwa 3-Piece Bisht Set", "Aljowhara 3-Piece Bisht Set", "Bashayer Daraa", "Mayasa Daraa", "Shouq Daraa".
 
-NAME INSPIRATION POOL — pick ONE distinctive name that fits the garment's mood (color, occasion, fabric):
-- Gulf feminine names: Noor, Layla, Layali, Yasmin, Amira, Zahra, Lulwa, Hessa, Dana, Sara, Hala, Maryam, Aisha, Latifa, Mariam, Sheikha, Sultana, Zafira, Amara, Zaria, Layal, Lina, Reem, Nada, Ghada
-- Arabic poetic words: Noor (light), Layali (nights), Sahar (dawn), Amal (hope), Aman (peace), Hawa (breeze), Bahar (sea), Falaj (oasis), Zumurud (emerald), Yaqut (ruby), Lu'lu (pearl), Marjan (coral)
-- Heritage/places: Mubarakiya, Bandar, Diwaniya, Khaleej, Souq, Riad, Sahara
-- Moods: Midnight, Royal, Heritage, Mosaic, Velvet Bloom, Golden Hour, Desert Rose, Ocean, Sunset
+⚠️ STRICT RULE — pick a KHALEEJI / GULF feminine name. NOT a pan-Arab generic name (avoid Mariam, Maryam, Sara, Aisha, Fatima, Yasmin — those feel Levantine/Egyptian, not Gulf). Distinctively Gulf names sound like the names of Kuwaiti, Saudi, Emirati, Qatari, Bahraini, or Omani women.
+
+NAME INSPIRATION POOL — pick ONE Khaleeji feminine name that fits the garment's mood (color, embroidery, occasion). Each name has its Arabic transliteration (use it verbatim in the AR title):
+- Royal / heritage feel (matches embellished sets, velvet, sequin, gold): Aljohara الجوهرة, Aljouri الجوري, Aljazi الجازي, Mahra مهرة, Khawla خولة, Lujain لجين, Aroob عروب, Banan بنان, Tareefa طريفة, Zhaira زهيرة, Sumayya سميّة
+- Khaleeji classic (well-known Gulf feminine names): Maha مها, Hanan حنان, Najla نجلاء, Lamya لمياء, Wafa وفاء, Rawan روان, Manal منال, Suad سعاد, Suhayla سهيلة, Ghaliyah غالية, Hanaa هناء, Faten فاتن, Shaima شيماء, Marwa مروة, Nahed ناهد, Naila نائلة, Jameela جميلة, Wedad وداد, Bouthayna بثينة, Anwar أنوار, Watfa وطفاء
+- Poetic / nature / soft (matches lighter daraas, floral, botanical prints): Bayan بيان, Yara يارا, Mira ميرا, Rahaf رهف, Rima ريما, Rasha رشا, Suha سها, Maya مايا, Layan ليان, Hadeel هديل, Hanin حنين, Reham رهام, Ibtisam ابتسام, Tahreer تحرير, Wajd وجد, Amani أماني, Inas إيناس, Lina لينا, Nada ندى, Ola علا
+- Heritage / words (use sparingly, only when extremely fitting): Lu'lu لؤلؤة (pearl), Marjan مرجان (coral), Falaj فلج (oasis-stream), Khaleej خليج (gulf), Dana دانة (large pearl)
+
+⚠️ DO NOT use the OLD model-line names — they are now retired or in use elsewhere: "Bahar", "Sahar", "Amira", "Yaqut", "Zumurud", "Layali", "Noor", "Layla", "Reem", "Bandar", "Zafira", "Amara", "Zaria", "Layal", "Yasmin", "Ghada", "Sultana". The runtime FORBIDDEN list above will also block any name already in the catalogue — re-read it before writing.
 
 # GARMENT IDENTIFICATION — LOOK AT THE PHOTO FIRST
 Before writing anything, identify the garment shown in the image. Pick ONE from this list based on what you actually see:
@@ -361,11 +365,11 @@ ${totalPieces === 1
   ? `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ONE PIECE.
   · DO NOT add any piece count to the title. The title ends with the garment name.
   · NEVER write "2-Piece", "3-Piece", "Set", "Bisht Set", "(One Piece)" or any count phrase.
-  · Correct examples: "${sku} – Layali Daraa", "${sku} – Amara Caftan", "${sku} – Noor Bisht".
-  · Wrong: "${sku} – Layali 2-Piece Bisht Set" (this product is ONE piece, not a set).`
+  · Correct examples: "${sku} – Maha Daraa", "${sku} – Lujain Caftan", "${sku} – Khawla Bisht".
+  · Wrong: "${sku} – Maha 2-Piece Bisht Set" (this product is ONE piece, not a set).`
   : `- ⚠️ PIECE COUNT — THIS PRODUCT HAS ${totalPieces} PIECES${hasShawl ? ` (${pieces} main piece${pieces > 1 ? "s" : ""} + matching shawl)` : ""}.
   · Write exactly "${pieceCountEn}" (hyphen, capital P, capital S) before the garment word.
-  · Correct example: "${sku} – Zumurud ${pieceCountEn} Bisht Set".
+  · Correct example: "${sku} – Aljohara ${pieceCountEn} Bisht Set".
   · NEVER use "Two-Piece" / "Three-Piece" — always digit + hyphen + "Piece".`}
 - Color is OPTIONAL. The photo already shows the color, so you can omit it for a cleaner title — only include it when it is a defining trait (e.g. "Royal Navy", "Ivory") and helps SEO.
 - Don't reuse a name that's already in the FORBIDDEN list above. Pick a name that fits THIS specific garment.
@@ -373,8 +377,8 @@ ${totalPieces === 1
 
 # ARABIC TITLE RULES (ar.title)
 - Format: "${sku} – الاسم بالعربية + وصف قصير"
-- Use the SAME poetic name as in English, written in Arabic script (transliteration).
-  · Example: Layali → ليالي, Zumurud → زمرّد, Noor → نور, Zafira → ظفيرة, Amara → أمارا
+- Use the SAME Khaleeji name as in English, written in Arabic script (use the Arabic spelling listed in the inspiration pool).
+  · Examples: Maha → مها, Lujain → لجين, Khawla → خولة, Aljohara → الجوهرة, Hanin → حنين, Lina → لينا
 - Then add the garment + key detail in formal but simple Arabic.
 - Use Gulf vocabulary: بشت، درّاعة، قفطان، مخمل، حرير، مطرّز، طقم، ٢ قطع، ٣ قطع، تراثي، شال.
 - ⚠️ Use the SAME garment word you chose in English. If English says "Daraa", Arabic says "درّاعة". If English says "Caftan", Arabic says "قفطان". Do NOT switch to "بشت" unless the English title also uses "Bisht".
