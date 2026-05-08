@@ -341,7 +341,7 @@ This product is offered in ${colorList.length} colors. The PRIMARY color (shown 
     : "";
 
   const forbiddenBlock = usedNames.length
-    ? `\n\n⚠️ FORBIDDEN NAMES — already used on other products in the catalogue, you MUST pick a different one:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n`
+    ? `\n\n⚠️ FORBIDDEN GIVEN NAMES — these are the FIRST WORDS already used on other products in the catalogue. The FIRST WORD of your chosen poetic name MUST NOT match any item in this list (case-insensitive). Pick a fresh first word that does not appear here:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n\nExamples of how this rule applies:\n- If "Layla" is in the list: "Layla Daraa", "Layla Caftan", "Layla Heritage" are ALL forbidden — pick a different first word.\n- If "Noor" is in the list: do NOT start the name with "Noor".\nThis rule is non-negotiable. Re-read the list before writing the title.\n`
     : "";
 
   const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${colorsBlock}${forbiddenBlock}
@@ -509,14 +509,14 @@ ${totalPieces === 1
 3. Did you use any banned word (exquisite, captivating, evoking, celebration of, Ramadan unless capsule, فستان, abaya, عباية)? DELETE the sentence and rewrite factually.
 4. Did you write "Two-Piece" or "Three-Piece" instead of "2-Piece" / "3-Piece"? REWRITE.`;
 
-  const callModel = (model: string) =>
+  const callModel = (model: string, extraDirective: string) =>
     ai.models.generateContent({
       model,
       contents: [
         {
           role: "user",
           parts: [
-            { text: prompt },
+            { text: prompt + extraDirective },
             { inlineData: { mimeType: params.mimeType, data: params.imageBase64 } },
           ],
         },
@@ -524,26 +524,53 @@ ${totalPieces === 1
       config: { responseMimeType: "application/json" },
     });
 
-  let response;
-  try {
-    response = await withRetry(() => callModel(TEXT_MODEL), "description");
-  } catch (err) {
+  const runOnce = async (extraDirective: string): Promise<ProductDescription> => {
+    let response;
+    try {
+      response = await withRetry(() => callModel(TEXT_MODEL, extraDirective), "description");
+    } catch (err) {
+      console.warn(
+        `[gemini:description] primary model failed, trying fallback ${TEXT_MODEL_FALLBACK} — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+      );
+      response = await withRetry(
+        () => callModel(TEXT_MODEL_FALLBACK, extraDirective),
+        "description-fallback",
+      );
+    }
+    const text = response.text;
+    if (!text) {
+      throw new Error("Gemini did not return text for product description");
+    }
+    try {
+      return JSON.parse(text) as ProductDescription;
+    } catch {
+      throw new Error("Failed to parse product description JSON");
+    }
+  };
+
+  let parsed = await runOnce("");
+  const collision = findGivenNameCollision(parsed.en?.title ?? "", usedNames);
+  if (collision) {
     console.warn(
-      `[gemini:description] primary model failed, trying fallback ${TEXT_MODEL_FALLBACK} — ${err instanceof Error ? err.message.slice(0, 120) : ""}`,
+      `[gemini:description] Gemini reused forbidden given name "${collision}". Retrying with stricter directive.`,
     );
-    response = await withRetry(() => callModel(TEXT_MODEL_FALLBACK), "description-fallback");
+    const retryDirective = `\n\n# RETRY — YOUR PREVIOUS ATTEMPT VIOLATED THE RULE\nYour previous response started the poetic name with "${collision}", which is in the FORBIDDEN GIVEN NAMES list above. That is a critical failure. Choose a COMPLETELY DIFFERENT first word that is NOT in the forbidden list. Do NOT use "${collision}" anywhere in the title. Pick another name from the inspiration pool.`;
+    parsed = await runOnce(retryDirective);
   }
+  return parsed;
+}
 
-  const text = response.text;
-  if (!text) {
-    throw new Error("Gemini did not return text for product description");
-  }
+export function extractGivenName(title: string): string | null {
+  const m = title.match(/^[A-Z]\d{1,4}\s*[–\-]\s*([A-Za-z][\w']*)/);
+  return m ? m[1] : null;
+}
 
-  try {
-    return JSON.parse(text) as ProductDescription;
-  } catch {
-    throw new Error("Failed to parse product description JSON");
-  }
+function findGivenNameCollision(title: string, usedNames: string[]): string | null {
+  const given = extractGivenName(title);
+  if (!given) return null;
+  const lowered = given.toLowerCase();
+  const hit = usedNames.find((n) => n.toLowerCase() === lowered);
+  return hit ?? null;
 }
 
 export type ReelScene = {

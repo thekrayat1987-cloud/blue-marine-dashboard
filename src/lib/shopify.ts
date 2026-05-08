@@ -622,11 +622,13 @@ export async function getNextSku(): Promise<string> {
   return `${bestLetter}${String(next).padStart(bestWidth, "0")}`;
 }
 
-// Mirrors the regex used in scripts/rename-products.mjs to seed the
-// "forbidden names" list so the AI doesn't reuse a poetic name already
-// in the catalogue.
+// Seed the "forbidden names" list so the AI doesn't reuse a poetic name
+// already in the catalogue. We extract the FIRST capitalized word after the
+// SKU dash — that's the canonical "given name" (Layla, Noor, Zafira…). This
+// makes "A11 – Layla Daraa" and "A12 – Layla Caftan" both register as
+// "Layla" so the second call cannot reuse it.
 export async function getUsedPoeticNames(): Promise<string[]> {
-  const re = /^[A-Z]\d{1,4}\s*[–\-]\s*([A-Z][\w']+(?:\s+[A-Z][\w']+)?)/;
+  const re = /^[A-Z]\d{1,4}\s*[–\-]\s*([A-Za-z][\w']*)/;
   const names = new Set<string>();
   let cursor: string | null = null;
   for (let page = 0; page < 5; page++) {
