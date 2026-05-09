@@ -1190,11 +1190,13 @@ export async function pushProductToShopify(
             input: {
               name: "available",
               reason: "correction",
-              ignoreCompareQuantity: true,
               quantities: variantNodes.map((v) => ({
                 inventoryItemId: v.inventoryItem.id,
                 locationId: DEFAULT_LOCATION_ID,
                 quantity: initialQty,
+                // Opt out of the change-from check — we're seeding a new variant
+                // and don't have a prior quantity to compare against.
+                changeFromQuantity: null,
               })),
             },
           },
@@ -1794,11 +1796,11 @@ export async function addVariantToProduct(
           input: {
             name: "available",
             reason: "correction",
-            ignoreCompareQuantity: true,
             quantities: newInventoryItemIds.map((id) => ({
               inventoryItemId: id,
               locationId: DEFAULT_LOCATION_ID,
               quantity: initialQty,
+              changeFromQuantity: null,
             })),
           },
         },
