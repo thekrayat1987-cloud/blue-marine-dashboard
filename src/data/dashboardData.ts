@@ -134,56 +134,56 @@ export const metaCampaigns = [
 // Instagram Reels Ideas
 export const reelsIdeas = [
   {
-    category: "Behind The Scenes",
+    category: "Coulisses",
     color: "#e1306c",
     ideas: [
-      { title: "Dishdasha sewing process", description: "Time-lapse from fabric to finished piece. Traditional music in background.", hook: "How we make a dishdasha in 60 seconds", trending: true },
-      { title: "Fabric sourcing at the souk", description: "Visit to the fabric market, feeling materials, explaining quality.", hook: "This fabric costs $200 per meter... here's why", trending: true },
-      { title: "Embroidery workshop", description: "Close-up of artisans embroidering golden details.", hook: "500 hours of work in this embroidery", trending: false },
-      { title: "Packaging & shipping", description: "ASMR folding, gift wrapping, labeling.", hook: "The Blue Marine unboxing experience", trending: true },
+      { title: "Processus de couture du bisht", description: "Time-lapse du tissu à la pièce finie. Musique traditionnelle en fond.", hook: "Comment on fabrique un bisht en 60 secondes", trending: true },
+      { title: "Sélection des tissus au souk", description: "Visite du marché aux tissus, toucher des matières, explication de la qualité.", hook: "Ce tissu coûte 60 KD le mètre... voici pourquoi", trending: true },
+      { title: "Atelier broderie", description: "Gros plan sur les artisans qui brodent les détails dorés.", hook: "500 heures de travail dans cette broderie", trending: false },
+      { title: "Emballage et expédition", description: "ASMR pliage, emballage cadeau, étiquetage.", hook: "L'expérience unboxing Blue Marine", trending: true },
     ],
   },
   {
-    category: "Style & Fashion",
+    category: "Style et mode",
     color: "#8b5cf6",
     ideas: [
-      { title: "3 ways to wear the bisht", description: "Transition reel showing 3 different styles with the same bisht.", hook: "1 bisht, 3 completely different looks", trending: true },
-      { title: "Traditional OOTD", description: "GRWM (Get Ready With Me) for an event with traditional outfit.", hook: "GRWM for a Kuwaiti wedding", trending: true },
-      { title: "Modern vs Traditional", description: "Split screen comparing modern and traditional style.", hook: "Tradition meets 2026", trending: true },
-      { title: "Colors of the season", description: "Trending color palette for the season with products.", hook: "5 colors all of Kuwait will wear this summer", trending: false },
+      { title: "3 façons de porter le bisht", description: "Reel transition montrant 3 styles différents avec le même bisht.", hook: "1 bisht, 3 looks totalement différents", trending: true },
+      { title: "OOTD traditionnel", description: "GRWM (Get Ready With Me) pour un événement en tenue traditionnelle.", hook: "GRWM pour un mariage koweïtien", trending: true },
+      { title: "Moderne vs Traditionnel", description: "Split screen comparant style moderne et traditionnel.", hook: "Quand la tradition rencontre 2026", trending: true },
+      { title: "Couleurs de la saison", description: "Palette tendance de la saison avec les produits.", hook: "5 couleurs que tout le Golfe va porter cet été", trending: false },
     ],
   },
   {
-    category: "Educational",
+    category: "Éducatif",
     color: "#3b82f6",
     ideas: [
-      { title: "History of the dishdasha", description: "Mini-documentary on the origin and evolution of the dishdasha.", hook: "You don't know the real history of the dishdasha", trending: false },
-      { title: "How to spot quality fabric", description: "Tips to identify good vs bad fabrics.", hook: "Simple test: burn a thread to check quality", trending: true },
-      { title: "Garment care guide", description: "How to wash, iron and preserve traditional outfits.", hook: "Mistake #1 that destroys your dishdashas", trending: true },
-      { title: "Meaning of embroidery patterns", description: "Each pattern has a story - explaining the symbolism.", hook: "This pattern means something very special", trending: false },
+      { title: "Histoire du bisht", description: "Mini-documentaire sur l'origine et l'évolution du bisht.", hook: "Tu ne connais pas la vraie histoire du bisht", trending: false },
+      { title: "Reconnaître un tissu de qualité", description: "Astuces pour distinguer les bons des mauvais tissus.", hook: "Test simple : brûle un fil pour vérifier la qualité", trending: true },
+      { title: "Guide d'entretien des tenues", description: "Comment laver, repasser et préserver les tenues traditionnelles.", hook: "L'erreur n°1 qui abîme tes bishts", trending: true },
+      { title: "Sens des motifs de broderie", description: "Chaque motif a une histoire — explication de la symbolique.", hook: "Ce motif a une signification très spéciale", trending: false },
     ],
   },
   {
-    category: "Social Proof & UGC",
+    category: "Avis clients et UGC",
     color: "#22c55e",
     ideas: [
-      { title: "Customer delivery reaction", description: "Film customer reactions when they open the package.", hook: "His reaction when he opened the package", trending: true },
-      { title: "Before/After alterations", description: "Show the transformation with custom alterations.", hook: "He couldn't believe it was the same dishdasha", trending: true },
-      { title: "Video customer review", description: "Authentic testimonial from a satisfied customer.", hook: "What our customers really say about us", trending: false },
-      { title: "Daily orders compilation", description: "Show all orders prepared during the day.", hook: "A normal Monday at Blue Marine (15 orders)", trending: true },
+      { title: "Réaction client à la livraison", description: "Filmer les réactions des clientes à l'ouverture du colis.", hook: "Sa réaction en ouvrant le colis", trending: true },
+      { title: "Avant/Après retouches", description: "Montrer la transformation après retouches sur-mesure.", hook: "Elle n'arrivait pas à croire que c'était le même bisht", trending: true },
+      { title: "Avis client en vidéo", description: "Témoignage authentique d'une cliente satisfaite.", hook: "Ce que nos clientes disent vraiment de nous", trending: false },
+      { title: "Compilation commandes du jour", description: "Montrer toutes les commandes préparées dans la journée.", hook: "Un lundi normal chez Blue Marine (15 commandes)", trending: true },
     ],
   },
 ];
 
 // Content Calendar Template
 export const contentCalendar = {
-  monday: { type: "Reel", theme: "Behind the scenes / Crafting", platform: "Instagram + TikTok" },
-  tuesday: { type: "Story", theme: "Product of the day + Poll", platform: "Instagram" },
+  monday: { type: "Reel", theme: "Coulisses / Atelier", platform: "Instagram + TikTok" },
+  tuesday: { type: "Story", theme: "Produit du jour + Sondage", platform: "Instagram" },
   wednesday: { type: "Reel", theme: "Style / OOTD / Lookbook", platform: "Instagram + TikTok" },
-  thursday: { type: "Carousel", theme: "Educational / Guide / Tips", platform: "Instagram" },
-  friday: { type: "Story", theme: "Jumu'ah vibes + Weekend promo", platform: "Instagram" },
-  saturday: { type: "Reel", theme: "UGC / Customer testimonial", platform: "Instagram + TikTok" },
-  sunday: { type: "Story + Post", theme: "New arrivals / Weekly recap", platform: "Instagram" },
+  thursday: { type: "Carousel", theme: "Éducatif / Guide / Conseils", platform: "Instagram" },
+  friday: { type: "Story", theme: "Jumu'ah vibes + Promo week-end", platform: "Instagram" },
+  saturday: { type: "Reel", theme: "UGC / Témoignage client", platform: "Instagram + TikTok" },
+  sunday: { type: "Story + Post", theme: "Nouveautés / Récap de la semaine", platform: "Instagram" },
 };
 
 // Budget Allocation
@@ -199,33 +199,33 @@ export const budgetAllocation = [
 
 // KPI Definitions
 export const kpiDefinitions = {
-  AOV: { name: "Avg Order Value (AOV)", target: 60, unit: "KD", description: "Average amount per order" },
-  CAC: { name: "Customer Acquisition Cost", target: 8, unit: "KD", description: "Cost to acquire 1 customer" },
-  LTV: { name: "Customer Lifetime Value", target: 180, unit: "KD", description: "Total avg revenue per customer" },
-  ROAS: { name: "Return on Ad Spend", target: 4.0, unit: "x", description: "$4 revenue for every $1 in ads" },
-  conversionRate: { name: "Conversion Rate", target: 2.5, unit: "%", description: "% of visitors who purchase" },
-  repeatRate: { name: "Repeat Rate", target: 30, unit: "%", description: "% of customers who buy again" },
-  marginRate: { name: "Gross Margin", target: 65, unit: "%", description: "% margin on each sale" },
+  AOV: { name: "Panier moyen (AOV)", target: 60, unit: "KD", description: "Montant moyen par commande" },
+  CAC: { name: "Coût d'acquisition client", target: 8, unit: "KD", description: "Coût pour acquérir 1 client" },
+  LTV: { name: "Valeur vie client", target: 180, unit: "KD", description: "Revenu moyen total par client" },
+  ROAS: { name: "Retour sur dépenses pub", target: 4.0, unit: "x", description: "4 KD de revenu pour 1 KD dépensé" },
+  conversionRate: { name: "Taux de conversion", target: 2.5, unit: "%", description: "% de visiteurs qui achètent" },
+  repeatRate: { name: "Taux de fidélisation", target: 30, unit: "%", description: "% de clients qui rachètent" },
+  marginRate: { name: "Marge brute", target: 65, unit: "%", description: "% de marge sur chaque vente" },
 };
 
 // Product categories (avgPrice en KD)
 export const productCategories = [
-  { name: "Men's Dishdashas", avgPrice: 55, margin: 65, bestSeller: true },
-  { name: "Women's Bishts", avgPrice: 75, margin: 70, bestSeller: true },
+  { name: "Dishdashas hommes", avgPrice: 55, margin: 65, bestSeller: true },
+  { name: "Bishts femmes", avgPrice: 75, margin: 70, bestSeller: true },
   { name: "Jalabiya", avgPrice: 60, margin: 68, bestSeller: false },
-  { name: "Accessories (Ghutra, Agal)", avgPrice: 15, margin: 75, bestSeller: false },
-  { name: "Ramadan Collections", avgPrice: 90, margin: 60, bestSeller: true },
-  { name: "Custom / Bespoke", avgPrice: 150, margin: 55, bestSeller: false },
+  { name: "Accessoires (Ghutra, Agal)", avgPrice: 15, margin: 75, bestSeller: false },
+  { name: "Collections Ramadan", avgPrice: 90, margin: 60, bestSeller: true },
+  { name: "Sur-mesure", avgPrice: 150, margin: 55, bestSeller: false },
 ];
 
 // Seasonal events (Kuwait specific)
 export const seasonalEvents = [
-  { name: "Ramadan", month: "March", impact: "very-high", strategy: "Capsule Ramadan collection + heavy ads 2 weeks before" },
-  { name: "Eid Al-Fitr", month: "April", impact: "very-high", strategy: "Flash sales + Gift sets + Express delivery" },
-  { name: "Back to School", month: "September", impact: "medium", strategy: "Kids dishdashas + Family bundles" },
-  { name: "National Day (25-26 Feb)", month: "February", impact: "high", strategy: "Flag colors collection + Patriotic promo" },
-  { name: "Eid Al-Adha", month: "June", impact: "high", strategy: "Celebration outfits + Family packages" },
-  { name: "Hala February", month: "February", impact: "medium", strategy: "Festival collaboration + Pop-up store" },
-  { name: "Black Friday / White Friday", month: "November", impact: "high", strategy: "Aggressive discounts + Bundles + Email blast" },
-  { name: "End of Year", month: "December", impact: "medium", strategy: "Gift cards + Premium gift boxes" },
+  { name: "Ramadan", month: "Mars", impact: "very-high", strategy: "Capsule Ramadan + ads 2 semaines avant" },
+  { name: "Aïd Al-Fitr", month: "Avril", impact: "very-high", strategy: "Ventes flash + coffrets cadeaux + livraison express" },
+  { name: "Rentrée", month: "Septembre", impact: "medium", strategy: "Nouveautés automne + bundles famille" },
+  { name: "Fête nationale (25-26 fév.)", month: "Février", impact: "high", strategy: "Capsule couleurs nationales + promo patriotique" },
+  { name: "Aïd Al-Adha", month: "Juin", impact: "high", strategy: "Tenues de fête + offres famille" },
+  { name: "Hala February", month: "Février", impact: "medium", strategy: "Collaboration festival + pop-up store" },
+  { name: "Black Friday / White Friday", month: "Novembre", impact: "high", strategy: "Promos agressives + bundles + campagne email" },
+  { name: "Fin d'année", month: "Décembre", impact: "medium", strategy: "Cartes cadeaux + coffrets premium" },
 ];

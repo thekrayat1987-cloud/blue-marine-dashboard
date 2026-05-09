@@ -26,9 +26,9 @@ import {
 import KPICard from "@/components/KPICard";
 import ProgressBar from "@/components/ProgressBar";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useAnnualGoal, DEFAULT_ANNUAL_GOAL } from "@/hooks/useAnnualGoal";
 import {
-  ANNUAL_TARGET,
-  ORDERS_PER_MONTH,
+  AVG_ORDER_VALUE,
   monthlyData as staticMonthlyData,
   channelData,
   kpiDefinitions,
@@ -51,16 +51,19 @@ const formatCurrency = (n: number) =>
 
 export default function Home() {
   const { data, loading, error, refresh } = useDashboardData();
+  const { goal: annualGoal, monthly: monthlyGoal } = useAnnualGoal();
 
   const shopifyConnected = !!data?.shopify;
   const metaConnected = !!data?.meta?.accountInsights && !data?.metaNeedsAuth;
   const igConnected = !!data?.instagram?.profile;
 
+  const targetMultiplier = annualGoal / DEFAULT_ANNUAL_GOAL;
   const monthlyData = staticMonthlyData.map((m) => {
     const real = data?.shopify?.monthlyBreakdown.find((r) => r.month === m.month);
     return {
       ...m,
       monthFr: MONTH_FR[m.month] ?? m.month,
+      target: Math.round(m.target * targetMultiplier),
       revenue: real?.revenue ?? m.revenue,
       orders: real?.orders ?? m.orders,
     };
@@ -73,7 +76,8 @@ export default function Home() {
   const roas = totalAdSpend > 0 ? totalRevenue / totalAdSpend : 0;
   const followers = data?.instagram?.profile?.followers ?? 0;
 
-  const goalProgress = (totalRevenue / ANNUAL_TARGET) * 100;
+  const goalProgress = (totalRevenue / annualGoal) * 100;
+  const ordersPerMonthTarget = Math.round(monthlyGoal / AVG_ORDER_VALUE);
 
   return (
     <div className="flex-1 overflow-auto">
@@ -82,13 +86,13 @@ export default function Home() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[11px] uppercase tracking-[0.18em] text-accent font-medium mb-1">
-              Atelier · Pilotage 2026
+              Atelier · Pilotage {new Date().getFullYear()}
             </p>
             <h1 className="font-display text-3xl font-semibold text-foreground">
               Tableau de bord
             </h1>
             <p className="text-sm text-foreground-muted mt-1">
-              Suivi de l&apos;objectif annuel · {formatCurrency(ANNUAL_TARGET)} KD
+              Suivi de l&apos;objectif annuel · {formatCurrency(annualGoal)} KD
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -170,17 +174,17 @@ export default function Home() {
             <div className="flex items-baseline justify-between mb-3">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.14em] text-foreground-subtle font-medium">
-                  Progression — Objectif 2026
+                  Progression — Objectif {new Date().getFullYear()}
                 </p>
                 <p className="font-display text-xl font-semibold text-foreground mt-1 tabular-nums">
-                  {formatCurrency(totalRevenue)} <span className="text-foreground-subtle">/ {formatCurrency(ANNUAL_TARGET)} KD</span>
+                  {formatCurrency(totalRevenue)} <span className="text-foreground-subtle">/ {formatCurrency(annualGoal)} KD</span>
                 </p>
               </div>
               <span className="text-2xl font-display font-semibold text-accent tabular-nums">
                 {goalProgress.toFixed(1)}%
               </span>
             </div>
-            <ProgressBar value={totalRevenue} max={ANNUAL_TARGET} color="bg-accent" size="md" />
+            <ProgressBar value={totalRevenue} max={annualGoal} color="bg-accent" size="md" />
           </div>
         </section>
 
@@ -194,7 +198,7 @@ export default function Home() {
             <KPICard
               label="Commandes"
               value={totalOrders.toLocaleString("fr-FR")}
-              subtitle={`Cible : ${ORDERS_PER_MONTH}/mois`}
+              subtitle={`Cible : ${ordersPerMonthTarget}/mois`}
               icon={ShoppingCart}
               loading={loading && !data}
               empty={!loading && !shopifyConnected}
@@ -236,7 +240,7 @@ export default function Home() {
             </span>
           </div>
           <p className="text-xs text-foreground-muted mb-6">
-            Progression annuelle vers l&apos;objectif de 50 000 KD
+            Progression annuelle vers l&apos;objectif de {formatCurrency(annualGoal)} KD
           </p>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -287,14 +291,20 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {channelData.map((channel) => {
                 let currentRevenue = 0;
-                if (channel.name.includes("Instagram") && data?.meta?.accountInsights) {
-                  currentRevenue = data.meta.accountInsights.totalRevenue * 0.4;
-                } else if (channel.name.includes("Shopify") && data?.shopify) {
-                  currentRevenue = data.shopify.totalRevenue * 0.35;
+                let hasSource = false;
+                if (channel.name.includes("Instagram")) {
+                  hasSource = metaConnected;
+                  currentRevenue = data?.meta?.accountInsights?.totalRevenue ?? 0;
+                } else if (channel.name.includes("Shopify") || channel.name.includes("E-commerce")) {
+                  hasSource = shopifyConnected;
+                  currentRevenue = data?.shopify?.totalRevenue ?? 0;
                 }
                 const channelLabel = channel.name
                   .replace("Instagram / Social", "Instagram & social")
                   .replace("E-commerce (Shopify)", "Boutique Shopify");
+                const achievedPct = channel.targetRevenue > 0
+                  ? Math.round((currentRevenue / channel.targetRevenue) * 100)
+                  : 0;
                 return (
                   <div
                     key={channel.name}
@@ -307,17 +317,20 @@ export default function Home() {
                       />
                       <span className="text-sm font-medium text-foreground">{channelLabel}</span>
                     </div>
-                    <p className="font-display text-3xl font-semibold text-foreground tabular-nums">
-                      {channel.percentage}<span className="text-lg text-foreground-subtle">%</span>
-                    </p>
+                    <div className="flex items-baseline gap-1.5">
+                      <p className="font-display text-3xl font-semibold text-foreground tabular-nums">
+                        {hasSource ? achievedPct : "—"}<span className="text-lg text-foreground-subtle">%</span>
+                      </p>
+                      <span className="text-[10px] text-foreground-subtle uppercase tracking-wider">de la cible</span>
+                    </div>
                     <p className="text-[11px] text-foreground-muted mt-1 tabular-nums">
-                      Cible : {formatCurrency(channel.targetRevenue)} KD
+                      Part visée : {channel.percentage}% · Cible {formatCurrency(channel.targetRevenue)} KD
                     </p>
                     <div className="mt-4">
                       <ProgressBar value={currentRevenue} max={channel.targetRevenue} color="bg-accent" size="sm" />
                     </div>
                     <p className="text-[11px] mt-2 tabular-nums">
-                      {currentRevenue > 0 ? (
+                      {hasSource ? (
                         <span className="text-accent font-medium">
                           {formatCurrency(Math.round(currentRevenue))} KD réalisés
                         </span>

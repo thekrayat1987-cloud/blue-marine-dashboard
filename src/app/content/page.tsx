@@ -25,13 +25,13 @@ import {
 import { contentCalendar, reelsIdeas } from "@/data/dashboardData";
 
 const dayLabels: Record<string, string> = {
-  monday: "Monday",
-  tuesday: "Tuesday",
-  wednesday: "Wednesday",
-  thursday: "Thursday",
-  friday: "Friday",
-  saturday: "Saturday",
-  sunday: "Sunday",
+  monday: "Lundi",
+  tuesday: "Mardi",
+  wednesday: "Mercredi",
+  thursday: "Jeudi",
+  friday: "Vendredi",
+  saturday: "Samedi",
+  sunday: "Dimanche",
 };
 
 const typeIcons: Record<string, typeof Video> = {
@@ -54,29 +54,29 @@ type SlotTemplate = {
 };
 
 const publicationPlan: { day: string; dayKey: string; posts: SlotTemplate[] }[] = [
-  { day: "Monday", dayKey: "monday", posts: [
-    { time: "12:00", type: "Reel", topic: "Behind the scenes / Crafting", caption: "Sewing process or fabric sourcing", hashtags: "#BlueMarine #MadeInKuwait #Dishdasha #HandMade #KuwaitFashion", preset: "studio" },
+  { day: "Lundi", dayKey: "monday", posts: [
+    { time: "12:00", type: "Reel", topic: "Coulisses / Atelier", caption: "Processus de couture ou sélection des tissus", hashtags: "#BlueMarine #MadeInKuwait #Bisht #HandMade #KuwaitFashion", preset: "studio" },
   ]},
-  { day: "Tuesday", dayKey: "tuesday", posts: [
-    { time: "18:00", type: "Story", topic: "Product of the day + Poll", caption: "Which color do you prefer? Interactive poll", hashtags: "#OOTD #KuwaitStyle #TraditionalWear", preset: "studio" },
-    { time: "20:00", type: "Story", topic: "Q&A / Questions box", caption: "Ask us anything about our collections", hashtags: "#AskBlueMarine #Kuwait", preset: "studio" },
+  { day: "Mardi", dayKey: "tuesday", posts: [
+    { time: "18:00", type: "Story", topic: "Produit du jour + Sondage", caption: "Quelle couleur tu préfères ? Sondage interactif", hashtags: "#OOTD #KuwaitStyle #ModestFashion", preset: "studio" },
+    { time: "20:00", type: "Story", topic: "Q&R / Boîte à questions", caption: "Pose-nous toutes tes questions sur nos collections", hashtags: "#AskBlueMarine #Kuwait", preset: "studio" },
   ]},
-  { day: "Wednesday", dayKey: "wednesday", posts: [
-    { time: "12:00", type: "Reel", topic: "Style / OOTD / Lookbook", caption: "3 ways to wear the bisht or GRWM event", hashtags: "#BishtStyle #ModestFashion #KuwaitFashion #GRWM #Lookbook", preset: "lookbook" },
+  { day: "Mercredi", dayKey: "wednesday", posts: [
+    { time: "12:00", type: "Reel", topic: "Style / OOTD / Lookbook", caption: "3 façons de porter le bisht ou GRWM événement", hashtags: "#BishtStyle #ModestFashion #KuwaitFashion #GRWM #Lookbook", preset: "lookbook" },
   ]},
-  { day: "Thursday", dayKey: "thursday", posts: [
-    { time: "17:00", type: "Carousel", topic: "Educational / Guide / Tips", caption: "How to spot quality fabric / Care guide", hashtags: "#FashionTips #QualityFabric #BlueMarine #KuwaitLife", preset: "studio" },
+  { day: "Jeudi", dayKey: "thursday", posts: [
+    { time: "17:00", type: "Carousel", topic: "Éducatif / Guide / Conseils", caption: "Comment reconnaître un tissu de qualité / Guide d'entretien", hashtags: "#FashionTips #QualityFabric #BlueMarine #KuwaitLife", preset: "studio" },
   ]},
-  { day: "Friday", dayKey: "friday", posts: [
-    { time: "10:00", type: "Story", topic: "Jumu'ah Vibes", caption: "Friday outfit + inspiring message", hashtags: "#JumuahMubarak #FridayVibes #Kuwait", preset: "lifestyle" },
-    { time: "19:00", type: "Story", topic: "Weekend Promo", caption: "Weekend special offer / New product", hashtags: "#WeekendSale #BlueMarine #ShopNow", preset: "lookbook" },
+  { day: "Vendredi", dayKey: "friday", posts: [
+    { time: "10:00", type: "Story", topic: "Jumu'ah Vibes", caption: "Tenue du vendredi + message inspirant", hashtags: "#JumuahMubarak #FridayVibes #Kuwait", preset: "lifestyle" },
+    { time: "19:00", type: "Story", topic: "Promo week-end", caption: "Offre spéciale week-end / Nouveau produit", hashtags: "#WeekendSale #BlueMarine #ShopNow", preset: "lookbook" },
   ]},
-  { day: "Saturday", dayKey: "saturday", posts: [
-    { time: "13:00", type: "Reel", topic: "UGC / Customer testimonial", caption: "Customer unboxing reaction or before/after alterations", hashtags: "#CustomerReview #Unboxing #BlueMarine #KuwaitShopping", preset: "lifestyle" },
+  { day: "Samedi", dayKey: "saturday", posts: [
+    { time: "13:00", type: "Reel", topic: "UGC / Témoignage client", caption: "Réaction unboxing client ou avant/après retouches", hashtags: "#CustomerReview #Unboxing #BlueMarine #KuwaitShopping", preset: "lifestyle" },
   ]},
-  { day: "Sunday", dayKey: "sunday", posts: [
-    { time: "18:00", type: "Post", topic: "Weekly recap", caption: "New arrivals + best-sellers + next week preview", hashtags: "#WeeklyRecap #NewArrivals #BlueMarine #KuwaitFashion", preset: "lookbook" },
-    { time: "20:00", type: "Story", topic: "Next week teaser", caption: "Preview of upcoming content", hashtags: "#ComingSoon #StayTuned", preset: "studio" },
+  { day: "Dimanche", dayKey: "sunday", posts: [
+    { time: "18:00", type: "Post", topic: "Récap de la semaine", caption: "Nouveautés + best-sellers + aperçu semaine prochaine", hashtags: "#WeeklyRecap #NewArrivals #BlueMarine #KuwaitFashion", preset: "lookbook" },
+    { time: "20:00", type: "Story", topic: "Teaser semaine prochaine", caption: "Aperçu du contenu à venir", hashtags: "#ComingSoon #StayTuned", preset: "studio" },
   ]},
 ];
 
@@ -121,11 +121,11 @@ function nextStatus(s: Status): Status {
 function statusStyles(s: Status) {
   switch (s) {
     case "posted":
-      return { label: "Posted", icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" };
+      return { label: "Publié", icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" };
     case "ready":
-      return { label: "Ready", icon: CircleDot, cls: "bg-amber-500/15 text-amber-400 border-amber-500/30" };
+      return { label: "Prêt", icon: CircleDot, cls: "bg-amber-500/15 text-amber-400 border-amber-500/30" };
     default:
-      return { label: "Draft", icon: Circle, cls: "bg-white/5 text-foreground-subtle border-white/10" };
+      return { label: "Brouillon", icon: Circle, cls: "bg-white/5 text-foreground-subtle border-white/10" };
   }
 }
 
@@ -151,7 +151,7 @@ export default function ContentPage() {
   const weekLabel = useMemo(() => {
     const end = new Date(weekStart);
     end.setDate(end.getDate() + 6);
-    const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    const fmt = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
     return `${fmt(weekStart)} – ${fmt(end)} ${end.getFullYear()}`;
   }, [weekStart]);
 
@@ -275,25 +275,25 @@ export default function ContentPage() {
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md px-8 py-5">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl font-bold text-foreground">Content & Publications</h1>
-            <p className="text-sm text-foreground-muted mt-0.5">Content calendar + Instagram publication plan</p>
+            <h1 className="text-xl font-bold text-foreground">Contenu et publications</h1>
+            <p className="text-sm text-foreground-muted mt-0.5">Calendrier de contenu + plan de publication Instagram</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-xs text-foreground-muted">
-              <span className="font-mono text-foreground">{postedCount}</span> / {totalSlots} posted
+              <span className="font-mono text-foreground">{postedCount}</span> / {totalSlots} publiés
             </div>
             <div className="flex items-center gap-1 rounded-lg border border-border bg-surface px-1 py-1">
-              <button onClick={() => shiftWeek(-7)} className="p-1.5 hover:bg-white/5 rounded transition-colors" aria-label="Previous week">
+              <button onClick={() => shiftWeek(-7)} className="p-1.5 hover:bg-white/5 rounded transition-colors" aria-label="Semaine précédente">
                 <ChevronLeft className="w-4 h-4 text-foreground-muted" />
               </button>
               <span className="text-xs font-medium text-foreground px-2 min-w-[150px] text-center">{weekLabel}</span>
-              <button onClick={() => shiftWeek(7)} className="p-1.5 hover:bg-white/5 rounded transition-colors" aria-label="Next week">
+              <button onClick={() => shiftWeek(7)} className="p-1.5 hover:bg-white/5 rounded transition-colors" aria-label="Semaine suivante">
                 <ChevronRight className="w-4 h-4 text-foreground-muted" />
               </button>
             </div>
             {!isCurrentWeek && (
               <button onClick={goToCurrentWeek} className="text-xs px-2.5 py-1.5 rounded-lg border border-accent/40 text-accent hover:bg-accent/10 transition-colors">
-                This week
+                Cette semaine
               </button>
             )}
           </div>
@@ -308,7 +308,7 @@ export default function ContentPage() {
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-accent" />
-            Weekly Calendar
+            Calendrier hebdomadaire
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
             {Object.entries(contentCalendar).map(([day, data]) => {
@@ -321,7 +321,7 @@ export default function ContentPage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-semibold text-accent">{dayLabels[day]}</p>
-                    {isToday && <span className="text-[9px] font-bold uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">Today</span>}
+                    {isToday && <span className="text-[9px] font-bold uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">Aujourd&apos;hui</span>}
                   </div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <Icon className="w-3.5 h-3.5 text-foreground-muted" />
@@ -339,10 +339,10 @@ export default function ContentPage() {
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <AtSign className="w-4 h-4 text-instagram" />
-            Instagram Publication Plan
+            Plan de publication Instagram
           </h2>
           <p className="text-xs text-foreground-muted mb-4">
-            Optimized times for Kuwait (GMT+3) — Click status pill to cycle: Draft → Ready → Posted
+            Horaires optimisés pour le Koweït (GMT+3) — Clique sur le statut pour changer : Brouillon → Prêt → Publié
             {loading && <Loader2 className="inline w-3 h-3 ml-2 animate-spin" />}
           </p>
           <div className="space-y-4">
@@ -352,7 +352,7 @@ export default function ContentPage() {
                 <div key={day.dayKey} className={`rounded-xl bg-surface border overflow-hidden ${isToday ? "border-accent ring-1 ring-accent/40" : "border-border"}`}>
                   <div className="px-5 py-3 border-b border-border bg-surface-muted flex items-center justify-between">
                     <span className="text-sm font-semibold text-accent">{day.day}</span>
-                    {isToday && <span className="text-[9px] font-bold uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">Today</span>}
+                    {isToday && <span className="text-[9px] font-bold uppercase tracking-wider text-accent bg-accent/15 px-1.5 py-0.5 rounded">Aujourd&apos;hui</span>}
                   </div>
                   <div className="divide-y divide-white/5">
                     {day.posts.map((post) => {
@@ -403,7 +403,7 @@ export default function ContentPage() {
                                   <Link
                                     href={`/product-photo?preset=${post.preset}`}
                                     className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition-colors"
-                                    title={`Generate image (${post.preset} preset)`}
+                                    title={`Générer image (preset ${post.preset})`}
                                   >
                                     <Sparkles className="w-3 h-3" />
                                     Image
@@ -411,16 +411,16 @@ export default function ContentPage() {
                                   <button
                                     onClick={() => startEdit(key, post)}
                                     className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border border-white/10 bg-white/5 text-foreground-muted hover:bg-white/10 transition-colors"
-                                    title="Edit caption"
+                                    title="Modifier la légende"
                                   >
                                     <Pencil className="w-3 h-3" />
-                                    Edit
+                                    Modifier
                                   </button>
                                   <button
                                     onClick={() => cycleStatus(day.dayKey, post.time)}
                                     disabled={isPending || loading}
                                     className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors hover:opacity-80 disabled:opacity-50 ${styles.cls}`}
-                                    title="Click to change status"
+                                    title="Clique pour changer le statut"
                                   >
                                     {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <StatusIcon className="w-3 h-3" />}
                                     {styles.label}
@@ -433,7 +433,7 @@ export default function ContentPage() {
                           {isEditing && (
                             <div className="mt-3 ml-0 md:ml-[152px] space-y-2 rounded-lg border border-border bg-background/40 p-3">
                               <div>
-                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Caption</label>
+                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Légende</label>
                                 <textarea
                                   value={draftCaption}
                                   onChange={(e) => setDraftCaption(e.target.value)}
@@ -451,12 +451,12 @@ export default function ContentPage() {
                                 />
                               </div>
                               <div>
-                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Notes (private)</label>
+                                <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Notes (privées)</label>
                                 <textarea
                                   value={draftNotes}
                                   onChange={(e) => setDraftNotes(e.target.value)}
                                   rows={2}
-                                  placeholder="e.g. Use the new bisht from last week's shoot"
+                                  placeholder="ex. Utiliser le nouveau bisht du shoot de la semaine dernière"
                                   className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-accent"
                                 />
                               </div>
@@ -466,7 +466,7 @@ export default function ContentPage() {
                                   className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded border border-border bg-surface text-foreground-muted hover:bg-white/5"
                                 >
                                   <X className="w-3 h-3" />
-                                  Cancel
+                                  Annuler
                                 </button>
                                 <button
                                   onClick={() => saveEdit(day.dayKey, post.time, post)}
@@ -474,7 +474,7 @@ export default function ContentPage() {
                                   className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 disabled:opacity-50"
                                 >
                                   {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
-                                  Save
+                                  Enregistrer
                                 </button>
                               </div>
                             </div>
@@ -493,7 +493,7 @@ export default function ContentPage() {
         <div>
           <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <Video className="w-4 h-4 text-pink-400" />
-            Reels Ideas
+            Idées de Reels
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {reelsIdeas.map((category) => (
@@ -509,7 +509,7 @@ export default function ContentPage() {
                         {idea.trending && (
                           <span className="flex items-center gap-0.5 text-[10px] font-semibold text-orange-400 bg-orange-500/15 px-1.5 py-0.5 rounded-full">
                             <Flame className="w-2.5 h-2.5" />
-                            Trending
+                            Tendance
                           </span>
                         )}
                       </div>

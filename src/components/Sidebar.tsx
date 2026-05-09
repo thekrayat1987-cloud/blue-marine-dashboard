@@ -19,6 +19,9 @@ import {
   X,
   LogOut,
 } from "lucide-react";
+import { useAnnualGoal } from "@/hooks/useAnnualGoal";
+
+const formatKD = (n: number) => n.toLocaleString("fr-FR", { maximumFractionDigits: 0 });
 
 const navItems = [
   { href: "/", label: "Tableau de bord", icon: LayoutDashboard },
@@ -37,6 +40,8 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { goal, monthly } = useAnnualGoal();
+  const goalYear = new Date().getFullYear();
 
   if (pathname === "/login") return null;
 
@@ -134,17 +139,21 @@ export default function Sidebar() {
 
         {/* Footer — Goal */}
         <div className="px-5 py-5 border-t border-border space-y-3">
-          <div className="rounded-xl border border-accent/30 bg-gradient-to-br from-accent-soft to-surface px-4 py-4">
+          <Link
+            href="/settings"
+            className="block rounded-xl border border-accent/30 bg-gradient-to-br from-accent-soft to-surface px-4 py-4 hover:border-accent transition-colors"
+            title="Modifier l'objectif annuel"
+          >
             <p className="text-[10px] uppercase tracking-[0.16em] text-accent font-medium">
-              Objectif 2026
+              Objectif {goalYear}
             </p>
             <p className="font-display text-2xl font-semibold text-foreground mt-1.5 tabular-nums">
-              50 000 KD
+              {formatKD(goal)} KD
             </p>
             <p className="text-[11px] text-foreground-muted mt-1 tabular-nums">
-              ~4 167 KD / mois
+              ~{formatKD(monthly)} KD / mois
             </p>
-          </div>
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs text-foreground-muted hover:text-foreground hover:bg-surface-muted transition-colors"

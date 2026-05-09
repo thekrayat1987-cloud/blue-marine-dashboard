@@ -1,7 +1,8 @@
 "use client";
 
-import { ShoppingBag, AtSign, Megaphone, MessageCircle, Ghost, CheckCircle2, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
+import { ShoppingBag, AtSign, Megaphone, MessageCircle, Ghost, CheckCircle2, AlertCircle, RefreshCw, Loader2, Target, Save } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
+import { useAnnualGoal, DEFAULT_ANNUAL_GOAL } from "@/hooks/useAnnualGoal";
 
 type CheckResult = { ok: boolean; detail?: string; error?: string };
 type StatusResponse = {
@@ -33,6 +34,28 @@ const PLATFORMS: Platform[] = [
 export default function SettingsPage() {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const { goal: annualGoal, setGoal, monthly: monthlyGoal } = useAnnualGoal();
+  const [goalDraft, setGoalDraft] = useState<string>(String(annualGoal));
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    setGoalDraft(String(annualGoal));
+  }, [annualGoal]);
+
+  const goalDraftNum = Number(goalDraft);
+  const goalChanged = Number.isFinite(goalDraftNum) && goalDraftNum > 0 && goalDraftNum !== annualGoal;
+
+  function handleSaveGoal() {
+    if (!goalChanged) return;
+    setGoal(goalDraftNum);
+    setSavedAt(Date.now());
+  }
+
+  function handleResetGoal() {
+    setGoalDraft(String(DEFAULT_ANNUAL_GOAL));
+    setGoal(DEFAULT_ANNUAL_GOAL);
+    setSavedAt(Date.now());
+  }
 
   const fetchStatus = useCallback(async () => {
     setLoading(true);
@@ -73,6 +96,55 @@ export default function SettingsPage() {
       </header>
 
       <div className="p-8 space-y-4 max-w-2xl">
+        <div className="rounded-xl bg-surface border border-border p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-accent/15">
+              <Target className="w-5 h-5 text-accent" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-sm font-semibold text-foreground">Objectif annuel</h2>
+              <p className="text-xs text-foreground-subtle">Chiffre d&apos;affaires visé sur l&apos;année (KD)</p>
+            </div>
+          </div>
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
+              <label htmlFor="annual-goal" className="block text-[10px] uppercase tracking-wider text-foreground-subtle font-medium mb-1.5">
+                Objectif (KD)
+              </label>
+              <input
+                id="annual-goal"
+                type="number"
+                min={1}
+                step={1000}
+                value={goalDraft}
+                onChange={(e) => setGoalDraft(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent"
+              />
+            </div>
+            <button
+              onClick={handleSaveGoal}
+              disabled={!goalChanged}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Save className="w-4 h-4" />
+              Enregistrer
+            </button>
+            <button
+              onClick={handleResetGoal}
+              className="px-3 py-2.5 rounded-lg border border-border text-xs text-foreground-muted hover:bg-surface-muted transition-colors"
+              title="Réinitialiser à 50 000 KD"
+            >
+              Réinitialiser
+            </button>
+          </div>
+          <p className="text-xs text-foreground-muted mt-3 tabular-nums">
+            Soit ~{monthlyGoal.toLocaleString("fr-FR")} KD / mois
+            {savedAt && Date.now() - savedAt < 4000 && (
+              <span className="ml-3 text-green-500">✓ Enregistré</span>
+            )}
+          </p>
+        </div>
+
         <div className="rounded-xl bg-surface/50 border border-border/50 p-4 text-xs text-foreground-muted">
           Les tokens sont stockés dans Vercel (variables d&apos;environnement). Pour les mettre à jour,
           modifie-les dans le tableau de bord Vercel puis re-déploie. Aucune action OAuth n&apos;est nécessaire ici.

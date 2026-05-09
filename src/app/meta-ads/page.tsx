@@ -39,7 +39,7 @@ export default function MetaAdsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-foreground">Meta Ads</h1>
-            <p className="text-sm text-foreground-muted mt-0.5">Ad campaign management</p>
+            <p className="text-sm text-foreground-muted mt-0.5">Gestion des campagnes publicitaires</p>
           </div>
           <button
             onClick={refresh}
@@ -47,12 +47,12 @@ export default function MetaAdsPage() {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-muted hover:bg-surface-muted text-xs text-foreground-muted transition-colors disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-            Refresh
+            Actualiser
           </button>
         </div>
         {error && (
           <div className="mt-2 text-xs text-orange-400 bg-orange-500/10 px-3 py-1.5 rounded-lg">
-            Meta API error — showing target data. {error}
+            Erreur API Meta — affichage des données cibles. {error}
           </div>
         )}
       </header>
@@ -60,7 +60,7 @@ export default function MetaAdsPage() {
       <div className="p-8 space-y-8">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <KPICard label="Spend" value={`${(insights?.totalSpend ?? 0).toLocaleString()} KD`} subtitle={`Budget: ${metaAdsTargets.monthlyBudget} KD/mois`} icon={DollarSign} color="text-green-400" />
+          <KPICard label="Dépenses" value={`${(insights?.totalSpend ?? 0).toLocaleString()} KD`} subtitle={`Budget : ${metaAdsTargets.monthlyBudget} KD/mois`} icon={DollarSign} color="text-green-400" />
           <KPICard label="ROAS" value={`${insights?.roas ?? 0}x`} subtitle={`Cible : ${metaAdsTargets.targetROAS}x`} icon={TrendingUp} color="text-accent" />
           <KPICard label="CPC" value={`${insights?.avgCPC ?? metaAdsTargets.targetCPC} KD`} subtitle={`Cible : ${metaAdsTargets.targetCPC} KD`} icon={MousePointerClick} color="text-blue-400" />
           <KPICard label="CPM" value={`${insights?.avgCPM ?? metaAdsTargets.targetCPM} KD`} subtitle={`Cible : ${metaAdsTargets.targetCPM} KD`} icon={Eye} color="text-purple-400" />
@@ -72,22 +72,22 @@ export default function MetaAdsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 rounded-xl bg-surface border border-border overflow-hidden">
             <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-foreground">Campaigns</h2>
+              <h2 className="text-sm font-semibold text-foreground">Campagnes</h2>
               {data?.campaigns && <span className="text-[10px] text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">LIVE</span>}
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs text-foreground-subtle border-b border-border">
-                    <th className="px-6 py-3 font-medium">Campaign</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Objective</th>
+                    <th className="px-6 py-3 font-medium">Campagne</th>
+                    <th className="px-4 py-3 font-medium">Statut</th>
+                    <th className="px-4 py-3 font-medium">Objectif</th>
                     <th className="px-4 py-3 font-medium text-right">Budget</th>
-                    <th className="px-4 py-3 font-medium text-right">Spend</th>
+                    <th className="px-4 py-3 font-medium text-right">Dépenses</th>
                     <th className="px-4 py-3 font-medium text-right">Impressions</th>
                     <th className="px-4 py-3 font-medium text-right">Clics</th>
                     <th className="px-4 py-3 font-medium text-right">Conv.</th>
-                    <th className="px-6 py-3 font-medium text-right">Revenue</th>
+                    <th className="px-6 py-3 font-medium text-right">Revenu</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -126,7 +126,7 @@ export default function MetaAdsPage() {
           </div>
 
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h2 className="text-sm font-semibold text-foreground mb-4">Ads Budget Breakdown</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-4">Répartition du budget pubs</h2>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>

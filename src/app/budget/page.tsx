@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  DollarSign,
   Package,
   TrendingUp,
 } from "lucide-react";
@@ -13,24 +12,27 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { budgetAllocation, productCategories, kpiDefinitions, ANNUAL_TARGET } from "@/data/dashboardData";
+import { budgetAllocation, productCategories, kpiDefinitions } from "@/data/dashboardData";
+import { useAnnualGoal } from "@/hooks/useAnnualGoal";
 
 const totalBudget = budgetAllocation.reduce((sum, b) => sum + b.percentage, 0);
-// Budget marketing annuel ~16% du chiffre d'affaires cible (50 000 KD)
-const ANNUAL_AD_BUDGET = Math.round(ANNUAL_TARGET * 0.16);
-const budgetWithAmounts = budgetAllocation.map((b) => ({
-  ...b,
-  amount: Math.round((b.percentage / 100) * ANNUAL_AD_BUDGET),
-}));
 
 const COLORS = ["#1877f2", "#ea4335", "#000000", "#e1306c", "#8b5cf6", "#22c55e", "#f59e0b"];
 
 export default function BudgetPage() {
+  const { goal: annualGoal } = useAnnualGoal();
+  // Budget marketing annuel ~16% du chiffre d'affaires cible
+  const annualAdBudget = Math.round(annualGoal * 0.16);
+  const budgetWithAmounts = budgetAllocation.map((b) => ({
+    ...b,
+    amount: Math.round((b.percentage / 100) * annualAdBudget),
+  }));
+
   return (
     <div className="flex-1 overflow-auto">
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-md px-8 py-5">
-        <h1 className="text-xl font-bold text-foreground">Budget & Products</h1>
-        <p className="text-sm text-foreground-muted mt-0.5">Budget allocation and product categories</p>
+        <h1 className="text-xl font-bold text-foreground">Budget et produits</h1>
+        <p className="text-sm text-foreground-muted mt-0.5">Répartition du budget et catégories de produits</p>
       </header>
 
       <div className="p-8 space-y-8">
@@ -38,8 +40,8 @@ export default function BudgetPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pie Chart */}
           <div className="rounded-xl bg-surface border border-border p-6">
-            <h2 className="text-sm font-semibold text-foreground mb-1">Marketing Budget Breakdown</h2>
-            <p className="text-xs text-foreground-subtle mb-6">Allocation by channel</p>
+            <h2 className="text-sm font-semibold text-foreground mb-1">Répartition du budget marketing</h2>
+            <p className="text-xs text-foreground-subtle mb-6">Répartition par canal</p>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -74,12 +76,12 @@ export default function BudgetPage() {
           {/* Budget Table */}
           <div className="rounded-xl bg-surface border border-border overflow-hidden">
             <div className="px-6 py-4 border-b border-border">
-              <h2 className="text-sm font-semibold text-foreground">Channel Details</h2>
+              <h2 className="text-sm font-semibold text-foreground">Détails par canal</h2>
             </div>
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-foreground-subtle border-b border-border">
-                  <th className="px-6 py-3 font-medium">Channel</th>
+                  <th className="px-6 py-3 font-medium">Canal</th>
                   <th className="px-4 py-3 font-medium text-right">%</th>
                   <th className="px-6 py-3 font-medium text-right">Budget / an</th>
                 </tr>
@@ -115,7 +117,7 @@ export default function BudgetPage() {
         <div className="rounded-xl bg-surface border border-border p-6">
           <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-accent" />
-            Target KPIs
+            Objectifs KPI
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             {Object.entries(kpiDefinitions).map(([key, kpi]) => (
@@ -134,15 +136,15 @@ export default function BudgetPage() {
         <div className="rounded-xl bg-surface border border-border overflow-hidden">
           <div className="px-6 py-4 border-b border-border flex items-center gap-2">
             <Package className="w-4 h-4 text-accent" />
-            <h2 className="text-sm font-semibold text-foreground">Product Categories</h2>
+            <h2 className="text-sm font-semibold text-foreground">Catégories de produits</h2>
           </div>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-foreground-subtle border-b border-border">
-                <th className="px-6 py-3 font-medium">Category</th>
-                <th className="px-4 py-3 font-medium text-right">Avg Price</th>
-                <th className="px-4 py-3 font-medium text-right">Margin</th>
-                <th className="px-6 py-3 font-medium text-center">Best Seller</th>
+                <th className="px-6 py-3 font-medium">Catégorie</th>
+                <th className="px-4 py-3 font-medium text-right">Prix moyen</th>
+                <th className="px-4 py-3 font-medium text-right">Marge</th>
+                <th className="px-6 py-3 font-medium text-center">Vedette</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +159,7 @@ export default function BudgetPage() {
                   </td>
                   <td className="px-6 py-3.5 text-center">
                     {p.bestSeller ? (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">Best Seller</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">Vedette</span>
                     ) : (
                       <span className="text-foreground-subtle">—</span>
                     )}

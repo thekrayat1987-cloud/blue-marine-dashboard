@@ -59,12 +59,12 @@ export default function SnapchatPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-foreground">Snapchat Ads</h1>
-            <p className="text-sm text-foreground-muted mt-0.5">Campaign performance & analytics</p>
+            <p className="text-sm text-foreground-muted mt-0.5">Performance et analyses des campagnes</p>
           </div>
           <button onClick={fetchData} disabled={loading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-muted hover:bg-surface-muted text-xs text-foreground-muted transition-colors disabled:opacity-50">
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-            Refresh
+            Actualiser
           </button>
         </div>
       </header>
@@ -73,39 +73,39 @@ export default function SnapchatPage() {
         {needsAuth ? (
           <div className="rounded-xl bg-surface border border-border p-8 text-center">
             <Ghost className="w-12 h-12 text-[#FFFC00] mx-auto mb-4" />
-            <h2 className="text-lg font-bold text-foreground mb-2">Connect Snapchat Ads</h2>
-            <p className="text-sm text-foreground-muted mb-6">Authorize access to view your Snapchat campaign data</p>
+            <h2 className="text-lg font-bold text-foreground mb-2">Connecter Snapchat Ads</h2>
+            <p className="text-sm text-foreground-muted mb-6">Autorise l&apos;accès pour voir les données de tes campagnes Snapchat</p>
             <a href="/api/auth/snapchat"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#FFFC00] text-black text-sm font-semibold hover:bg-[#e6e300] transition-colors">
               <ExternalLink className="w-4 h-4" />
-              Connect Snapchat
+              Connecter Snapchat
             </a>
           </div>
         ) : (
           <>
             {/* KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <KPICard label="Spend" value={`${(stats?.spend ?? 0).toLocaleString()} KD`} subtitle="Dépenses publicitaires" icon={DollarSign} color="text-[#FFFC00]" />
-              <KPICard label="Impressions" value={(stats?.impressions ?? 0).toLocaleString()} subtitle="Total impressions" icon={Eye} color="text-blue-400" />
-              <KPICard label="Swipe Ups" value={(stats?.swipes ?? 0).toLocaleString()} subtitle="Total swipe ups" icon={MousePointerClick} color="text-purple-400" />
+              <KPICard label="Dépenses" value={`${(stats?.spend ?? 0).toLocaleString()} KD`} subtitle="Dépenses publicitaires" icon={DollarSign} color="text-[#FFFC00]" />
+              <KPICard label="Impressions" value={(stats?.impressions ?? 0).toLocaleString()} subtitle="Total des impressions" icon={Eye} color="text-blue-400" />
+              <KPICard label="Swipe Ups" value={(stats?.swipes ?? 0).toLocaleString()} subtitle="Total des swipe ups" icon={MousePointerClick} color="text-purple-400" />
             </div>
 
             {/* Campaigns Table */}
             <div className="rounded-xl bg-surface border border-border overflow-hidden">
               <div className="px-6 py-4 border-b border-border flex items-center gap-2">
                 <Ghost className="w-4 h-4 text-[#FFFC00]" />
-                <h2 className="text-sm font-semibold text-foreground">Campaigns</h2>
-                <span className="text-xs text-foreground-subtle ml-auto">{campaigns.length} campaigns</span>
+                <h2 className="text-sm font-semibold text-foreground">Campagnes</h2>
+                <span className="text-xs text-foreground-subtle ml-auto">{campaigns.length} campagnes</span>
               </div>
               {campaigns.length > 0 ? (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-xs text-foreground-subtle border-b border-border">
-                      <th className="px-6 py-3 font-medium">Campaign</th>
-                      <th className="px-4 py-3 font-medium">Status</th>
-                      <th className="px-4 py-3 font-medium">Objective</th>
-                      <th className="px-4 py-3 font-medium text-right">Daily Budget</th>
-                      <th className="px-6 py-3 font-medium text-right">Lifetime Budget</th>
+                      <th className="px-6 py-3 font-medium">Campagne</th>
+                      <th className="px-4 py-3 font-medium">Statut</th>
+                      <th className="px-4 py-3 font-medium">Objectif</th>
+                      <th className="px-4 py-3 font-medium text-right">Budget quotidien</th>
+                      <th className="px-6 py-3 font-medium text-right">Budget total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -128,7 +128,7 @@ export default function SnapchatPage() {
                 </table>
               ) : (
                 <div className="px-6 py-8 text-center text-sm text-foreground-subtle">
-                  No campaigns yet. Create your first Snapchat campaign to see data here.
+                  Pas encore de campagnes. Crée ta première campagne Snapchat pour voir les données ici.
                 </div>
               )}
             </div>
