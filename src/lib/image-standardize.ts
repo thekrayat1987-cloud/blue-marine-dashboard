@@ -205,3 +205,127 @@ export async function standardizeFeaturedImage(
 
   return { status: "standardized", newImageUrl: target.resourceUrl };
 }
+
+/**
+ * Resize a collection's cover image to TARGET_W×TARGET_H if it isn't already.
+ * Unlike products, collections have a single image (no gallery), so the
+ * resized version replaces the original via collectionUpdate(image.src).
+ */
+export async function standardizeCollectionImage(
+  cfg: ShopifyGqlConfig,
+  collectionId: string,
+): Promise<StandardizeResult> {
+  type CollectionQuery = {
+    collection: {
+      id: string;
+      handle: string;
+      title: string;
+      image?: { url: string; width: number; height: number; altText?: string } | null;
+    } | null;
+  };
+  const data = await gql<CollectionQuery>(
+    cfg,
+    `query($id: ID!) {
+      collection(id: $id) {
+        id handle title
+        image { url width height altText }
+      }
+    }`,
+    { id: collectionId },
+  );
+  const c = data.collection;
+  if (!c) return { status: "skipped", reason: "collection not found" };
+  if (!c.image) return { status: "no-image" };
+  if (c.image.width === TARGET_W && c.image.height === TARGET_H) {
+    return { status: "skipped", reason: "already 864×1536" };
+  }
+
+  const imgRes = await fetch(c.image.url);
+  if (!imgRes.ok) throw new Error(`download ${imgRes.status}`);
+  const origBuf = Buffer.from(await imgRes.arrayBuffer());
+
+  const resized = await sharp(origBuf)
+    .resize(TARGET_W, TARGET_H, { fit: "cover", position: "centre" })
+    .flatten({ background: { r: 255, g: 255, b: 255 } })
+    .jpeg({ quality: 92, mozjpeg: true })
+    .toBuffer();
+
+  const filename = `${c.handle}-cover-864x1536.jpg`;
+
+  type StagedRes = {
+    stagedUploadsCreate: {
+      stagedTargets: Array<{
+        url: string;
+        resourceUrl: string;
+        parameters: Array<{ name: string; value: string }>;
+      }>;
+      userErrors: Array<{ field: string[]; message: string }>;
+    };
+  };
+  const staged = await gql<StagedRes>(
+    cfg,
+    `mutation($input: [StagedUploadInput!]!) {
+      stagedUploadsCreate(input: $input) {
+        stagedTargets { url resourceUrl parameters { name value } }
+        userErrors { field message }
+      }
+    }`,
+    {
+      input: [
+        {
+          resource: "IMAGE",
+          filename,
+          mimeType: "image/jpeg",
+          fileSize: String(resized.length),
+          httpMethod: "POST",
+        },
+      ],
+    },
+  );
+  if (staged.stagedUploadsCreate.userErrors.length) {
+    throw new Error(JSON.stringify(staged.stagedUploadsCreate.userErrors));
+  }
+  const target = staged.stagedUploadsCreate.stagedTargets[0];
+
+  const form = new FormData();
+  for (const par of target.parameters) form.append(par.name, par.value);
+  form.append(
+    "file",
+    new Blob([new Uint8Array(resized)], { type: "image/jpeg" }),
+    filename,
+  );
+  const upRes = await fetch(target.url, { method: "POST", body: form });
+  if (!upRes.ok && upRes.status !== 201 && upRes.status !== 204) {
+    throw new Error(`upload status ${upRes.status}`);
+  }
+
+  type UpdRes = {
+    collectionUpdate: {
+      collection: { id: string; image: { width: number; height: number } | null } | null;
+      userErrors: Array<{ field: string[]; message: string }>;
+    };
+  };
+  const upd = await gql<UpdRes>(
+    cfg,
+    `mutation($input: CollectionInput!) {
+      collectionUpdate(input: $input) {
+        collection { id image { width height } }
+        userErrors { field message }
+      }
+    }`,
+    {
+      input: {
+        id: collectionId,
+        image: {
+          src: target.resourceUrl,
+          altText: c.image.altText || c.title,
+        },
+      },
+    },
+  );
+  if (upd.collectionUpdate.userErrors.length) {
+    throw new Error(JSON.stringify(upd.collectionUpdate.userErrors));
+  }
+
+  return { status: "standardized", newImageUrl: target.resourceUrl };
+}

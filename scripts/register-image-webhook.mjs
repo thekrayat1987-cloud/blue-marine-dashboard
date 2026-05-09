@@ -34,8 +34,14 @@ if (!BASE) {
   );
   process.exit(1);
 }
-const ENDPOINT = `${BASE.replace(/\/+$/, "")}/api/webhooks/shopify/products`;
-const TOPICS = ["PRODUCTS_CREATE", "PRODUCTS_UPDATE"];
+const PRODUCT_ENDPOINT = `${BASE.replace(/\/+$/, "")}/api/webhooks/shopify/products`;
+const COLLECTION_ENDPOINT = `${BASE.replace(/\/+$/, "")}/api/webhooks/shopify/collections`;
+const SUBSCRIPTIONS = [
+  { topic: "PRODUCTS_CREATE", endpoint: PRODUCT_ENDPOINT },
+  { topic: "PRODUCTS_UPDATE", endpoint: PRODUCT_ENDPOINT },
+  { topic: "COLLECTIONS_CREATE", endpoint: COLLECTION_ENDPOINT },
+  { topic: "COLLECTIONS_UPDATE", endpoint: COLLECTION_ENDPOINT },
+];
 
 async function gql(query, variables) {
   const r = await fetch(URL, {
@@ -48,8 +54,8 @@ async function gql(query, variables) {
   return j.data;
 }
 
-console.log("Endpoint:", ENDPOINT);
-console.log("Topics  :", TOPICS.join(", "));
+console.log("Subscriptions to ensure:");
+for (const s of SUBSCRIPTIONS) console.log(`  • ${s.topic.padEnd(20)} → ${s.endpoint}`);
 
 console.log("\n1. List existing subscriptions...");
 const existing = await gql(
@@ -61,9 +67,9 @@ for (const r of rows) {
   console.log(`  • ${r.topic.padEnd(20)} → ${ep}`);
 }
 
-for (const topic of TOPICS) {
+for (const { topic, endpoint } of SUBSCRIPTIONS) {
   const dup = rows.find(
-    (r) => r.topic === topic && r.endpoint?.callbackUrl === ENDPOINT,
+    (r) => r.topic === topic && r.endpoint?.callbackUrl === endpoint,
   );
   if (dup) {
     console.log(`\n✓ ${topic} already subscribed (${dup.id})`);
@@ -78,7 +84,7 @@ for (const topic of TOPICS) {
         userErrors { field message }
       }
     }`,
-    { topic, sub: { callbackUrl: ENDPOINT, format: "JSON" } },
+    { topic, sub: { callbackUrl: endpoint, format: "JSON" } },
   );
   if (c.webhookSubscriptionCreate.userErrors.length) {
     console.log(`   ❌ ${JSON.stringify(c.webhookSubscriptionCreate.userErrors)}`);

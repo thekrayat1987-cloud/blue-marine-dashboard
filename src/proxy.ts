@@ -11,6 +11,7 @@ const PUBLIC_PATHS = new Set<string>([
   "/api/auth/meta/callback",
   "/api/auth/snapchat/callback",
   "/api/webhooks/shopify/products",
+  "/api/webhooks/shopify/collections",
 ]);
 
 export function proxy(request: NextRequest) {
