@@ -695,6 +695,40 @@ function slugify(text: string): string {
     .slice(0, 80);
 }
 
+// Variant-SKU convention: <BASE>-<COLOR?>-<SIZE>-<LENGTH>.
+// Color comes first (fashion grouping), then Size, then Length, then any other
+// option. Same ordering as scripts/refonte-variant-skus.mjs.
+function sanitizeSkuPart(value: string): string {
+  return String(value)
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^A-Z0-9_]/g, "");
+}
+
+const SKU_OPTION_PRIORITY: Record<string, number> = {
+  color: 0,
+  couleur: 0,
+  size: 1,
+  taille: 1,
+  length: 2,
+  longueur: 2,
+  "length in inch": 2,
+};
+
+export function composeVariantSku(
+  baseSku: string,
+  options: Array<{ name: string; value: string }>,
+): string {
+  const ordered = options.slice().sort((a, b) => {
+    const pa = SKU_OPTION_PRIORITY[a.name.toLowerCase()] ?? 99;
+    const pb = SKU_OPTION_PRIORITY[b.name.toLowerCase()] ?? 99;
+    return pa - pb;
+  });
+  const parts = [baseSku, ...ordered.map((o) => sanitizeSkuPart(o.value)).filter(Boolean)];
+  return parts.join("-");
+}
+
 interface StagedTarget {
   url: string;
   resourceUrl: string;
@@ -1083,22 +1117,26 @@ export async function pushProductToShopify(
     for (const size of allSizes) {
       for (const length of LENGTH_VALUES) {
         if (size === "XS" && length === firstLength) continue; // auto-created
+        const optionValues = [
+          { optionName: "Size", name: size },
+          { optionName: LENGTH_OPTION_NAME, name: length },
+          ...(params.principalColor
+            ? [
+                {
+                  optionName: "Color",
+                  name: translateColorName(params.principalColor).en,
+                },
+              ]
+            : []),
+        ];
         missingVariants.push({
-          optionValues: [
-            { optionName: "Size", name: size },
-            { optionName: LENGTH_OPTION_NAME, name: length },
-            ...(params.principalColor
-              ? [
-                  {
-                    optionName: "Color",
-                    name: translateColorName(params.principalColor).en,
-                  },
-                ]
-              : []),
-          ],
+          optionValues,
           price: params.price,
           inventoryItem: {
-            sku: params.sku,
+            sku: composeVariantSku(
+              params.sku,
+              optionValues.map((o) => ({ name: o.optionName, value: o.name })),
+            ),
             tracked: true,
             measurement: { weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" } },
           },
@@ -1131,12 +1169,24 @@ export async function pushProductToShopify(
   try {
     const variantsData = await shopifyGraphQL<{
       product: {
-        variants: { edges: Array<{ node: { id: string; inventoryItem: { id: string } } }> };
+        variants: {
+          edges: Array<{
+            node: {
+              id: string;
+              inventoryItem: { id: string };
+              selectedOptions: Array<{ name: string; value: string }>;
+            };
+          }>;
+        };
       } | null;
     }>(
       `query ProductVariants($id: ID!) {
         product(id: $id) {
-          variants(first: 100) { edges { node { id inventoryItem { id } } } }
+          variants(first: 100) { edges { node {
+            id
+            inventoryItem { id }
+            selectedOptions { name value }
+          } } }
         }
       }`,
       { id: product.id },
@@ -1159,7 +1209,7 @@ export async function pushProductToShopify(
             id: v.id,
             price: params.price,
             inventoryItem: {
-              sku: params.sku,
+              sku: composeVariantSku(params.sku, v.selectedOptions),
               tracked: true,
               measurement: {
                 weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" },
@@ -1190,13 +1240,11 @@ export async function pushProductToShopify(
             input: {
               name: "available",
               reason: "correction",
+              ignoreCompareQuantity: true,
               quantities: variantNodes.map((v) => ({
                 inventoryItemId: v.inventoryItem.id,
                 locationId: DEFAULT_LOCATION_ID,
                 quantity: initialQty,
-                // Opt out of the change-from check — we're seeding a new variant
-                // and don't have a prior quantity to compare against.
-                changeFromQuantity: null,
               })),
             },
           },
@@ -1670,15 +1718,19 @@ export async function addVariantToProduct(
   const lengthValues = lengthOption.optionValues.map((v) => v.name);
   for (const size of sizeValues) {
     for (const length of lengthValues) {
+      const optionValues = [
+        { optionName: sizeOption.name, name: size },
+        { optionName: lengthOption.name, name: length },
+        { optionName: colorOptionName, name: colorNameEn },
+      ];
       newVariants.push({
-        optionValues: [
-          { optionName: sizeOption.name, name: size },
-          { optionName: lengthOption.name, name: length },
-          { optionName: colorOptionName, name: colorNameEn },
-        ],
+        optionValues,
         price: params.price,
         inventoryItem: {
-          sku: params.sku,
+          sku: composeVariantSku(
+            params.sku,
+            optionValues.map((o) => ({ name: o.optionName, value: o.name })),
+          ),
           tracked: true,
           measurement: { weight: { value: DEFAULT_WEIGHT_KG, unit: "KILOGRAMS" } },
         },
@@ -1796,11 +1848,11 @@ export async function addVariantToProduct(
           input: {
             name: "available",
             reason: "correction",
+            ignoreCompareQuantity: true,
             quantities: newInventoryItemIds.map((id) => ({
               inventoryItemId: id,
               locationId: DEFAULT_LOCATION_ID,
               quantity: initialQty,
-              changeFromQuantity: null,
             })),
           },
         },

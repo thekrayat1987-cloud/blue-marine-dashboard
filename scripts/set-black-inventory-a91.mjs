@@ -113,11 +113,11 @@ for (let i = 0; i < blackVariants.length; i += BATCH) {
       input: {
         name: "available",
         reason: "correction",
+        ignoreCompareQuantity: true,
         quantities: slice.map((v) => ({
           inventoryItemId: v.inventoryItem.id,
           locationId: location.id,
           quantity: TARGET_QTY,
-          changeFromQuantity: null,
         })),
       },
     }
