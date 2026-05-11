@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
             pieces,
             hasShawl,
             usedNames,
+            extraInstructions: extraStr.trim() ? extraStr.trim() : undefined,
           })
         : Promise.resolve(null),
     ]);

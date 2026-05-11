@@ -555,6 +555,7 @@ export async function generateProductDescription(params: {
   hasShawl?: boolean;
   usedNames?: string[];
   colorList?: string[];
+  extraInstructions?: string;
 }): Promise<ProductDescription> {
   const ai = getClient();
   const sku = params.sku?.trim() || "AXXX";
@@ -564,6 +565,7 @@ export async function generateProductDescription(params: {
   const colorList = (params.colorList ?? [])
     .map((c) => c?.trim())
     .filter((c): c is string => Boolean(c));
+  const extraInstructions = params.extraInstructions?.trim() ?? "";
 
   const piecesArabic: Record<1 | 2 | 3 | 4 | 5, string> = { 1: "١", 2: "٢", 3: "٣", 4: "٤", 5: "٥" };
   const totalPieces = Math.min(5, pieces + (hasShawl ? 1 : 0)) as 1 | 2 | 3 | 4 | 5;
@@ -594,7 +596,24 @@ This product is offered in ${colorList.length} colors. The PRIMARY color (shown 
     ? `\n\n⚠️ FORBIDDEN GIVEN NAMES — these are the FIRST WORDS already used on other products in the catalogue. The FIRST WORD of your chosen poetic name MUST NOT match any item in this list (case-insensitive). Pick a fresh first word that does not appear here:\n${usedNames.map((n) => `- ${n}`).join("\n")}\n\nExamples of how this rule applies:\n- If "Layla" is in the list: "Layla Daraa", "Layla Caftan", "Layla Heritage" are ALL forbidden — pick a different first word.\n- If "Noor" is in the list: do NOT start the name with "Noor".\nThis rule is non-negotiable. Re-read the list before writing the title.\n`
     : "";
 
-  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, bisht, layered sets, embroidered tunics, velvet bishts).${compositionBlock}${colorsBlock}${forbiddenBlock}
+  const userOverrideBlock = extraInstructions
+    ? `\n\n# ⚠️⚠️⚠️ USER OVERRIDE INSTRUCTIONS — HIGHEST PRIORITY — READ BEFORE ANYTHING ELSE
+The store owner has provided these SPECIFIC instructions for THIS product. They OVERRIDE any conflicting default rule below (including garment identification, composition, naming hints, vocabulary defaults).
+─────────────────────────────────────────────
+"${extraInstructions}"
+─────────────────────────────────────────────
+HOW TO APPLY:
+- If the owner says "don't mention X" or "ne pas mentionner X" → the word X (and its translations) MUST NOT appear in en.title, ar.title, descriptions, pageTitle, metaDescription, tags, or urlHandle.
+- If the owner says "it's a Y" / "c'est un Y" → treat the garment as Y for ALL outputs, even if the photo could suggest otherwise. Override the garment-identification step accordingly.
+- If the owner specifies fabric/color/detail (e.g. "velvet", "silk", "hand embroidery", "olive trim") → integrate this fact in the English description AND the Arabic description AND the tags.
+- If the owner specifies an occasion ("for weddings", "for henna nights") → highlight that occasion in description and tags.
+- If the owner asks to AVOID a word → never use it, in either language.
+- The owner's instructions may be written in English, French, or Arabic — interpret them literally and apply to BOTH languages (EN + AR).
+- These instructions are non-negotiable. If they conflict with any default rule below, the user override WINS. The only exception is the SKU rule (the SKU must remain "${sku}").
+Re-read these instructions one more time before writing anything.\n`
+    : "";
+
+  const prompt = `You write product copy for Atelier Blue Marine — a Kuwait luxury atelier of Gulf / Middle-Eastern heritage womenswear (daraa, caftan, bisht, layered sets, embroidered tunics, velvet bishts).${userOverrideBlock}${compositionBlock}${colorsBlock}${forbiddenBlock}
 
 # SKU RULE — ABSOLUTE, READ FIRST
 The product SKU is exactly: ${sku}
