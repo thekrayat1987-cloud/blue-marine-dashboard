@@ -255,12 +255,53 @@ export async function generateCaptions(
     throw new Error("Aucune variante générée");
   }
 
+  // Post-process: fix BiDi rendering of phone numbers / URLs in Arabic variants
+  const fixedVariants = parsed.variants.map((v) =>
+    v.language === "ar" ? fixArabicBidi(v) : v,
+  );
+
   return {
-    variants: parsed.variants,
+    variants: fixedVariants,
     raw_usage: {
       input_tokens: message.usage.input_tokens,
       output_tokens: message.usage.output_tokens,
     },
+  };
+}
+
+// Unicode BiDi isolate characters: force enclosed text to render left-to-right
+// even inside an RTL paragraph, then pop back to surrounding direction.
+// These are invisible — they survive copy-paste into Instagram/TikTok.
+const LRI = "⁦"; // Left-to-Right Isolate
+const PDI = "⁩"; // Pop Directional Isolate
+
+function wrapLtr(s: string): string {
+  return `${LRI}${s}${PDI}`;
+}
+
+function fixBidiInString(text: string): string {
+  if (!text) return text;
+  let out = text;
+  // Phone numbers like +965 9959 2234, +965-9959-2234, +9659959 2234, 00965...
+  out = out.replace(/(\+?\d{2,4}[\s\-]?\d{2,5}[\s\-]?\d{2,5}(?:[\s\-]?\d{2,5})?)/g, (m) =>
+    wrapLtr(m),
+  );
+  // Domain / URL like bluemarineatelier.com or https://...
+  out = out.replace(
+    /\b((?:https?:\/\/)?[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s؀-ۿ]*)?)/gi,
+    (m) => wrapLtr(m),
+  );
+  return out;
+}
+
+function fixArabicBidi(v: CaptionVariant): CaptionVariant {
+  return {
+    ...v,
+    hook: fixBidiInString(v.hook),
+    body: fixBidiInString(v.body),
+    product_line: fixBidiInString(v.product_line),
+    cta: fixBidiInString(v.cta),
+    full_caption: fixBidiInString(v.full_caption),
   };
 }
 
