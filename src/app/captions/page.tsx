@@ -135,9 +135,43 @@ const occasionPresets = [
 ];
 
 const MAX_IMAGES = 5;
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = 20 * 1024 * 1024; // 20 Mo brut autorisé — l'image sera resize côté navigateur avant envoi
+const MAX_DIMENSION = 1568; // Sweet spot vision Claude
+const JPEG_QUALITY = 0.85;
 const IG_LIMIT = 2200;
 const TIKTOK_VISIBLE = 150;
+
+async function resizeImageForUpload(file: File): Promise<File> {
+  // Decode the image
+  const bitmap = await createImageBitmap(file);
+  const { width, height } = bitmap;
+  const longest = Math.max(width, height);
+  const scale = longest > MAX_DIMENSION ? MAX_DIMENSION / longest : 1;
+  const newW = Math.round(width * scale);
+  const newH = Math.round(height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = newW;
+  canvas.height = newH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    bitmap.close();
+    return file; // fallback: send original
+  }
+  ctx.drawImage(bitmap, 0, 0, newW, newH);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY),
+  );
+  if (!blob) return file;
+
+  // If resize made it heavier (rare with small originals), keep original
+  if (blob.size >= file.size && scale === 1) return file;
+
+  const safeName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+  return new File([blob], safeName, { type: "image/jpeg" });
+}
 
 export default function CaptionsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,7 +215,7 @@ export default function CaptionsPage() {
     const valid: File[] = [];
     for (const f of incoming) {
       if (f.size > MAX_BYTES) {
-        setError(`${f.name} dépasse 8 Mo — ignorée`);
+        setError(`${f.name} dépasse 20 Mo — ignorée`);
         continue;
       }
       valid.push(f);
@@ -232,8 +266,10 @@ export default function CaptionsPage() {
     setLoading(true);
     setVariants([]);
     try {
+      const resized = await Promise.all(files.map((f) => resizeImageForUpload(f)));
+
       const fd = new FormData();
-      for (const f of files) fd.append("images", f);
+      for (const f of resized) fd.append("images", f);
       fd.append("keywords", keywords.trim());
       if (occasion.trim()) fd.append("occasion", occasion.trim());
       for (const p of platforms) fd.append("platforms", p);
@@ -247,7 +283,18 @@ export default function CaptionsPage() {
         method: "POST",
         body: fd,
       });
-      const json = await res.json();
+      const text = await res.text();
+      let json: { variants?: CaptionVariant[]; usage?: { input_tokens: number; output_tokens: number }; error?: string };
+      try {
+        json = JSON.parse(text);
+      } catch {
+        if (res.status === 413 || /too large|request entity/i.test(text)) {
+          throw new Error(
+            "Photos trop lourdes pour Vercel (limite 4.5 Mo). Réduis la taille ou enlève une photo.",
+          );
+        }
+        throw new Error(`Réponse serveur invalide (${res.status}). ${text.slice(0, 100)}`);
+      }
       if (!res.ok) throw new Error(json.error ?? "Erreur de génération");
       setVariants(json.variants ?? []);
       setUsage(json.usage ?? null);
@@ -315,7 +362,7 @@ export default function CaptionsPage() {
               >
                 <Upload className="w-5 h-5" strokeWidth={1.5} />
                 <span className="text-sm">Glisse ou clique pour ajouter</span>
-                <span className="text-[10px]">JPG/PNG/WebP, max 8 Mo, jusqu&apos;à 5</span>
+                <span className="text-[10px]">JPG/PNG/WebP — compressées auto avant envoi, jusqu&apos;à 5</span>
               </button>
             ) : (
               <div className="grid grid-cols-3 gap-2">
