@@ -30,6 +30,7 @@ const navItems = [
   { href: "/analytics", label: "Analyses", icon: LineChart },
   { href: "/meta-ads", label: "Meta Ads", icon: Megaphone },
   { href: "/meta-ad-planner", label: "Meta Ad Planner", icon: Target },
+  { href: "/broadcast-planner", label: "Broadcast WhatsApp", icon: MessageCircle },
   { href: "/snapchat", label: "Snapchat Ads", icon: Ghost },
   { href: "/whatsapp", label: "WhatsApp", icon: MessageCircle },
   { href: "/product-photo", label: "Photos IA", icon: Sparkles },

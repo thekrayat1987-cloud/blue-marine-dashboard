@@ -7,3 +7,7 @@ export const USD_TO_KD = RATE;
 export function usdToKd(usd: number): number {
   return usd * RATE;
 }
+
+export function kdToUsd(kd: number): number {
+  return kd / RATE;
+}

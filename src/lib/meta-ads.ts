@@ -134,7 +134,9 @@ export interface MetaAdAccountInsights {
   roas: number;
 }
 
-export async function getAdAccountInsights(): Promise<MetaAdAccountInsights> {
+export async function getAdAccountInsights(
+  datePreset: string = "this_year",
+): Promise<MetaAdAccountInsights> {
   const data = await metaFetch<{
     data: Array<{
       spend: string;
@@ -148,7 +150,7 @@ export async function getAdAccountInsights(): Promise<MetaAdAccountInsights> {
     }>;
   }>(`${META_AD_ACCOUNT_ID}/insights`, {
     fields: "spend,impressions,clicks,cpc,cpm,ctr,actions,action_values",
-    date_preset: "this_year",
+    date_preset: datePreset,
   });
 
   if (!data.data.length) {
