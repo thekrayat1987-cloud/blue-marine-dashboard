@@ -10,14 +10,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const plan = body.plan as AdPlan | undefined;
-    const selectedProduct = (body.selectedProduct ?? null) as SelectedProduct | null;
+    const selectedProducts = Array.isArray(body.selectedProducts)
+      ? (body.selectedProducts as SelectedProduct[])
+      : body.selectedProduct
+        ? [body.selectedProduct as SelectedProduct]
+        : [];
     const planHistoryId = body.planHistoryId as string | undefined;
 
     if (!plan || !plan.campaign || !plan.adSets?.length || !plan.adVariants?.length) {
       return Response.json({ error: "Plan invalide ou incomplet" }, { status: 400 });
     }
 
-    const result = await pushPlanToMeta(plan, selectedProduct);
+    const result = await pushPlanToMeta(plan, selectedProducts);
 
     if (planHistoryId) {
       try {

@@ -106,9 +106,25 @@ export type PushResult = {
   warnings: string[];
 };
 
+async function uploadAdImage(
+  adAccount: string,
+  url: string,
+): Promise<string | null> {
+  try {
+    const imgRes = await metaFetch<{ images: Record<string, { hash: string }> }>(
+      `${adAccount}/adimages`,
+      { url },
+    );
+    const firstKey = Object.keys(imgRes.images)[0];
+    return imgRes.images[firstKey]?.hash ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function pushPlanToMeta(
   plan: AdPlan,
-  selectedProduct: SelectedProduct | null,
+  selectedProducts: SelectedProduct[],
 ): Promise<PushResult> {
   if (!META_ACCESS_TOKEN || !META_AD_ACCOUNT_ID) {
     throw new Error("Variables Meta manquantes (META_ACCESS_TOKEN, META_AD_ACCOUNT_ID)");
@@ -183,25 +199,43 @@ export async function pushPlanToMeta(
     "Audiences (intérêts détaillés) NON poussées — Meta API exige les IDs Meta de chaque intérêt. Ajoute-les à la main dans Ads Manager après vérification.",
   );
 
-  // ─── 3. IMAGE UPLOAD (from Shopify product URL) ────────────
-  let imageHash: string | null = null;
-  if (selectedProduct?.imageUrl) {
-    try {
-      const imgRes = await metaFetch<{ images: Record<string, { hash: string }> }>(
-        `${adAccount}/adimages`,
-        { url: selectedProduct.imageUrl },
-      );
-      const firstKey = Object.keys(imgRes.images)[0];
-      imageHash = imgRes.images[firstKey]?.hash ?? null;
-    } catch (err) {
+  // ─── 3. IMAGE UPLOAD(S) ───────────────────────────────────
+  const isCarousel =
+    plan.format === "carousel" &&
+    Array.isArray(plan.carouselCards) &&
+    plan.carouselCards.length >= 2;
+
+  // Single mode: 1 hash for the primary product image.
+  // Carousel mode: 1 hash per carousel card (parallel uploads).
+  let singleImageHash: string | null = null;
+  const carouselHashes: Array<string | null> = [];
+
+  if (isCarousel) {
+    const cards = plan.carouselCards!;
+    const uploads = await Promise.all(
+      cards.map((c) => (c.imageUrl ? uploadAdImage(adAccount, c.imageUrl) : Promise.resolve(null))),
+    );
+    carouselHashes.push(...uploads);
+    const missing = carouselHashes.filter((h) => h === null).length;
+    if (missing > 0) {
       warnings.push(
-        `Upload image échoué (${err instanceof Error ? err.message : "?"}) — les ads sont créés sans visuel. Ajoute l'image manuellement.`,
+        `${missing}/${cards.length} image(s) carousel n'ont pas pu être uploadées — Meta refusera ces cartes. Ajoute-les à la main dans Ads Manager.`,
       );
     }
   } else {
-    warnings.push(
-      "Aucun produit Shopify sélectionné — les ads sont créés sans visuel. Ajoute l'image manuellement dans Ads Manager.",
-    );
+    const primaryImageUrl = selectedProducts[0]?.imageUrl ?? null;
+    if (primaryImageUrl) {
+      singleImageHash = await uploadAdImage(adAccount, primaryImageUrl);
+      if (!singleImageHash) {
+        warnings.push(
+          "Upload image échoué — les ads sont créés sans visuel. Ajoute l'image manuellement.",
+        );
+      }
+    } else {
+      warnings.push(
+        "Aucun produit Shopify sélectionné — les ads sont créés sans visuel. Ajoute l'image manuellement dans Ads Manager.",
+      );
+    }
   }
 
   // ─── 4. ADS (3 variants A/B/C) ─────────────────────────────
@@ -219,7 +253,36 @@ export async function pushPlanToMeta(
           value: { link: variant.destinationUrl },
         },
       };
-      if (imageHash) linkData.image_hash = imageHash;
+
+      if (isCarousel) {
+        const cards = plan.carouselCards!;
+        const childAttachments = cards
+          .map((card, idx) => {
+            const hash = carouselHashes[idx];
+            if (!hash) return null;
+            return {
+              link: card.destinationUrl || variant.destinationUrl,
+              name: card.headline?.ar?.slice(0, 40) ?? card.productTitle.slice(0, 40),
+              description: card.description?.ar?.slice(0, 30) ?? "",
+              image_hash: hash,
+              call_to_action: {
+                type: ctaType,
+                value: { link: card.destinationUrl || variant.destinationUrl },
+              },
+            };
+          })
+          .filter((a): a is NonNullable<typeof a> => a !== null);
+
+        if (childAttachments.length >= 2) {
+          linkData.child_attachments = childAttachments;
+          linkData.multi_share_optimized = true;
+          linkData.multi_share_end_card = true;
+        } else if (singleImageHash) {
+          linkData.image_hash = singleImageHash;
+        }
+      } else if (singleImageHash) {
+        linkData.image_hash = singleImageHash;
+      }
 
       const creativeRes = await metaFetch<{ id: string }>(
         `${adAccount}/adcreatives`,

@@ -48,7 +48,19 @@ type AdPlanCountry =
   | "Bahrain"
   | "Oman";
 
+type CarouselCard = {
+  productId: string;
+  productTitle: string;
+  productHandle: string;
+  imageUrl: string | null;
+  headline: { ar: string; fr: string };
+  description: { ar: string; fr: string };
+  destinationUrl: string;
+};
+
 type AdPlan = {
+  format?: "single_image" | "carousel";
+  carouselCards?: CarouselCard[] | null;
   strategy: {
     summary: string;
     recommendedDailyBudgetKwd: number;
@@ -169,7 +181,8 @@ const briefPresets = [
 
 export default function MetaAdPlannerPage() {
   const [brief, setBrief] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<ShopifyProductLite | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<ShopifyProductLite[]>([]);
+  const MAX_PRODUCTS = 3;
   const [productSearch, setProductSearch] = useState("");
   const [productResults, setProductResults] = useState<ShopifyProductLite[]>([]);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
@@ -205,7 +218,7 @@ export default function MetaAdPlannerPage() {
 
   // Debounced product search
   useEffect(() => {
-    if (selectedProduct) return;
+    if (selectedProducts.length >= MAX_PRODUCTS) return;
     const handle = setTimeout(() => {
       const q = productSearch.trim();
       setProductSearchLoading(true);
@@ -216,7 +229,7 @@ export default function MetaAdPlannerPage() {
         .finally(() => setProductSearchLoading(false));
     }, 250);
     return () => clearTimeout(handle);
-  }, [productSearch, selectedProduct]);
+  }, [productSearch, selectedProducts.length]);
 
   async function handleGenerate() {
     setError(null);
@@ -234,7 +247,7 @@ export default function MetaAdPlannerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           brief: brief.trim(),
-          selectedProduct: selectedProduct ?? undefined,
+          selectedProducts: selectedProducts.length > 0 ? selectedProducts : undefined,
           budgetKwd: budgetKwd ? Number(budgetKwd) : undefined,
           durationDays: durationDays ? Number(durationDays) : undefined,
           primaryCountry: primaryCountry || undefined,
@@ -306,7 +319,7 @@ export default function MetaAdPlannerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan,
-          selectedProduct: selectedProduct ?? null,
+          selectedProducts,
         }),
       });
       const json = await res.json();
@@ -389,38 +402,50 @@ export default function MetaAdPlannerPage() {
 
             <div>
               <label className="block text-xs font-medium text-foreground-muted uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <Package className="w-3 h-3" /> Produit Shopify (optionnel)
+                <Package className="w-3 h-3" /> Produit Shopify (1 = single, 2-3 = carousel)
               </label>
-              {selectedProduct ? (
-                <div className="flex items-center gap-3 p-2.5 bg-accent-soft border border-accent/30 rounded-lg">
-                  {selectedProduct.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={selectedProduct.imageUrl}
-                      alt=""
-                      className="w-12 h-12 rounded-md object-cover shrink-0"
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {selectedProduct.title}
-                    </p>
-                    <p className="text-[11px] text-foreground-muted truncate">
-                      /products/{selectedProduct.handle}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedProduct(null);
-                      setProductSearch("");
-                    }}
-                    className="text-foreground-muted hover:text-danger p-1"
-                    aria-label="Retirer le produit"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+              {selectedProducts.length > 0 && (
+                <div className="space-y-1.5 mb-2">
+                  {selectedProducts.map((p, idx) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-3 p-2.5 bg-accent-soft border border-accent/30 rounded-lg"
+                    >
+                      {p.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.imageUrl}
+                          alt=""
+                          className="w-10 h-10 rounded-md object-cover shrink-0"
+                        />
+                      )}
+                      <span className="text-[10px] text-accent font-medium shrink-0 w-5 text-center">
+                        {idx + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {p.title}
+                        </p>
+                        <p className="text-[11px] text-foreground-muted truncate">
+                          /products/{p.handle}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() =>
+                          setSelectedProducts((prev) =>
+                            prev.filter((x) => x.id !== p.id),
+                          )
+                        }
+                        className="text-foreground-muted hover:text-danger p-1"
+                        aria-label="Retirer le produit"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ) : (
+              )}
+              {selectedProducts.length < MAX_PRODUCTS && (
                 <div className="relative">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle pointer-events-none" />
@@ -431,7 +456,11 @@ export default function MetaAdPlannerPage() {
                       onBlur={() =>
                         setTimeout(() => setProductSearchOpen(false), 150)
                       }
-                      placeholder="Chercher un produit (ex: Khairan, bisht…)"
+                      placeholder={
+                        selectedProducts.length === 0
+                          ? "Chercher un produit (ex: Khairan, bisht…)"
+                          : `Ajouter un ${selectedProducts.length === 1 ? "2ᵉ" : "3ᵉ"} produit pour passer en carousel`
+                      }
                       className="w-full pl-8 pr-3 py-2 text-sm bg-surface-muted border border-border rounded-lg focus:outline-none focus:border-accent"
                     />
                   </div>
@@ -449,41 +478,53 @@ export default function MetaAdPlannerPage() {
                         </div>
                       )}
                       {!productSearchLoading &&
-                        productResults.map((p) => (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => {
-                              setSelectedProduct(p);
-                              setProductSearchOpen(false);
-                              setProductSearch("");
-                            }}
-                            className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-surface-muted text-left border-b border-border last:border-0"
-                          >
-                            {p.imageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={p.imageUrl}
-                                alt=""
-                                className="w-8 h-8 rounded object-cover shrink-0"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded bg-surface-muted shrink-0" />
-                            )}
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-medium text-foreground truncate">
-                                {p.title}
-                              </p>
-                              <p className="text-[10px] text-foreground-subtle truncate">
-                                /products/{p.handle}
-                              </p>
-                            </div>
-                          </button>
-                        ))}
+                        productResults
+                          .filter(
+                            (r) => !selectedProducts.some((s) => s.id === r.id),
+                          )
+                          .map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setSelectedProducts((prev) =>
+                                  prev.length < MAX_PRODUCTS ? [...prev, p] : prev,
+                                );
+                                setProductSearchOpen(false);
+                                setProductSearch("");
+                              }}
+                              className="w-full flex items-center gap-2.5 px-2.5 py-2 hover:bg-surface-muted text-left border-b border-border last:border-0"
+                            >
+                              {p.imageUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={p.imageUrl}
+                                  alt=""
+                                  className="w-8 h-8 rounded object-cover shrink-0"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded bg-surface-muted shrink-0" />
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-medium text-foreground truncate">
+                                  {p.title}
+                                </p>
+                                <p className="text-[10px] text-foreground-subtle truncate">
+                                  /products/{p.handle}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
                     </div>
                   )}
                 </div>
+              )}
+              {selectedProducts.length >= 2 && (
+                <p className="text-[11px] text-accent mt-1.5 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  Mode carousel — 1 annonce avec {selectedProducts.length} cartes glissantes
+                </p>
               )}
             </div>
 
@@ -1024,6 +1065,58 @@ function PlanView({ plan }: { plan: AdPlan }) {
         </section>
       ))}
 
+      {/* Carousel cards (mode carousel uniquement) */}
+      {plan.format === "carousel" &&
+        Array.isArray(plan.carouselCards) &&
+        plan.carouselCards.length >= 2 && (
+          <section className="bg-surface border border-border rounded-2xl p-5">
+            <h2 className="font-display text-lg font-semibold mb-1 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-accent" strokeWidth={1.75} />
+              Cartes du carousel ({plan.carouselCards.length} produits)
+            </h2>
+            <p className="text-xs text-foreground-muted mb-4">
+              Chaque carte = 1 produit. L&apos;utilisateur swipe à droite pour les voir. Les
+              variantes A/B/C ci-dessous ne changent QUE le texte principal au-dessus du carousel.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {plan.carouselCards.map((card, i) => (
+                <div
+                  key={card.productId ?? i}
+                  className="border border-border rounded-xl overflow-hidden bg-surface-muted/40"
+                >
+                  {card.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={card.imageUrl}
+                      alt={card.productTitle}
+                      className="w-full aspect-square object-cover"
+                    />
+                  ) : (
+                    <div className="w-full aspect-square bg-surface-muted" />
+                  )}
+                  <div className="p-3 space-y-1.5">
+                    <p className="text-[10px] uppercase tracking-wider text-foreground-subtle">
+                      Carte {i + 1}
+                    </p>
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {card.productTitle}
+                    </p>
+                    <p className="text-xs text-foreground" dir="rtl">
+                      {card.headline?.ar}
+                    </p>
+                    <p className="text-[11px] text-foreground-muted italic">
+                      {card.headline?.fr}
+                    </p>
+                    <p className="text-[10px] text-foreground-subtle truncate">
+                      /products/{card.productHandle}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
       {/* Ad Variants */}
       <section className="bg-surface border border-border rounded-2xl p-5">
         <h2 className="font-display text-lg font-semibold mb-1 flex items-center gap-2">
@@ -1031,7 +1124,9 @@ function PlanView({ plan }: { plan: AdPlan }) {
           3 variantes d&apos;annonces (A / B / C)
         </h2>
         <p className="text-xs text-foreground-muted mb-4">
-          Lance les 3 en même temps dans le même ad set — Meta optimise vers la meilleure.
+          {plan.format === "carousel"
+            ? "Mêmes cartes carousel pour les 3, seul le texte principal change. Lance les 3 dans le même ad set."
+            : "Lance les 3 en même temps dans le même ad set — Meta optimise vers la meilleure."}
         </p>
         <div className="space-y-4">
           {plan.adVariants.map((v, i) => (

@@ -33,12 +33,28 @@ type ParsedBody = {
   brief: string;
   productUrl?: string;
   selectedProduct?: SelectedProduct;
+  selectedProducts?: SelectedProduct[];
   budgetKwd?: number;
   durationDays?: number;
   primaryCountry?: AdPlanCountry;
   objectiveHint: CampaignObjective | "AUTO";
   regenerateNote?: string;
 };
+
+function parseSelectedProduct(raw: unknown): SelectedProduct | null {
+  if (!raw || typeof raw !== "object") return null;
+  const sp = raw as Record<string, unknown>;
+  if (!sp.id || !sp.title || !sp.handle) return null;
+  return {
+    id: String(sp.id),
+    title: String(sp.title),
+    handle: String(sp.handle),
+    imageUrl: sp.imageUrl ? String(sp.imageUrl) : null,
+    options: Array.isArray(sp.options)
+      ? (sp.options as SelectedProduct["options"])
+      : [],
+  };
+}
 
 function parseBody(body: Record<string, unknown>): ParsedBody | { error: string } {
   const brief = String(body.brief ?? "").trim();
@@ -69,26 +85,22 @@ function parseBody(body: Record<string, unknown>): ParsedBody | { error: string 
 
   const regenerateNote = String(body.regenerateNote ?? "").trim() || undefined;
 
-  let selectedProduct: SelectedProduct | undefined;
-  if (body.selectedProduct && typeof body.selectedProduct === "object") {
-    const sp = body.selectedProduct as Record<string, unknown>;
-    if (sp.id && sp.title && sp.handle) {
-      selectedProduct = {
-        id: String(sp.id),
-        title: String(sp.title),
-        handle: String(sp.handle),
-        imageUrl: sp.imageUrl ? String(sp.imageUrl) : null,
-        options: Array.isArray(sp.options)
-          ? (sp.options as SelectedProduct["options"])
-          : [],
-      };
-    }
+  let selectedProducts: SelectedProduct[] | undefined;
+  if (Array.isArray(body.selectedProducts)) {
+    const arr = body.selectedProducts
+      .map(parseSelectedProduct)
+      .filter((p): p is SelectedProduct => p !== null)
+      .slice(0, 3);
+    if (arr.length > 0) selectedProducts = arr;
   }
+
+  const selectedProduct = parseSelectedProduct(body.selectedProduct) ?? undefined;
 
   return {
     brief,
     productUrl,
     selectedProduct,
+    selectedProducts,
     budgetKwd,
     durationDays,
     primaryCountry,

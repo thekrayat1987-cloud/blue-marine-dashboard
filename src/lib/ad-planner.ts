@@ -43,6 +43,7 @@ export type GeneratePlanInput = {
   brief: string;
   productUrl?: string;
   selectedProduct?: SelectedProduct;
+  selectedProducts?: SelectedProduct[];
   budgetKwd?: number;
   durationDays?: number;
   primaryCountry?: AdPlanCountry;
@@ -50,7 +51,19 @@ export type GeneratePlanInput = {
   regenerateNote?: string;
 };
 
+export type CarouselCard = {
+  productId: string;
+  productTitle: string;
+  productHandle: string;
+  imageUrl: string | null;
+  headline: { ar: string; fr: string };
+  description: { ar: string; fr: string };
+  destinationUrl: string;
+};
+
 export type AdPlan = {
+  format: "single_image" | "carousel";
+  carouselCards?: CarouselCard[];
   strategy: {
     summary: string;
     recommendedDailyBudgetKwd: number;
@@ -182,6 +195,15 @@ Construis 1 SEUL ad set (sauf si brief multi-segment) avec audience BROAD intell
 Par défaut **Advantage+ placements** (Meta optimise) — mais si le brief mentionne "Reels" ou "Stories" spécifiquement, force ces placements.
 Placements à lister textuellement : Facebook Feed, Instagram Feed, Instagram Stories, Instagram Reels, Facebook Stories, Facebook Reels
 
+## FORMAT — SINGLE IMAGE vs CAROUSEL
+- Si **1 seul produit** sélectionné → format = "single_image", PAS de carouselCards (omet le champ ou null)
+- Si **2 ou 3 produits** sélectionnés → format = "carousel" :
+   - Génère un tableau \`carouselCards\` (1 carte par produit, MÊME ORDRE que les produits fournis)
+   - Chaque carte = mini-pitch dédié à CE produit (headline AR+FR ≤40c, description AR+FR ≤30c, destinationUrl avec slug du produit + UTM)
+   - Le visuel de chaque carte = imageUrl du produit Shopify
+   - Les 3 ad variants A/B/C ne changent QUE le primary text au-dessus du carousel (le storytelling commun aux 3 produits) — les cartes restent identiques entre variants
+   - Le destinationUrl AU NIVEAU adVariant doit pointer vers la collection/page d'atterrissage commune si elle existe, sinon vers le 1er produit
+
 ## 3 VARIANTES D'ANNONCES — STRATÉGIE ANGLES
 Génère TOUJOURS 3 ad variants A/B/C avec angles différents :
 - **A — EMOTIONAL/STORYTELLING** : "Pour le moment où elle te regardera et saura"
@@ -204,6 +226,8 @@ Chaque variant doit avoir :
 
 ## FORMAT DE SORTIE — STRICT JSON UNIQUEMENT (aucun texte hors JSON)
 {
+  "format": "single_image",
+  "carouselCards": null,
   "strategy": {
     "summary": "<2-3 phrases sur l'approche globale et la logique stratégique>",
     "recommendedDailyBudgetKwd": 5,
@@ -281,6 +305,28 @@ Chaque variant doit avoir :
   ]
 }
 
+## EXEMPLE MODE CAROUSEL (2-3 produits) — diffère uniquement par format + carouselCards
+{
+  "format": "carousel",
+  "carouselCards": [
+    {
+      "productId": "<id Shopify produit 1>",
+      "productTitle": "<titre produit 1>",
+      "productHandle": "<handle produit 1>",
+      "imageUrl": "<image hero produit 1>",
+      "headline": { "ar": "<≤40 char dédié produit 1>", "fr": "<≤40 char>" },
+      "description": { "ar": "<≤30 char>", "fr": "<≤30 char>" },
+      "destinationUrl": "https://bluemarineatelier.com/products/<handle 1>?utm_source=facebook&utm_medium=paid_social&utm_campaign=<campaign_snake>&utm_content=carousel_card_1"
+    },
+    { "productId": "...produit 2..." },
+    { "productId": "...produit 3..." }
+  ],
+  "strategy": "...",
+  "campaign": "...",
+  "adSets": "...",
+  "adVariants": "... — 3 variants A/B/C qui ne changent QUE le primary text + headline du dessus, pas les cartes"
+}
+
 ## RÈGLES DE QUALITÉ ABSOLUES
 1. Si le brief mentionne WhatsApp → recommande **OUTCOME_ENGAGEMENT** avec optim "Conversations" + CTA "MESSAGE_PAGE"
 2. Tous les CTA URL doivent contenir l'UTM complet Blue Marine
@@ -318,9 +364,17 @@ function buildUserMessage(
     );
   }
 
-  if (input.selectedProduct) {
-    const p = input.selectedProduct;
+  const products =
+    input.selectedProducts && input.selectedProducts.length > 0
+      ? input.selectedProducts
+      : input.selectedProduct
+        ? [input.selectedProduct]
+        : [];
+
+  if (products.length === 1) {
+    const p = products[0];
     lines.push("\n## Produit Shopify sélectionné (données réelles à utiliser)");
+    lines.push(`- ID : ${p.id}`);
     lines.push(`- Titre : ${p.title}`);
     lines.push(`- Handle (slug URL) : ${p.handle}`);
     lines.push(`- URL canonique : https://bluemarineatelier.com/products/${p.handle}`);
@@ -332,7 +386,22 @@ function buildUserMessage(
     if (sizeOpt) lines.push(`- Tailles : ${sizeOpt.values.join(", ")}`);
     if (lengthOpt) lines.push(`- Longueurs : ${lengthOpt.values.join(", ")}`);
     lines.push(
-      "Utilise impérativement ce slug pour construire les destinationUrl. Mentionne les couleurs/tailles/longueurs dans le copy si pertinent.",
+      "Utilise impérativement ce slug pour construire les destinationUrl. format = \"single_image\". carouselCards = null.",
+    );
+  } else if (products.length >= 2) {
+    lines.push(
+      `\n## ${products.length} produits Shopify sélectionnés (mode CAROUSEL — 1 ad, 1 carte par produit, MÊME ORDRE)`,
+    );
+    products.forEach((p, i) => {
+      lines.push(`\n### Produit ${i + 1}`);
+      lines.push(`- ID : ${p.id}`);
+      lines.push(`- Titre : ${p.title}`);
+      lines.push(`- Handle : ${p.handle}`);
+      lines.push(`- URL : https://bluemarineatelier.com/products/${p.handle}`);
+      if (p.imageUrl) lines.push(`- Image hero : ${p.imageUrl}`);
+    });
+    lines.push(
+      `\nGénère format = "carousel" et un tableau carouselCards de ${products.length} cartes dans le MÊME ORDRE que les produits ci-dessus. Chaque carte = headline+description+destinationUrl spécifiques à CE produit. Les 3 ad variants A/B/C ne changent QUE le primary text au-dessus du carousel.`,
     );
   }
 
