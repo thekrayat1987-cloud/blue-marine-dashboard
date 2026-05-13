@@ -592,7 +592,7 @@ export default function MetaAdPlannerPage() {
         </div>
 
         {/* RIGHT — Plan */}
-        <div className="space-y-5">
+        <div className="space-y-5 max-w-2xl">
           {loading && (
             <div className="bg-surface border border-border rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
