@@ -21,8 +21,17 @@ import {
   Pencil,
   Save,
   X,
+  AlertTriangle,
+  ShieldCheck,
+  BookmarkPlus,
+  FolderOpen,
+  Trash2,
 } from "lucide-react";
 import { contentCalendar, reelsIdeas } from "@/data/dashboardData";
+import {
+  validateContent,
+  type ValidationResult,
+} from "@/lib/brand-voice-validator";
 
 const dayLabels: Record<string, string> = {
   monday: "Lundi",
@@ -91,6 +100,19 @@ type Entry = {
   notes?: string | null;
 };
 
+type Template = {
+  id: string;
+  name: string;
+  post_type: string;
+  topic: string;
+  caption: string;
+  hashtags: string;
+  preset: Preset;
+  performance_note: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 function getMondayOf(date: Date): Date {
   const d = new Date(date);
   const dow = d.getDay();
@@ -139,6 +161,13 @@ export default function ContentPage() {
   const [draftCaption, setDraftCaption] = useState("");
   const [draftHashtags, setDraftHashtags] = useState("");
   const [draftNotes, setDraftNotes] = useState("");
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState<string | null>(null);
+  const [templateName, setTemplateName] = useState("");
+  const [templatePerf, setTemplatePerf] = useState("");
+  const [openIssuesKey, setOpenIssuesKey] = useState<string | null>(null);
 
   const todayKey = useMemo(() => getTodayKey(), []);
   const weekIso = useMemo(() => toIsoDate(weekStart), [weekStart]);
@@ -176,6 +205,19 @@ export default function ContentPage() {
     return () => { cancelled = true; };
   }, [weekIso]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/content/templates", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json) => {
+        if (cancelled) return;
+        if (Array.isArray(json.templates)) setTemplates(json.templates);
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setTemplatesLoaded(true); });
+    return () => { cancelled = true; };
+  }, []);
+
   async function patchSlot(dayKey: string, time: string, body: Partial<Entry>) {
     const res = await fetch("/api/content/status", {
       method: "PATCH",
@@ -187,11 +229,26 @@ export default function ContentPage() {
     return json.entry as Entry;
   }
 
-  async function cycleStatus(dayKey: string, time: string) {
+  async function cycleStatus(dayKey: string, time: string, template: SlotTemplate) {
     const key = `${dayKey}|${time}`;
     if (pending[key]) return;
     const current: Status = entries[key]?.status ?? "draft";
     const target = nextStatus(current);
+
+    // Block draft → ready if validation has errors. Warnings are allowed.
+    if (current === "draft" && target === "ready") {
+      const entry = entries[key];
+      const caption = entry?.custom_caption ?? template.caption;
+      const hashtags = entry?.custom_hashtags ?? template.hashtags;
+      const v = validateContent({ caption, hashtags });
+      if (!v.ok) {
+        setOpenIssuesKey(key);
+        setError(
+          `Impossible de passer en « Prêt » : ${v.errors.length} problème${v.errors.length > 1 ? "s" : ""} de voix de marque à corriger d'abord.`,
+        );
+        return;
+      }
+    }
 
     setPending((p) => ({ ...p, [key]: true }));
     setEntries((prev) => {
@@ -255,6 +312,56 @@ export default function ContentPage() {
     }
   }
 
+  function loadTemplateIntoDraft(t: Template) {
+    setDraftCaption(t.caption);
+    setDraftHashtags(t.hashtags);
+  }
+
+  async function saveAsTemplate(template: SlotTemplate) {
+    const name = templateName.trim();
+    if (!name) {
+      setError("Donne un nom au template avant de l'enregistrer");
+      return;
+    }
+    setSavingTemplate(template.time);
+    try {
+      const res = await fetch("/api/content/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          post_type: template.type,
+          topic: template.topic,
+          caption: draftCaption || template.caption,
+          hashtags: draftHashtags || template.hashtags,
+          preset: template.preset,
+          performance_note: templatePerf.trim() || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Échec sauvegarde template");
+      setTemplates((prev) => [json.template as Template, ...prev]);
+      setTemplateName("");
+      setTemplatePerf("");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSavingTemplate(null);
+    }
+  }
+
+  async function deleteTemplate(id: string) {
+    const prev = templates;
+    setTemplates((list) => list.filter((t) => t.id !== id));
+    try {
+      const res = await fetch(`/api/content/templates?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Suppression échouée");
+    } catch (e) {
+      setError((e as Error).message);
+      setTemplates(prev);
+    }
+  }
+
   function shiftWeek(deltaDays: number) {
     setWeekStart((d) => {
       const n = new Date(d);
@@ -296,6 +403,21 @@ export default function ContentPage() {
                 Cette semaine
               </button>
             )}
+            <button
+              onClick={() => setShowTemplates((v) => !v)}
+              className={`text-xs px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 transition-colors ${
+                showTemplates
+                  ? "border-accent bg-accent/15 text-accent"
+                  : "border-border bg-surface text-foreground-muted hover:bg-white/5"
+              }`}
+              title="Bibliothèque de templates"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              Templates
+              {templatesLoaded && (
+                <span className="text-[10px] font-mono">({templates.length})</span>
+              )}
+            </button>
           </div>
         </div>
         {error && (
@@ -365,6 +487,11 @@ export default function ContentPage() {
                       const isEditing = editingKey === key;
                       const captionText = entry?.custom_caption || post.caption;
                       const hashtagsText = entry?.custom_hashtags || post.hashtags;
+                      const validation: ValidationResult = validateContent({
+                        caption: isEditing ? draftCaption : captionText,
+                        hashtags: isEditing ? draftHashtags : hashtagsText,
+                      });
+                      const issuesOpen = openIssuesKey === key;
                       return (
                         <div key={post.time} className="px-5 py-4">
                           <div className="flex flex-col md:flex-row md:items-start gap-4">
@@ -397,9 +524,34 @@ export default function ContentPage() {
                                 </>
                               )}
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
                               {!isEditing && (
                                 <>
+                                  <button
+                                    onClick={() => setOpenIssuesKey(issuesOpen ? null : key)}
+                                    className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors ${
+                                      validation.errors.length > 0
+                                        ? "border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20"
+                                        : validation.warnings.length > 0
+                                        ? "border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+                                        : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                                    }`}
+                                    title="Voix de marque"
+                                  >
+                                    {validation.errors.length > 0 ? (
+                                      <AlertTriangle className="w-3 h-3" />
+                                    ) : validation.warnings.length > 0 ? (
+                                      <AlertTriangle className="w-3 h-3" />
+                                    ) : (
+                                      <ShieldCheck className="w-3 h-3" />
+                                    )}
+                                    {validation.errors.length > 0
+                                      ? `${validation.errors.length} erreur${validation.errors.length > 1 ? "s" : ""}`
+                                      : validation.warnings.length > 0
+                                      ? `${validation.warnings.length} avert.`
+                                      : `Voix OK`}
+                                    <span className="ml-0.5 opacity-70 font-mono">{validation.score}</span>
+                                  </button>
                                   <Link
                                     href={`/product-photo?preset=${post.preset}`}
                                     className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition-colors"
@@ -417,7 +569,7 @@ export default function ContentPage() {
                                     Modifier
                                   </button>
                                   <button
-                                    onClick={() => cycleStatus(day.dayKey, post.time)}
+                                    onClick={() => cycleStatus(day.dayKey, post.time, post)}
                                     disabled={isPending || loading}
                                     className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1.5 rounded-full border transition-colors hover:opacity-80 disabled:opacity-50 ${styles.cls}`}
                                     title="Clique pour changer le statut"
@@ -430,8 +582,102 @@ export default function ContentPage() {
                             </div>
                           </div>
 
+                          {issuesOpen && !isEditing && (validation.errors.length > 0 || validation.warnings.length > 0) && (
+                            <div className="mt-3 ml-0 md:ml-[152px] rounded-lg border border-border bg-background/40 p-3 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <p className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">
+                                  Détail voix de marque · score {validation.score}/100
+                                </p>
+                                <button
+                                  onClick={() => setOpenIssuesKey(null)}
+                                  className="text-foreground-subtle hover:text-foreground"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                              {validation.errors.map((v) => (
+                                <div key={v.code} className="text-xs flex gap-2 items-start">
+                                  <span className="mt-0.5 text-red-400">●</span>
+                                  <div>
+                                    <p className="text-red-300 font-medium">{v.message}</p>
+                                    {v.suggestion && (
+                                      <p className="text-foreground-muted text-[11px] mt-0.5">→ {v.suggestion}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              {validation.warnings.map((v) => (
+                                <div key={v.code} className="text-xs flex gap-2 items-start">
+                                  <span className="mt-0.5 text-amber-400">●</span>
+                                  <div>
+                                    <p className="text-amber-300 font-medium">{v.message}</p>
+                                    {v.suggestion && (
+                                      <p className="text-foreground-muted text-[11px] mt-0.5">→ {v.suggestion}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              <button
+                                onClick={() => startEdit(key, post)}
+                                className="text-[10px] font-semibold px-2.5 py-1.5 rounded border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 mt-1"
+                              >
+                                Corriger maintenant
+                              </button>
+                            </div>
+                          )}
+
                           {isEditing && (
                             <div className="mt-3 ml-0 md:ml-[152px] space-y-2 rounded-lg border border-border bg-background/40 p-3">
+                              {templates.filter((t) => t.post_type === post.type).length > 0 && (
+                                <div>
+                                  <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">
+                                    Charger un template gagnant
+                                  </label>
+                                  <select
+                                    onChange={(e) => {
+                                      const tpl = templates.find((t) => t.id === e.target.value);
+                                      if (tpl) loadTemplateIntoDraft(tpl);
+                                      e.target.value = "";
+                                    }}
+                                    defaultValue=""
+                                    className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-accent"
+                                  >
+                                    <option value="">— Choisir un template {post.type} —</option>
+                                    {templates
+                                      .filter((t) => t.post_type === post.type)
+                                      .map((t) => (
+                                        <option key={t.id} value={t.id}>
+                                          {t.name}
+                                          {t.performance_note ? ` · ${t.performance_note}` : ""}
+                                        </option>
+                                      ))}
+                                  </select>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const v = validateContent({ caption: draftCaption, hashtags: draftHashtags });
+                                  const cls = v.errors.length > 0
+                                    ? "border-red-500/40 bg-red-500/10 text-red-300"
+                                    : v.warnings.length > 0
+                                    ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                                    : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300";
+                                  return (
+                                    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border ${cls}`}>
+                                      {v.errors.length > 0 ? <AlertTriangle className="w-3 h-3" /> : v.warnings.length > 0 ? <AlertTriangle className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
+                                      {v.errors.length > 0
+                                        ? `${v.errors.length} erreur${v.errors.length > 1 ? "s" : ""}`
+                                        : v.warnings.length > 0
+                                        ? `${v.warnings.length} avert.`
+                                        : "Voix OK"}
+                                      <span className="opacity-70 font-mono">{v.score}</span>
+                                    </span>
+                                  );
+                                })()}
+                                {validateContent({ caption: draftCaption, hashtags: draftHashtags }).errors.map((e) => (
+                                  <span key={e.code} className="text-[10px] text-red-300/90 truncate">• {e.message}</span>
+                                ))}
+                              </div>
                               <div>
                                 <label className="text-[10px] uppercase tracking-wider text-foreground-subtle font-medium">Légende</label>
                                 <textarea
@@ -459,6 +705,36 @@ export default function ContentPage() {
                                   placeholder="ex. Utiliser le nouveau bisht du shoot de la semaine dernière"
                                   className="w-full mt-1 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-accent"
                                 />
+                              </div>
+                              <div className="rounded border border-purple-500/20 bg-purple-500/5 p-2 space-y-1.5">
+                                <p className="text-[10px] uppercase tracking-wider text-purple-300 font-medium flex items-center gap-1">
+                                  <BookmarkPlus className="w-3 h-3" />
+                                  Sauvegarder cette version comme template
+                                </p>
+                                <div className="flex items-center gap-1.5">
+                                  <input
+                                    type="text"
+                                    value={templateName}
+                                    onChange={(e) => setTemplateName(e.target.value)}
+                                    placeholder="Nom (ex. Reel coulisses 1.2k likes)"
+                                    className="flex-1 min-w-0 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-accent"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={templatePerf}
+                                    onChange={(e) => setTemplatePerf(e.target.value)}
+                                    placeholder="Perf. (ex. 1.2k likes)"
+                                    className="w-32 px-2 py-1.5 rounded border border-border bg-surface text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-accent"
+                                  />
+                                  <button
+                                    onClick={() => saveAsTemplate(post)}
+                                    disabled={savingTemplate === post.time || !templateName.trim()}
+                                    className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1.5 rounded border border-purple-500/40 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 disabled:opacity-50 shrink-0"
+                                  >
+                                    {savingTemplate === post.time ? <Loader2 className="w-3 h-3 animate-spin" /> : <BookmarkPlus className="w-3 h-3" />}
+                                    Sauver
+                                  </button>
+                                </div>
                               </div>
                               <div className="flex items-center justify-end gap-2 pt-1">
                                 <button
@@ -488,6 +764,57 @@ export default function ContentPage() {
             })}
           </div>
         </div>
+
+        {showTemplates && (
+          <div>
+            <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+              <FolderOpen className="w-4 h-4 text-purple-400" />
+              Bibliothèque de templates ({templates.length})
+            </h2>
+            <p className="text-xs text-foreground-muted mb-4">
+              Sauvegarde tes posts qui marchent (en mode édition d&apos;une publication) puis recharge-les en un clic sur d&apos;autres créneaux du même type.
+            </p>
+            {templates.length === 0 ? (
+              <div className="rounded-xl bg-surface border border-dashed border-border p-6 text-center">
+                <p className="text-xs text-foreground-muted">
+                  Aucun template pour le moment. Ouvre une publication (bouton « Modifier »), peaufine la légende, puis clique sur « Sauver » en bas.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {templates.map((t) => (
+                  <div key={t.id} className="rounded-xl bg-surface border border-border p-4">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{t.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                            t.post_type === "Reel" ? "bg-pink-500/20 text-pink-400" :
+                            t.post_type === "Story" ? "bg-purple-500/20 text-purple-400" :
+                            t.post_type === "Carousel" ? "bg-blue-500/20 text-blue-400" :
+                            "bg-green-500/20 text-green-400"
+                          }`}>{t.post_type}</span>
+                          {t.performance_note && (
+                            <span className="text-[10px] text-emerald-400">📈 {t.performance_note}</span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => deleteTemplate(t.id)}
+                        className="p-1 rounded hover:bg-red-500/10 text-foreground-subtle hover:text-red-400 shrink-0"
+                        title="Supprimer ce template"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-foreground-muted whitespace-pre-wrap line-clamp-4">{t.caption}</p>
+                    <p className="text-[10px] text-foreground-subtle mt-2 truncate">{t.hashtags}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Reels Ideas */}
         <div>
