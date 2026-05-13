@@ -96,7 +96,7 @@ function parseBody(body: Record<string, unknown>): ParsedBody | { error: string 
     const arr = body.selectedProducts
       .map(parseSelectedProduct)
       .filter((p): p is SelectedProduct => p !== null)
-      .slice(0, 3);
+      .slice(0, 5);
     if (arr.length > 0) selectedProducts = arr;
   }
 

@@ -182,7 +182,7 @@ const briefPresets = [
 export default function MetaAdPlannerPage() {
   const [brief, setBrief] = useState("");
   const [selectedProducts, setSelectedProducts] = useState<ShopifyProductLite[]>([]);
-  const MAX_PRODUCTS = 3;
+  const MAX_PRODUCTS = 5;
   const [productSearch, setProductSearch] = useState("");
   const [productResults, setProductResults] = useState<ShopifyProductLite[]>([]);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
@@ -402,7 +402,7 @@ export default function MetaAdPlannerPage() {
 
             <div>
               <label className="block text-xs font-medium text-foreground-muted uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <Package className="w-3 h-3" /> Produit Shopify (1 = single, 2-3 = carousel)
+                <Package className="w-3 h-3" /> Produit Shopify (1 = single, 2-5 = carousel)
               </label>
               {selectedProducts.length > 0 && (
                 <div className="space-y-1.5 mb-2">
@@ -459,7 +459,7 @@ export default function MetaAdPlannerPage() {
                       placeholder={
                         selectedProducts.length === 0
                           ? "Chercher un produit (ex: Khairan, bisht…)"
-                          : `Ajouter un ${selectedProducts.length === 1 ? "2ᵉ" : "3ᵉ"} produit pour passer en carousel`
+                          : `Ajouter un ${["2ᵉ", "3ᵉ", "4ᵉ", "5ᵉ"][selectedProducts.length - 1] ?? ""} produit (carousel jusqu'à 5)`
                       }
                       className="w-full pl-8 pr-3 py-2 text-sm bg-surface-muted border border-border rounded-lg focus:outline-none focus:border-accent"
                     />

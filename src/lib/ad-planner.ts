@@ -197,11 +197,11 @@ Placements à lister textuellement : Facebook Feed, Instagram Feed, Instagram St
 
 ## FORMAT — SINGLE IMAGE vs CAROUSEL
 - Si **1 seul produit** sélectionné → format = "single_image", PAS de carouselCards (omet le champ ou null)
-- Si **2 ou 3 produits** sélectionnés → format = "carousel" :
-   - Génère un tableau \`carouselCards\` (1 carte par produit, MÊME ORDRE que les produits fournis)
+- Si **2 à 5 produits** sélectionnés → format = "carousel" :
+   - Génère un tableau \`carouselCards\` (1 carte par produit, MÊME ORDRE que les produits fournis — N peut valoir 2, 3, 4 ou 5)
    - Chaque carte = mini-pitch dédié à CE produit (headline AR+FR ≤40c, description AR+FR ≤30c, destinationUrl avec slug du produit + UTM)
    - Le visuel de chaque carte = imageUrl du produit Shopify
-   - Les 3 ad variants A/B/C ne changent QUE le primary text au-dessus du carousel (le storytelling commun aux 3 produits) — les cartes restent identiques entre variants
+   - Les 3 ad variants A/B/C ne changent QUE le primary text au-dessus du carousel (le storytelling commun aux N produits) — les cartes restent identiques entre variants
    - Le destinationUrl AU NIVEAU adVariant doit pointer vers la collection/page d'atterrissage commune si elle existe, sinon vers le 1er produit
 
 ## 3 VARIANTES D'ANNONCES — STRATÉGIE ANGLES
@@ -305,7 +305,7 @@ Chaque variant doit avoir :
   ]
 }
 
-## EXEMPLE MODE CAROUSEL (2-3 produits) — diffère uniquement par format + carouselCards
+## EXEMPLE MODE CAROUSEL (2 à 5 produits) — diffère uniquement par format + carouselCards
 {
   "format": "carousel",
   "carouselCards": [
