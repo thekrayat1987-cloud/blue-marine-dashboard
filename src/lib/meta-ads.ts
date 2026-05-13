@@ -50,7 +50,7 @@ export interface MetaCampaign {
   };
 }
 
-export async function getCampaigns(): Promise<MetaCampaign[]> {
+export async function getCampaigns(datePreset: string = "this_year"): Promise<MetaCampaign[]> {
   const data = await metaFetch<{
     data: Array<{
       id: string;
@@ -83,7 +83,7 @@ export async function getCampaigns(): Promise<MetaCampaign[]> {
         }>;
       }>(`${campaign.id}/insights`, {
         fields: "spend,impressions,clicks,actions,action_values,cpc,cpm,ctr",
-        date_preset: "this_year",
+        date_preset: datePreset,
       });
 
       if (insightsData.data.length > 0) {
@@ -120,6 +120,96 @@ export async function getCampaigns(): Promise<MetaCampaign[]> {
   }
 
   return campaigns;
+}
+
+export type CampaignAuditVerdict = "scale" | "cut" | "watch" | "inactive" | "no_data";
+
+export interface CampaignAuditRow {
+  id: string;
+  name: string;
+  status: string;
+  verdict: CampaignAuditVerdict;
+  spend: number;
+  revenue: number;
+  conversions: number;
+  roas: number;
+  cpa: number;
+  ctr: number;
+  reason: string;
+  action: string;
+  potentialMonthlySavings?: number;
+  recommendedBudgetIncrease?: number;
+}
+
+const MIN_SPEND_FOR_VERDICT = 20; // KD — below this, "no_data"
+const ROAS_CUT_THRESHOLD = 2.0;
+const ROAS_SCALE_THRESHOLD = 4.0;
+
+export function classifyCampaign(c: MetaCampaign): CampaignAuditRow {
+  const isActive = c.status === "active";
+  const spend = c.insights?.spend ?? 0;
+  const revenue = c.insights?.revenue ?? 0;
+  const conversions = c.insights?.conversions ?? 0;
+  const roas = c.insights?.roas ?? 0;
+  const ctr = c.insights?.ctr ?? 0;
+  const cpa = conversions > 0 ? spend / conversions : 0;
+
+  let verdict: CampaignAuditVerdict;
+  let reason: string;
+  let action: string;
+  let potentialMonthlySavings: number | undefined;
+  let recommendedBudgetIncrease: number | undefined;
+
+  if (!isActive) {
+    verdict = "inactive";
+    reason = `Campagne ${c.status}`;
+    action = "Aucune action — campagne déjà arrêtée";
+  } else if (spend < MIN_SPEND_FOR_VERDICT) {
+    verdict = "no_data";
+    reason = `Dépense ${spend} KD insuffisante pour décider (seuil ${MIN_SPEND_FOR_VERDICT} KD)`;
+    action = "Surveille — attends ≥ 20 KD dépensés pour évaluer";
+  } else if (roas < ROAS_CUT_THRESHOLD) {
+    verdict = "cut";
+    const dailyBudget = c.dailyBudget;
+    if (dailyBudget > 0) {
+      potentialMonthlySavings = Math.round(dailyBudget * 30);
+    }
+    reason = `ROAS ${roas.toFixed(1)}x — chaque KD dépensé ne rapporte que ${roas.toFixed(1)} KD`;
+    action = potentialMonthlySavings
+      ? `Mets en pause cette campagne — économie ~${potentialMonthlySavings} KD/mois à réallouer ailleurs`
+      : "Mets en pause cette campagne — elle perd de l'argent";
+  } else if (roas >= ROAS_SCALE_THRESHOLD) {
+    verdict = "scale";
+    const dailyBudget = c.dailyBudget;
+    if (dailyBudget > 0) {
+      recommendedBudgetIncrease = Math.round(dailyBudget * 0.3);
+    }
+    reason = `ROAS ${roas.toFixed(1)}x — au-dessus de la cible 4x, scalable`;
+    action = recommendedBudgetIncrease
+      ? `Augmente le budget de +${recommendedBudgetIncrease} KD/jour (+30%). Re-vérifie après 14 jours`
+      : "Augmente le budget de +30%. Re-vérifie après 14 jours";
+  } else {
+    verdict = "watch";
+    reason = `ROAS ${roas.toFixed(1)}x — entre 2x et 4x, à optimiser`;
+    action = "Garde tel quel mais teste de nouvelles créatives ou audiences pour pousser au-dessus de 4x";
+  }
+
+  return {
+    id: c.id,
+    name: c.name,
+    status: c.status,
+    verdict,
+    spend,
+    revenue,
+    conversions,
+    roas,
+    cpa: Math.round(cpa * 100) / 100,
+    ctr,
+    reason,
+    action,
+    potentialMonthlySavings,
+    recommendedBudgetIncrease,
+  };
 }
 
 export interface MetaAdAccountInsights {
