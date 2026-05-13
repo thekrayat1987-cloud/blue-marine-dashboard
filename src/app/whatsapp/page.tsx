@@ -623,7 +623,7 @@ function ProductLinkGenerator() {
                 </a>
               </div>
               <p className="text-[10px] text-foreground-subtle mt-2">
-                Ce lien ouvre WhatsApp avec ton numéro <span className="font-medium">+965 99592234</span> et un message déjà tapé avec le produit. UTM <code className="px-1 py-0.5 rounded bg-surface-muted">whatsapp</code> ajouté automatiquement pour suivre les conversions.
+                Ce lien ouvre WhatsApp avec ton numéro <span className="font-medium">+965 9959 2234</span> et un message déjà tapé avec le produit. UTM <code className="px-1 py-0.5 rounded bg-surface-muted">whatsapp</code> ajouté automatiquement pour suivre les conversions.
               </p>
             </div>
           </div>
