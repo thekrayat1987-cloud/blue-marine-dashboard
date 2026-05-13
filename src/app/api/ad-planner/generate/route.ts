@@ -59,6 +59,12 @@ function parseSelectedProduct(raw: unknown): SelectedProduct | null {
 function parseBody(body: Record<string, unknown>): ParsedBody | { error: string } {
   const brief = String(body.brief ?? "").trim();
   if (!brief) return { error: "Brief requis" };
+  if (brief.length < 20) {
+    return {
+      error:
+        "Brief trop court — décris au moins l'objectif, l'audience et le produit (20 caractères minimum). Ex: « Promouvoir la collection Khairan auprès des mariées du Golfe »",
+    };
+  }
   if (brief.length > 4000) return { error: "Brief trop long (max 4000 caractères)" };
 
   const productUrl = String(body.productUrl ?? "").trim() || undefined;

@@ -699,11 +699,26 @@ export default function MetaAdPlannerPage() {
                     tous en statut <strong>PAUSÉ</strong>. Rien ne sera publié — tu pourras tout
                     vérifier dans Ads Manager avant d&apos;activer.
                   </p>
+                  {selectedProducts.length === 0 && (
+                    <div className="mb-3 bg-warning-soft border border-warning/30 rounded-lg p-3 flex items-start gap-2 text-sm text-foreground">
+                      <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-warning" />
+                      <span>
+                        <strong>Sélectionne au moins 1 produit Shopify</strong> ci-contre avant
+                        de pousser. Meta exige une image pour chaque annonce — sans produit, les
+                        ads seront rejetées (surtout Variant B qui pointe vers WhatsApp).
+                      </span>
+                    </div>
+                  )}
                   {!pushConfirm ? (
                     <button
                       onClick={() => setPushConfirm(true)}
-                      disabled={pushing}
-                      className="bg-accent hover:bg-accent-hover text-white font-medium py-2.5 px-5 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-60"
+                      disabled={pushing || selectedProducts.length === 0}
+                      className="bg-accent hover:bg-accent-hover text-white font-medium py-2.5 px-5 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      title={
+                        selectedProducts.length === 0
+                          ? "Sélectionne un produit Shopify pour pouvoir pousser"
+                          : undefined
+                      }
                     >
                       <Rocket className="w-4 h-4" strokeWidth={1.75} />
                       Pousser dans Meta

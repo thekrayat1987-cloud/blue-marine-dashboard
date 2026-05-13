@@ -21,6 +21,35 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Plan invalide ou incomplet" }, { status: 400 });
     }
 
+    const isCarousel =
+      plan.format === "carousel" &&
+      Array.isArray(plan.carouselCards) &&
+      plan.carouselCards.length >= 2;
+
+    if (isCarousel) {
+      const cardsWithImage = plan.carouselCards!.filter((c) => c.imageUrl).length;
+      if (cardsWithImage < 2) {
+        return Response.json(
+          {
+            error:
+              "Les cartes du carousel n'ont pas d'image — Meta refusera l'annonce. Re-sélectionne des produits Shopify avec photo avant de pousser.",
+          },
+          { status: 400 },
+        );
+      }
+    } else {
+      const hasImage = selectedProducts.some((p) => p.imageUrl);
+      if (!hasImage) {
+        return Response.json(
+          {
+            error:
+              "Aucun produit Shopify sélectionné — Meta exige une image pour chaque annonce. Sélectionne un produit avant de pousser (sinon les ads sont rejetées).",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const result = await pushPlanToMeta(plan, selectedProducts);
 
     if (planHistoryId) {
