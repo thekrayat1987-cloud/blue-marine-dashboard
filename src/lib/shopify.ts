@@ -1285,6 +1285,7 @@ export async function pushProductToShopify(
             { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "condition", type: "single_line_text_field", value: "new" },
             { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "gender", type: "single_line_text_field", value: "female" },
             { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "mpn", type: "single_line_text_field", value: params.sku },
+            { ownerId: product.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "custom_product", type: "boolean", value: "true" },
             { ownerId: product.id, namespace: "mc-facebook", key: "google_product_category", type: "single_line_text_field", value: "5388" },
             {
               ownerId: product.id,
