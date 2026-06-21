@@ -94,6 +94,52 @@ export async function POST(request: NextRequest) {
     return new Response("ok (cancelled)", { status: 200 });
   }
 
+  // --- Review request (independent of the upsell below): every order with a
+  // phone is queued for a post-delivery WhatsApp review ask. Isolated in its
+  // own background task + try/catch so it can never affect the upsell flow. ---
+  {
+    const reviewPhone = pickPhone(payload);
+    if (reviewPhone) {
+      const reviewLocale = pickLocale(payload);
+      const reviewFirstName = (payload.customer?.first_name || "").trim() || null;
+      const firstItem = (payload.line_items || []).find((li) => li.product_id);
+      const reviewProductId = firstItem?.product_id ? String(firstItem.product_id) : null;
+      const reviewProductTitle = firstItem?.title || null;
+      const delayDays = Number(process.env.REVIEW_REQUEST_DELAY_DAYS || "10");
+      const reviewSendAt = new Date(Date.now() + delayDays * 24 * 60 * 60 * 1000).toISOString();
+
+      after(async () => {
+        try {
+          const { error } = await supabase.from("pending_review_requests").upsert(
+            {
+              shopify_order_id: orderId,
+              shopify_order_number: orderName,
+              customer_first_name: reviewFirstName,
+              customer_phone: reviewPhone,
+              customer_locale: reviewLocale,
+              product_id: reviewProductId,
+              product_title: reviewProductTitle,
+              send_at: reviewSendAt,
+              send_status: "pending",
+            },
+            { onConflict: "shopify_order_id" },
+          );
+          if (error) {
+            console.error(`[orders-webhook] review upsert error for ${orderId}: ${error.message}`);
+          } else {
+            console.log(
+              `[orders-webhook] queued review request for ${orderName || orderId} (locale=${reviewLocale}, send_at=${reviewSendAt})`,
+            );
+          }
+        } catch (e) {
+          console.error(
+            `[orders-webhook] review background error for ${orderId}: ${e instanceof Error ? e.message.slice(0, 200) : ""}`,
+          );
+        }
+      });
+    }
+  }
+
   const { hasDaraa, hasBishtSet } = classifyOrder(payload);
   if (!hasDaraa) {
     return new Response("ok (no daraa)", { status: 200 });

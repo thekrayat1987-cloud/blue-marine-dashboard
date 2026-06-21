@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import {
+  clearOAuthStateCookie,
+  oauthStateCookieName,
+  verifyOAuthState,
+} from "@/lib/oauth-state";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
+  const state = searchParams.get("state");
 
   if (error || !code) {
     return NextResponse.redirect(
       new URL(`/settings?meta_error=${encodeURIComponent(error || "no_code")}`, request.url)
     );
+  }
+  if (!verifyOAuthState("meta", state, request.cookies.get(oauthStateCookieName("meta"))?.value)) {
+    return NextResponse.redirect(new URL("/settings?meta_error=invalid_state", request.url));
   }
 
   const appId = process.env.META_APP_ID!;
@@ -36,14 +43,9 @@ export async function GET(request: NextRequest) {
   const longTokenData = await longTokenRes.json();
   const finalToken = longTokenData.access_token || tokenData.access_token;
 
-  // Update .env.local
-  const envPath = path.join(process.cwd(), ".env.local");
-  let envContent = fs.readFileSync(envPath, "utf-8");
-  envContent = envContent.replace(
-    /^META_ACCESS_TOKEN=.*$/m,
-    `META_ACCESS_TOKEN=${finalToken}`
-  );
-  fs.writeFileSync(envPath, envContent);
+  process.env.META_ACCESS_TOKEN = finalToken;
 
-  return NextResponse.redirect(new URL("/settings?meta_connected=1", request.url));
+  const response = NextResponse.redirect(new URL("/settings?meta_connected=session", request.url));
+  response.headers.append("Set-Cookie", clearOAuthStateCookie("meta"));
+  return response;
 }

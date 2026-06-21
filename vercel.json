@@ -6,7 +6,11 @@
     },
     {
       "path": "/api/cron/process-pending-upsells",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/process-review-requests",
+      "schedule": "0 5 * * *"
     }
   ]
 }

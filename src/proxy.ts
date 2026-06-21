@@ -6,7 +6,6 @@ const PUBLIC_PATHS = new Set<string>([
   "/login",
   "/api/auth/login",
   "/api/auth/logout",
-  "/api/auth/shopify",
   "/api/auth/shopify/callback",
   "/api/auth/meta/callback",
   "/api/auth/snapchat/callback",
@@ -15,6 +14,7 @@ const PUBLIC_PATHS = new Set<string>([
   "/api/webhooks/shopify/orders",
   "/api/cron/sync-archived-redirects",
   "/api/cron/process-pending-upsells",
+  "/api/cron/process-review-requests",
 ]);
 
 export function proxy(request: NextRequest) {

@@ -572,7 +572,7 @@ export default function BroadcastPlannerPage() {
 
             <section className="rounded-xl border border-border bg-surface p-5">
               <h2 className="font-display text-lg font-semibold text-foreground mb-4">
-                3. Détails de l'offre
+                3. Détails de l&apos;offre
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
@@ -786,7 +786,7 @@ export default function BroadcastPlannerPage() {
               </h3>
               <ol className="text-xs text-foreground-muted space-y-2 list-decimal list-inside">
                 <li>Choisis le type de campagne</li>
-                <li>Choisis le segment client → clique "Aperçu" pour voir les vrais chiffres</li>
+                <li>Choisis le segment client → clique &quot;Aperçu&quot; pour voir les vrais chiffres</li>
                 <li>Renseigne occasion, code promo, ton</li>
                 <li>Génère → tu reçois 2 variantes A/B + prompt visuel + Shopify Flow</li>
                 <li>Copie dans SuperLemon, Shopify Flow, Canva</li>
@@ -795,7 +795,7 @@ export default function BroadcastPlannerPage() {
             <div className="rounded-xl border border-border bg-surface p-4 text-xs text-foreground-muted space-y-2">
               <p className="font-medium text-foreground">⚡ Tip pro</p>
               <p>
-                Lance toujours <strong>l'aperçu segment</strong> avant de générer — Claude
+                Lance toujours <strong>l&apos;aperçu segment</strong> avant de générer — Claude
                 calibre le message et le CA estimé sur les vrais chiffres de ton Shopify.
               </p>
             </div>

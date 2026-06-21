@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFileSync, readFileSync } from "fs";
-import { join } from "path";
+import {
+  clearOAuthStateCookie,
+  oauthStateCookieName,
+  verifyOAuthState,
+} from "@/lib/oauth-state";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
+  const state = request.nextUrl.searchParams.get("state");
 
   if (!code) {
     return NextResponse.json({ error: "Missing code parameter" }, { status: 400 });
+  }
+  if (!verifyOAuthState("snapchat", state, request.cookies.get(oauthStateCookieName("snapchat"))?.value)) {
+    return NextResponse.redirect(new URL("/snapchat?error=invalid_state", request.url));
   }
 
   try {
@@ -29,18 +36,15 @@ export async function GET(request: NextRequest) {
 
     const tokenData = await tokenResponse.json();
     const accessToken = tokenData.access_token;
-
-    // Save token
-    try {
-      const envPath = join(process.cwd(), ".env.local");
-      let envContent = readFileSync(envPath, "utf-8");
-      envContent = envContent.replace(/SNAP_ACCESS_TOKEN=.*/, `SNAP_ACCESS_TOKEN=${accessToken}`);
-      writeFileSync(envPath, envContent);
-    } catch { /* */ }
+    if (!accessToken) {
+      return NextResponse.json({ error: "Token response missing access_token" }, { status: 500 });
+    }
 
     process.env.SNAP_ACCESS_TOKEN = accessToken;
 
-    return NextResponse.redirect(new URL("/snapchat?connected=true", request.url));
+    const response = NextResponse.redirect(new URL("/snapchat?connected=session", request.url));
+    response.headers.append("Set-Cookie", clearOAuthStateCookie("snapchat"));
+    return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });

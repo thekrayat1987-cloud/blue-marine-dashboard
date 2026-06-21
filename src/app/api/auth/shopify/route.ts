@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
+import { createOAuthState } from "@/lib/oauth-state";
 
 // Step 1: Redirect to Shopify OAuth page
 export async function GET() {
   const shop = process.env.SHOPIFY_STORE_URL!;
   const clientId = process.env.SHOPIFY_CLIENT_ID!;
   const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/shopify/callback`;
+  const { state, cookie } = createOAuthState("shopify");
   const scopes = [
     "read_all_orders","read_analytics","read_app_proxy","write_app_proxy","read_apps",
     "read_assigned_fulfillment_orders","write_assigned_fulfillment_orders","read_audit_events",
@@ -65,7 +67,9 @@ export async function GET() {
     "read_translations","write_translations","read_pixels","write_pixels",
   ].join(",");
 
-  const authUrl = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  const authUrl = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
 
-  return NextResponse.redirect(authUrl);
+  const response = NextResponse.redirect(authUrl);
+  response.headers.append("Set-Cookie", cookie);
+  return response;
 }
