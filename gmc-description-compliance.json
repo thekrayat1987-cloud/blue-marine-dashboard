@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-05-14T18:33:47.951Z",
+  "counts": {
+    "total": 144,
+    "en_clean": 134,
+    "en_violations": 3,
+    "ar_clean": 137,
+    "ar_violations": 0,
+    "ar_missing": 0
+  },
+  "issue_tallies": {
+    "EN promo": 3
+  },
+  "violations": [
+    {
+      "handle": "a26-amira-velvet-bisht-set",
+      "title": "A26 – Sabika Velvet 3-Piece Bisht Set",
+      "en_length": 796,
+      "en_issues": [
+        "promo: \"Pair with\""
+      ],
+      "ar_length": 557,
+      "ar_issues": []
+    },
+    {
+      "handle": "a71-marjan-ivory-daraa-red-shawl",
+      "title": "A71 – Marjan Ivory Daraa & Red Embroidered Shawl Set",
+      "en_length": 733,
+      "en_issues": [
+        "promo: \"pairs with\""
+      ],
+      "ar_length": 566,
+      "ar_issues": []
+    },
+    {
+      "handle": "a77-bahar-velvet-daraa",
+      "title": "A77 – Bahar Velvet Daraa",
+      "en_length": 658,
+      "en_issues": [
+        "promo: \"Pair with\""
+      ],
+      "ar_length": 546,
+      "ar_issues": []
+    }
+  ]
+}

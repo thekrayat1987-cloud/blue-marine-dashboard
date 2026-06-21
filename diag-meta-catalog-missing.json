@@ -1,0 +1,319 @@
+{
+  "totalActive": 127,
+  "publishedToFB": 88,
+  "missingFromFB": 39,
+  "missing": [
+    {
+      "id": "gid://shopify/Product/10162240848172",
+      "title": "A11 – Yaqut Emerald 3-Piece Bisht Set",
+      "handle": "a11-yaqut-emerald-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2415,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162446729516",
+      "title": "A12 – Lu'lu Velvet 3-Piece Bisht Set",
+      "handle": "a12-lulu-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2405,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162559025452",
+      "title": "A13 – Sharifa Velvet 2-Piece Set",
+      "handle": "a13-yaqut-velvet-set",
+      "productType": "Daraa",
+      "inventory": 2420,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162856657196",
+      "title": "A14 – Khulood Velvet 2-Piece Set",
+      "handle": "a14-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2420,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162887098668",
+      "title": "A15 – Shahana Bisht 2-Piece Set",
+      "handle": "a15-shahana-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 20,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162889556268",
+      "title": "A16 – Hawra Velvet 2-Piece Set",
+      "handle": "a16-yaqut-emerald-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2419,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162892538156",
+      "title": "A19 – Yaqut 2-Piece Bisht Set",
+      "handle": "a19-yaqut-emerald-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2415,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10162893652268",
+      "title": "A18 – Masa' Velvet 3-Piece Bisht Set",
+      "handle": "a18-masa-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2418,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10163273171244",
+      "title": "B19 – Zumurud Velvet 3-Piece Set",
+      "handle": "b19-zumurud-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2418,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10163273924908",
+      "title": "B20 – Sahar Velvet 3-Piece Bisht Set",
+      "handle": "b20-sahar-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2419,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10163275530540",
+      "title": "B21 – Amira Velvet 3-Piece Set",
+      "handle": "b21-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2417,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10163282379052",
+      "title": "B22 – Amal Velvet 3-Piece Bisht Set",
+      "handle": "b22-amal-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2417,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10163611500844",
+      "title": "A23 – Bahar Velvet 3-Piece Set",
+      "handle": "a23-bahar-velvet-set",
+      "productType": "Daraa",
+      "inventory": 2415,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10164511047980",
+      "title": "A24 – Yaqut Velvet 3-Piece Bisht Set",
+      "handle": "a24-yaqut-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2415,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10164538802476",
+      "title": "A25 – Wadha Velvet 3-Piece Bisht Set",
+      "handle": "a25-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 0,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10164830798124",
+      "title": "A26 – Sabika Velvet 3-Piece Bisht Set",
+      "handle": "a26-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 242,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10165095661868",
+      "title": "A27 – Joori 3-Piece Bisht Set",
+      "handle": "a27-yaqut-crimson-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2419,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10166491316524",
+      "title": "A28 – Iman Velvet 3-Piece Bisht Set",
+      "handle": "a28-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2415,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10167912792364",
+      "title": "A29 – Lu'lu Coral 2-Piece Set",
+      "handle": "a29-lulu-coral-bisht-daraa-set",
+      "productType": "Bisht Set",
+      "inventory": 2411,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10169122619692",
+      "title": "A31 – Asayel Velvet 2-Piece Set",
+      "handle": "a31-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2420,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10169356615980",
+      "title": "A32 – Ghadeer Velvet 3-Piece Bisht Set",
+      "handle": "a32-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2414,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10189250298156",
+      "title": "A33 – Tahani 3-Piece Bisht Set",
+      "handle": "a33-sahar-black-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 2420,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10189253378348",
+      "title": "A34 – Marjan 3-Piece Bisht Set",
+      "handle": "a34-marjan-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 605,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10189258490156",
+      "title": "A35 – Tooq 3-Piece Bisht Set",
+      "handle": "a35-amira-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 603,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10200077730092",
+      "title": "A36 – Wijdan Bisht 3-Piece Set",
+      "handle": "a36-sahar-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 604,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10200764580140",
+      "title": "A37 – Ghaida 2-Piece Bisht Set",
+      "handle": "a37-zumurud-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 1100,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10204948005164",
+      "title": "A38 – Tala Bisht 3-Piece Set",
+      "handle": "a38-sahar-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 602,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10205173645612",
+      "title": "A40 – Marjan Coral 3-Piece Bisht Set",
+      "handle": "a40-marjan-coral-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 605,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10205180297516",
+      "title": "A41 – Bahar 3-Piece Bisht Set",
+      "handle": "a41-bahar-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 600,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10205181247788",
+      "title": "A42 – Joud 3-Piece Bisht Set",
+      "handle": "a42-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 605,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10205181968684",
+      "title": "A43 – Amira 4-Piece Bisht Set",
+      "handle": "a43-amira-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 601,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10205238722860",
+      "title": "A44 – Zahra Gold Bisht 2-Piece Set",
+      "handle": "a44-zahra-gold-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 1100,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10207961841964",
+      "title": "A45 – Mozah 3-Piece Bisht Set",
+      "handle": "a45-sahar-navy-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 605,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10209440825644",
+      "title": "A46 – Lulwa 3-Piece Bisht Set",
+      "handle": "a46-yaqut-emerald-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 600,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10209442431276",
+      "title": "A47 – Aljouri Velvet 3-Piece Bisht Set",
+      "handle": "a47-amira-velvet-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 602,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10209443021100",
+      "title": "A48 – Nawal 3-Piece Bisht Set",
+      "handle": "a48-amira-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 600,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10209443873068",
+      "title": "A49 – Reef 3-Piece Bisht Set",
+      "handle": "a49-sahar-red-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 604,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10210250031404",
+      "title": "A50 – Razan 3-Piece Bisht Set",
+      "handle": "a50-sahar-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 602,
+      "hasImage": true
+    },
+    {
+      "id": "gid://shopify/Product/10226293539116",
+      "title": "A59 – Haya 2-Piece Bisht Set",
+      "handle": "a59-zumurud-bisht-set",
+      "productType": "Bisht Set",
+      "inventory": 1100,
+      "hasImage": true
+    }
+  ]
+}

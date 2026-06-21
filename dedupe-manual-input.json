@@ -1,0 +1,298 @@
+[
+  {
+    "sku": "A10",
+    "title_now": "A10 – Yaqut 3-Piece Bisht Set",
+    "handle": "a10-yaqut-emerald-bisht-set",
+    "ar_now": "A10 – ياقوت طقم ٣ قطع بشت",
+    "note": "would still collide with 1 sibling on \"yaqut emerald 3-piece bisht set\"",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A46",
+    "title_now": "A46 – Yaqut 3-Piece Bisht Set",
+    "handle": "a46-yaqut-emerald-bisht-set",
+    "ar_now": "A46 – ياقوت طقم بشت ٣ قطع",
+    "note": "would still collide with 1 sibling on \"yaqut emerald 3-piece bisht set\"",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A100",
+    "title_now": "A100 – Sahar Daraa",
+    "handle": "a100-sahar-daraa",
+    "ar_now": "A100 – سحر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A109",
+    "title_now": "A109 – Sahar Daraa",
+    "handle": "a109-sahar-daraa",
+    "ar_now": "A109 – سحر دراعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A79",
+    "title_now": "A79 – Sahar Daraa",
+    "handle": "a79-sahar-daraa",
+    "ar_now": "A79 – سحر دراعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A87",
+    "title_now": "A87 – Sahar Daraa",
+    "handle": "a87-sahar-daraa",
+    "ar_now": "A87 – سحر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A107",
+    "title_now": "A107 – Sahar Velvet Daraa",
+    "handle": "a107-sahar-velvet-daraa",
+    "ar_now": "A107 – سحر مخمل درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A69",
+    "title_now": "A69 – Sahar Dawn Daraa",
+    "handle": "a69-sahar-dawn-daraa",
+    "ar_now": "A69 – سحر الفجر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A78",
+    "title_now": "A78 – Sahar Dawn Daraa",
+    "handle": "a78-sahar-dawn-daraa",
+    "ar_now": "A78 – سحر الفجر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A114",
+    "title_now": "A114 – Sahar Bisht",
+    "handle": "a114-sahar-bisht",
+    "ar_now": "A114 – سحر بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A115",
+    "title_now": "A115 – Bahar Daraa",
+    "handle": "a115-bahar-daraa",
+    "ar_now": "A115 – بحر دراعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A62",
+    "title_now": "A62 – Bahar Daraa",
+    "handle": "a62-bahar-daraa",
+    "ar_now": "A62 – بحر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A73",
+    "title_now": "A73 – Bahar Daraa",
+    "handle": "a73-bahar-daraa",
+    "ar_now": "A73 – بحر دراعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A74",
+    "title_now": "A74 – Bahar Daraa",
+    "handle": "a74-bahar-daraa",
+    "ar_now": "A74 – بحر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A91",
+    "title_now": "A91 – Bahar Daraa",
+    "handle": "a91-bahar-daraa",
+    "ar_now": "A91 – بحر درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A119",
+    "title_now": "A119 – Amira 2-Piece Daraa Set",
+    "handle": "a119-amira-daraa-bisht-set",
+    "ar_now": "A119 – أميرة طقم ٢ قطع درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A88",
+    "title_now": "A88 – Amira 2-Piece Daraa Set",
+    "handle": "a88-amira-daraa-set",
+    "ar_now": "A88 – أميرة طقم ٢ قطع درّاعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A13",
+    "title_now": "A13 – Yaqut Velvet 2-Piece Set",
+    "handle": "a13-yaqut-velvet-set",
+    "ar_now": "A13 – ياقوت مخمل طقم ٢ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A14",
+    "title_now": "A14 – Amira Velvet 2-Piece Set",
+    "handle": "a14-amira-velvet-bisht-set",
+    "ar_now": "A14 – أميرة مخمل طقم ٢ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A31",
+    "title_now": "A31 – Amira Velvet 2-Piece Set",
+    "handle": "a31-amira-velvet-bisht-set",
+    "ar_now": "A31 – أميرة مخمل طقم ٢ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A80",
+    "title_now": "A80 – Amira Velvet 2-Piece Set",
+    "handle": "a80-amira-velvet-bisht-set",
+    "ar_now": "A80 – أميرة مخمل طقم ٢ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A25",
+    "title_now": "A25 – Amira Velvet 3-Piece Bisht Set",
+    "handle": "a25-amira-velvet-bisht-set",
+    "ar_now": "A25 – أميرة مخمل طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A26",
+    "title_now": "A26 – Amira Velvet 3-Piece Bisht Set",
+    "handle": "a26-amira-velvet-bisht-set",
+    "ar_now": "A26 – أميرة مخمل طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A28",
+    "title_now": "A28 – Amira Velvet 3-Piece Bisht Set",
+    "handle": "a28-amira-velvet-bisht-set",
+    "ar_now": "A28 – أميرة مخمل طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A32",
+    "title_now": "A32 – Amira Velvet 3-Piece Bisht Set",
+    "handle": "a32-amira-velvet-bisht-set",
+    "ar_now": "A32 – أميرة مخمل طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A47",
+    "title_now": "A47 – Amira Velvet 3-Piece Bisht Set",
+    "handle": "a47-amira-velvet-bisht-set",
+    "ar_now": "A47 – أميرة مخمل طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A50",
+    "title_now": "A50 – Sahar 3-Piece Bisht Set",
+    "handle": "a50-sahar-bisht-set",
+    "ar_now": "A50 – سحر طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A35",
+    "title_now": "A35 – Amira 3-Piece Bisht Set",
+    "handle": "a35-amira-bisht-set",
+    "ar_now": "A35 – أميرة طقم بشت ٣ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A42",
+    "title_now": "A42 – Amira 3-Piece Bisht Set",
+    "handle": "a42-amira-velvet-bisht-set",
+    "ar_now": "A42 – أميرة طقم ٣ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A48",
+    "title_now": "A48 – Amira 3-Piece Bisht Set",
+    "handle": "a48-amira-bisht-set",
+    "ar_now": "A48 – أميرة طقم بشت ٣ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A36",
+    "title_now": "A36 – Sahar Bisht 3-Piece Set",
+    "handle": "a36-sahar-bisht-set",
+    "ar_now": "A36 – سحر بشت طقم ٣ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A38",
+    "title_now": "A38 – Sahar Bisht 3-Piece Set",
+    "handle": "a38-sahar-bisht-set",
+    "ar_now": "A38 – سحر بشت طقم ٣ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A37",
+    "title_now": "A37 – Zumurud 2-Piece Bisht Set",
+    "handle": "a37-zumurud-bisht-set",
+    "ar_now": "A37 – زمرّد طقم ٢ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A59",
+    "title_now": "A59 – Zumurud 2-Piece Bisht Set",
+    "handle": "a59-zumurud-bisht-set",
+    "ar_now": "A59 – زمرّد طقم ٢ قطع بشت",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A51",
+    "title_now": "A51 – Bahar 2-Piece Set",
+    "handle": "a51-bahar-bisht-set",
+    "ar_now": "A51 – بحر طقم ٢ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A54",
+    "title_now": "A54 – Bahar Velvet 2-Piece Set",
+    "handle": "a54-bahar-bisht-set",
+    "ar_now": "A54 – بحر مخمل طقم ٢ قطع",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  },
+  {
+    "sku": "A99",
+    "title_now": "A99 – Amira Daraa",
+    "handle": "a99-amira-daraa",
+    "ar_now": "A99 – أميرة دراعة",
+    "note": "no distinguishing word in handle or variant Color option",
+    "fill_modifier": ""
+  }
+]

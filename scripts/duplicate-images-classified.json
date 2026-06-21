@@ -1,0 +1,317 @@
+{
+  "generatedAt": "2026-05-12T15:13:49.481Z",
+  "pairs": [
+    {
+      "sku": "A11-XS-50",
+      "handle": "a11-yaqut-emerald-bisht-set",
+      "title": "A11 – Yaqut Emerald 3-Piece Bisht Set",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/42966514991404",
+        "dim": "900x1350",
+        "kb": 1408
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/42966514270508",
+        "dim": "900x1350",
+        "kb": 1270
+      }
+    },
+    {
+      "sku": "A55-GREEN-XS-50",
+      "handle": "a55-marjan-daraa-set",
+      "title": "A55 – Marjan Daraa 2-Piece Set",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43809469235500",
+        "dim": "864x1536",
+        "kb": 135
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43365009064236",
+        "dim": "666x1184",
+        "kb": 1161
+      }
+    },
+    {
+      "sku": "A55-GREEN-XS-50",
+      "handle": "a55-marjan-daraa-set",
+      "title": "A55 – Marjan Daraa 2-Piece Set",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43809469235500",
+        "dim": "864x1536",
+        "kb": 135
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43365010309420",
+        "dim": "666x1184",
+        "kb": 1145
+      }
+    },
+    {
+      "sku": "A60-XS-50",
+      "handle": "a60-sahar-dawn-daraa-set",
+      "title": "A60 – Sahar Dawn 3-Piece Set",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43350369829164",
+        "dim": "768x1152",
+        "kb": 1282
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43350369861932",
+        "dim": "768x1344",
+        "kb": 1222
+      }
+    },
+    {
+      "sku": "A73-EMERALD_GREEN-XS-50",
+      "handle": "a73-bahar-daraa",
+      "title": "A73 – Hayat Daraa",
+      "category": "C_SIMILAR",
+      "hamming": 4,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43809520091436",
+        "dim": "864x1536",
+        "kb": 199
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43409949360428",
+        "dim": "1600x2400",
+        "kb": 737
+      }
+    },
+    {
+      "sku": "A73-EMERALD_GREEN-XS-50",
+      "handle": "a73-bahar-daraa",
+      "title": "A73 – Hayat Daraa",
+      "category": "B_NEAR",
+      "hamming": 3,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43809520091436",
+        "dim": "864x1536",
+        "kb": 199
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43409949327660",
+        "dim": "1600x2400",
+        "kb": 384
+      }
+    },
+    {
+      "sku": "A73-EMERALD_GREEN-XS-50",
+      "handle": "a73-bahar-daraa",
+      "title": "A73 – Hayat Daraa",
+      "category": "C_SIMILAR",
+      "hamming": 5,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43809520091436",
+        "dim": "864x1536",
+        "kb": 199
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43409949294892",
+        "dim": "768x1152",
+        "kb": 1384
+      }
+    },
+    {
+      "sku": "A77-EMERALD_GREEN-XS-50",
+      "handle": "a77-bahar-velvet-daraa",
+      "title": "A77 – Bahar Velvet Daraa",
+      "category": "C_SIMILAR",
+      "hamming": 5,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43414888284460",
+        "dim": "768x1152",
+        "kb": 1154
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43414888317228",
+        "dim": "704x1056",
+        "kb": 733
+      }
+    },
+    {
+      "sku": "A97-CLASSIC_RED-XS-50",
+      "handle": "a97-yaqut-daraa-set",
+      "title": "A97 – Yaqut Emerald Daraa 2-Piece Set",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43515799306540",
+        "dim": "848x1264",
+        "kb": 86
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43515799404844",
+        "dim": "848x1264",
+        "kb": 96
+      }
+    },
+    {
+      "sku": "A101-PURPLE_MIX-XS-50",
+      "handle": "a101-bahar-silk-daraa",
+      "title": "A101 – Bahar Silk Daraa",
+      "category": "C_SIMILAR",
+      "hamming": 5,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43669600698668",
+        "dim": "864x1536",
+        "kb": 2182
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43669600764204",
+        "dim": "864x1536",
+        "kb": 2174
+      }
+    },
+    {
+      "sku": "A106-BERRY-XS-50",
+      "handle": "a106-rayhan-daraa",
+      "title": "A106 – Rayhan Daraa",
+      "category": "B_NEAR",
+      "hamming": 2,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43669983232300",
+        "dim": "864x1536",
+        "kb": 2151
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43669983363372",
+        "dim": "1024x1536",
+        "kb": 2140
+      }
+    },
+    {
+      "sku": "A109-PLUM_PURPLE_RIM-XS-50",
+      "handle": "a109-sahar-daraa",
+      "title": "A109 – Dalal Daraa",
+      "category": "D_DOUBTFUL",
+      "hamming": 7,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43670091792684",
+        "dim": "864x1536",
+        "kb": 1923
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43670091825452",
+        "dim": "864x1536",
+        "kb": 1928
+      }
+    },
+    {
+      "sku": "A109-PLUM_PURPLE_RIM-XS-50",
+      "handle": "a109-sahar-daraa",
+      "title": "A109 – Dalal Daraa",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43670091792684",
+        "dim": "864x1536",
+        "kb": 1923
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43670091858220",
+        "dim": "864x1536",
+        "kb": 2030
+      }
+    },
+    {
+      "sku": "A112-RUST_ORANGE-XS-50",
+      "handle": "a112-sahar-floral-daraa",
+      "title": "A112 – Sahar Floral Daraa",
+      "category": "C_SIMILAR",
+      "hamming": 4,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43670725624108",
+        "dim": "864x1536",
+        "kb": 2278
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43670726770988",
+        "dim": "864x1536",
+        "kb": 2099
+      }
+    },
+    {
+      "sku": "A137-XS-50",
+      "handle": "a137-shurooq-bisht-set",
+      "title": "A137 – Shurooq Bisht 3-Piece Set",
+      "category": "C_SIMILAR",
+      "hamming": 5,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43815951073580",
+        "dim": "864x1536",
+        "kb": 158
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43815803388204",
+        "dim": "848x1264",
+        "kb": 92
+      }
+    },
+    {
+      "sku": "A141-XS-50",
+      "handle": "a141-zhaira-daraa-set",
+      "title": "A141 – Shams Daraa 2-Piece Set",
+      "category": "C_SIMILAR",
+      "hamming": 5,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43815952023852",
+        "dim": "864x1536",
+        "kb": 168
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43814359105836",
+        "dim": "848x1264",
+        "kb": 96
+      }
+    },
+    {
+      "sku": "A145-XS-50",
+      "handle": "a145-banan-bisht-set",
+      "title": "A145 – Banan 3-Piece Bisht Set",
+      "category": "C_SIMILAR",
+      "hamming": 6,
+      "sameBytes": false,
+      "keep": {
+        "mediaId": "gid://shopify/MediaImage/43815952318764",
+        "dim": "864x1536",
+        "kb": 160
+      },
+      "candidate": {
+        "mediaId": "gid://shopify/MediaImage/43815812464940",
+        "dim": "848x1264",
+        "kb": 93
+      }
+    }
+  ],
+  "byCategoryCount": {
+    "A_EXACT": 0,
+    "B_NEAR": 2,
+    "C_SIMILAR": 14,
+    "D_DOUBTFUL": 1
+  }
+}

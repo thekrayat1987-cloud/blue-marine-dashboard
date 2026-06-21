@@ -1,0 +1,956 @@
+{
+  "generated_at": "2026-05-14T21:04:27.480Z",
+  "total_bisht_set_products": 20,
+  "with_color_metaobject_link": 0,
+  "with_product_level_mm_color": 0,
+  "with_variant_color": 0,
+  "with_color_like_tag": 20,
+  "rows": [
+    {
+      "handle": "a51-bahar-bisht-set",
+      "title": "A51 – Maysoon 2-Piece Set",
+      "tags_color_like": [
+        "black",
+        "formal",
+        "gold",
+        "made-to-order"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Bahar, meaning 'spring' in Arabic, evokes the fresh, vibrant feel of the season, translated into this striking 2-piece set. The silhouette flows with a modern, relaxed grace, designed for effortless movement and presence. The inner daraa is",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a51-bahar-bisht-set-9x16.jpg?v=1778221179"
+    },
+    {
+      "handle": "a52-bahar-black-bisht-set",
+      "title": "A52 – Rajwa 2-Piece Set",
+      "tags_color_like": [
+        "black",
+        "embroidered",
+        "formal",
+        "gold"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Bahar captures the essence of a starlit evening, with its deep black canvas illuminated by shimmering lines. This two-piece set offers a graceful, flowing silhouette, designed for a commanding yet understated presence. The set features a lu",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a52-bahar-black-bisht-set-9x16.jpg?v=1778221187"
+    },
+    {
+      "handle": "a53-amira-olive-gold-bisht-set",
+      "title": "A53 – Amira 2-Piece Set",
+      "tags_color_like": [
+        "embroidered",
+        "formal",
+        "made-to-order",
+        "olive-gold"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Amira, meaning 'princess', embodies a graceful presence in this two-piece set. Its flowing silhouette drapes elegantly, creating a look of quiet confidence and refined movement. This coordinated set features a smooth inner daraa paired with",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a53-amira-olive-gold-bisht-set-9x16.jpg?v=1778221194"
+    },
+    {
+      "handle": "a54-bahar-bisht-set",
+      "title": "A54 – Nouf Velvet 2-Piece Set",
+      "tags_color_like": [
+        "burgundy",
+        "embroidered",
+        "formal",
+        "gold",
+        "made-to-order"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Bahar, meaning 'sea' or 'spring', inspires deep richness and flowing movement. This two-piece set features a graceful inner daraa complemented by an open, embellished bisht. The inner daraa in deep plum velvet offers a smooth, fluid line. I",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a54-bahar-bisht-set-9x16.jpg?v=1778221201"
+    },
+    {
+      "handle": "a56-yaqut-burgundy-bisht-set",
+      "title": "A56 – Aljowhara 3-Piece Bisht Set",
+      "tags_color_like": [
+        "burgundy",
+        "embroidered",
+        "formal",
+        "gold"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XS",
+            "2XS",
+            "3XL",
+            "4XL",
+            "5XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Yaqut, named for the deep ruby, presents a rich burgundy hue in this three-piece set. The bisht drapes with a structured yet flowing presence, complementing the smooth inner daraa for a cohesive look. The bisht features an intricate geometr",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a56-yaqut-burgundy-bisht-set-9x16.jpg?v=1778221216"
+    },
+    {
+      "handle": "a57-bahar-bisht-set",
+      "title": "A57 – Bahar Bisht 2-Piece Set",
+      "tags_color_like": [
+        "beige",
+        "black",
+        "embroidered",
+        "made-to-order"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XS",
+            "2XS",
+            "3XL",
+            "4XL",
+            "5XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "The Bahar Bisht set brings a fresh perspective to traditional Gulf wear, combining classic form with contemporary detail. This two-piece ensemble offers a flowing, layered silhouette, designed for elegant movement and confident presence. Th",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a57-bahar-bisht-set-9x16.jpg?v=1778221223"
+    },
+    {
+      "handle": "a80-amira-velvet-bisht-set",
+      "title": "A80 – Ghazal Velvet 2-Piece Set",
+      "tags_color_like": [
+        "black",
+        "embroidered",
+        "formal"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XS",
+            "2XS",
+            "3XL",
+            "4XL",
+            "5XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Amira, a name signifying princess, presents a commanding yet graceful presence. This two-piece set features a sleek black daraa paired with a flowing bisht, designed for effortless elegance. The silhouette offers a relaxed drape, moving wit",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a80-amira-velvet-bisht-set-9x16.jpg?v=1778221381"
+    },
+    {
+      "handle": "a81-sahar-velvet-bisht",
+      "title": "A81 – Sahar Velvet Bisht",
+      "tags_color_like": [
+        "burgundy",
+        "embroidered-bisht",
+        "formal",
+        "made-to-order",
+        "navy"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XS",
+            "2XS",
+            "3XL",
+            "4XL",
+            "5XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Sahar Velvet Bisht, named for the enchanting desert night, is a testament to refined Khaleeji elegance. Its flowing silhouette drapes with a subtle grandeur, designed for the woman who commands attention with quiet confidence. Crafted from ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a81-sahar-velvet-bisht-9x16.jpg?v=1778221388"
+    },
+    {
+      "handle": "a85-sahar-dawn-daraa-bisht-set",
+      "title": "A85 – Sahar Dawn 2-Piece Set",
+      "tags_color_like": [
+        "embroidered",
+        "formal",
+        "gold-embroidery"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Sahar Dawn captures the gentle glow of morning in a flowing two-piece set. The silhouette drapes elegantly, offering a refined presence for any occasion. Crafted from a soft, textured cream fabric, the inner daraa features intricate gold em",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/a85-sahar-dawn-daraa-bisht-set-9x16.jpg?v=1778221416"
+    },
+    {
+      "handle": "a110-sahar-black-bisht",
+      "title": "A110 – Hayfa Bisht",
+      "tags_color_like": [
+        "black",
+        "embroidered",
+        "formal",
+        "gold",
+        "made-to-order"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Sahar captures the mystique of a desert night, its deep black fabric a canvas for scattered motifs that shimmer like distant stars. This bisht offers a fluid, graceful silhouette, designed to move with you. Crafted in a lightweight, flowing",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/88D6B285-872D-44DE-8A20-D4BE45E06B88_ab3b3e50-732a-43bb-bb70-160019b075c1.png?v=1776347972"
+    },
+    {
+      "handle": "a118-dana-daraa-bisht-set",
+      "title": "A118 – Dana Daraa 2-Piece Set",
+      "tags_color_like": [
+        "black",
+        "embroidered",
+        "formal"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Dana takes its name from the Arabic word for a precious pearl, reflecting the quiet elegance of this two-piece set. This coordinated ensemble features a flowing inner daraa paired with an open bisht, creating a graceful, layered silhouette ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/27C926F8-E8F1-492E-AD61-D20097AF6CD2.png?v=1776353637"
+    },
+    {
+      "handle": "a119-amira-daraa-bisht-set",
+      "title": "A119 – Munira 2-Piece Daraa Set",
+      "tags_color_like": [
+        "black",
+        "burgundy",
+        "embroidered",
+        "formal"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "Amira, meaning 'princess', brings a regal presence to any occasion with this striking two-piece set. It features a flowing bisht and a coordinated inner daraa, designed for confident movement and timeless grace. The black fabric provides a ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/E2A5555A-BA83-4750-8626-153FCF4AD7FE.png?v=1776353623"
+    },
+    {
+      "handle": "a135-durra-bisht-set",
+      "title": "A135 – Durra Bisht 3-Piece Set",
+      "tags_color_like": [
+        "black",
+        "formal"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "This three-piece set features a classic black bisht and a matching inner daraa. Both are adorned with patterned fabric panels along the front and cuffs. The intricate geometric and leaf motifs add depth to the design. A coordinating shawl c",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A135-864x1536.jpg?v=1778261872"
+    },
+    {
+      "handle": "a136-mosaic-bisht-3-piece-set",
+      "title": "A136 – Mosaic Bisht 3-Piece Set",
+      "tags_color_like": [
+        "black",
+        "blue"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "A three-piece set featuring a black bisht layered over a patterned inner daraa. The set includes a matching shawl with the same vibrant motif. The bisht is crafted from smooth cotton, providing a rich texture. The inner daraa and shawl feat",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A136-864x1536.jpg?v=1778261878"
+    },
+    {
+      "handle": "a137-shurooq-bisht-set",
+      "title": "A137 – Shurooq Bisht 3-Piece Set",
+      "tags_color_like": [
+        "black",
+        "blue",
+        "red"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "This three-piece set combines a simple black inner daraa with an open outer bisht. The lightweight bisht and matching shawl showcase traditional patterns in shades of red and blue. The ensemble includes a long, flowing inner daraa, an open ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A137-864x1536.jpg?v=1778261884"
+    },
+    {
+      "handle": "a138-mahra-bisht-set",
+      "title": "A138 – Mahra 3-Piece Bisht Set",
+      "tags_color_like": [
+        "beige",
+        "black",
+        "formal",
+        "red"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "The Mahra three-piece bisht set features a flowing black outer bisht. It is paired with an inner daraa and a matching shawl, both adorned with traditional patterns. The inner daraa showcases a geometric and paisley-inspired print in cream, ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A138-864x1536.jpg?v=1778261890"
+    },
+    {
+      "handle": "a139-khawla-bisht-set",
+      "title": "A139 – Khawla Bisht 3-Piece Set",
+      "tags_color_like": [
+        "beige",
+        "black",
+        "red"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "This three-piece set features a black bisht crafted from soft velvet-like fabric, paired with a vibrant inner daraa. The inner daraa showcases a striking pattern of red, black, and beige. The bisht's flowing sleeves and matching shawl echo ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A139-864x1536.jpg?v=1778261896"
+    },
+    {
+      "handle": "a144-lujain-bisht-set",
+      "title": "A144 – Lujain 3-Piece Bisht Set",
+      "tags_color_like": [
+        "black",
+        "embroidered",
+        "formal",
+        "gold"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "This three-piece set combines a flowing outer bisht with a patterned inner daraa. It is crafted from soft black velvet and a printed fabric, creating a rich texture. The velvet bisht offers an elegant silhouette, complementing the distinct ",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A144-864x1536.jpg?v=1778261928"
+    },
+    {
+      "handle": "a145-banan-bisht-set",
+      "title": "A145 – Banan 3-Piece Bisht Set",
+      "tags_color_like": [
+        "black"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "This three-piece set showcases a black velvet bisht with patterned cuffs. Its flowing silhouette offers a blend of tradition and modern style. It comes with a vibrantly striped inner daraa, featuring deep red, blue, and beige tones, along w",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A145-864x1536.jpg?v=1778261934"
+    },
+    {
+      "handle": "a146-aroob-bisht-set",
+      "title": "A146 – Aroob Bisht 3-Piece Set",
+      "tags_color_like": [
+        "black",
+        "floral",
+        "gold"
+      ],
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "2XL",
+            "3XL"
+          ]
+        },
+        {
+          "name": "Length in inch",
+          "values": [
+            "50",
+            "51",
+            "52",
+            "53",
+            "54",
+            "55",
+            "56",
+            "57",
+            "58",
+            "59",
+            "60"
+          ]
+        }
+      ],
+      "color_metaobject_handle": null,
+      "color_metaobject_fields": null,
+      "color_mm_google_value": null,
+      "variant_count_sample": 5,
+      "sample_variant_color_metafield": null,
+      "desc_first_240_chars": "This three-piece set features an outer bisht crafted from black silk, adorned with rich red and gold floral patterns. The open bisht is designed with elegant gold striped trim, complementing a solid black inner daraa. A matching shawl compl",
+      "featured_image_url": "https://cdn.shopify.com/s/files/1/0954/8998/2764/files/A146-864x1536.jpg?v=1778261941"
+    }
+  ]
+}

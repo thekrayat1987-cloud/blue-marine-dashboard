@@ -1,0 +1,116 @@
+{
+  "generated_at": "2026-05-14T20:48:05.655Z",
+  "shop": "Atelier Blue Marine ",
+  "primary_domain": "https://bluemarineatelier.com",
+  "policies": {
+    "refund": {
+      "url": "https://checkout.shopify.com/95489982764/policies/47677276460.html?locale=en",
+      "hasBody": true
+    },
+    "shipping": {
+      "url": "https://checkout.shopify.com/95489982764/policies/49126801708.html?locale=en",
+      "hasBody": true
+    },
+    "privacy": {
+      "url": "https://checkout.shopify.com/95489982764/policies/47642968364.html?locale=en",
+      "hasBody": true
+    },
+    "terms": {
+      "url": "https://checkout.shopify.com/95489982764/policies/47677178156.html?locale=en",
+      "hasBody": true
+    },
+    "contact": {
+      "url": "https://checkout.shopify.com/95489982764/policies/47655846188.html?locale=en",
+      "hasBody": true
+    }
+  },
+  "markets": [
+    {
+      "name": "GCC",
+      "enabled": true,
+      "defaultLocale": "ar",
+      "rootUrls": [
+        {
+          "locale": "ar",
+          "url": "https://bluemarineatelier.com/"
+        }
+      ],
+      "regions": [
+        "United Arab Emirates",
+        "Saudi Arabia",
+        "Bahrain",
+        "Qatar",
+        "Oman"
+      ]
+    },
+    {
+      "name": "Kuwait",
+      "enabled": true,
+      "defaultLocale": "ar",
+      "rootUrls": [
+        {
+          "locale": "ar",
+          "url": "https://bluemarineatelier.com/"
+        }
+      ],
+      "regions": [
+        "Kuwait"
+      ]
+    },
+    {
+      "name": "USA",
+      "enabled": true,
+      "defaultLocale": "en",
+      "rootUrls": [
+        {
+          "locale": "en",
+          "url": "https://bluemarineatelier.com/en-us/"
+        },
+        {
+          "locale": "ar",
+          "url": "https://bluemarineatelier.com/ar-us/"
+        }
+      ],
+      "regions": [
+        "United States"
+      ]
+    }
+  ],
+  "products": {
+    "total": 144,
+    "active": 137,
+    "with_vendor": 137,
+    "with_product_type": 137,
+    "with_google_category": 137,
+    "with_custom_product_flag": 137,
+    "with_product_color": 0,
+    "with_product_size": 0,
+    "with_product_age_group": 136,
+    "with_product_gender": 136
+  },
+  "variants": {
+    "total": 12221,
+    "with_color": 3485,
+    "with_size": 12221,
+    "with_age_group": 12221,
+    "with_gender": 12221,
+    "with_barcode_gtin": 0,
+    "with_sku_mpn": 12197
+  },
+  "samples": {
+    "no_google_category": [],
+    "no_custom_product": [],
+    "no_color": [
+      "a11-yaqut-emerald-bisht-set",
+      "a12-lulu-velvet-bisht-set",
+      "a13-yaqut-velvet-set",
+      "a14-amira-velvet-bisht-set",
+      "a15-shahana-bisht-set",
+      "a16-yaqut-emerald-bisht-set",
+      "a19-yaqut-emerald-bisht-set",
+      "a18-masa-velvet-bisht-set",
+      "b19-zumurud-velvet-bisht-set",
+      "b20-sahar-velvet-bisht-set"
+    ]
+  }
+}
