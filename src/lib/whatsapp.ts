@@ -97,6 +97,49 @@ export interface WhatsAppTemplate {
   language: string;
 }
 
+export interface WhatsAppSendResult {
+  messageId: string | null;
+  wamid: string | null;
+  raw: unknown;
+}
+
+export async function sendWhatsAppTemplate(args: {
+  to: string;
+  templateName: string;
+  languageCode: string;
+  bodyParameters: string[];
+}): Promise<WhatsAppSendResult> {
+  const normalisedTo = args.to.replace(/[^\d]/g, "");
+  const res = await fetch(`${META_BASE_URL}/${WHATSAPP_PHONE_ID}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${META_ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to: normalisedTo,
+      type: "template",
+      template: {
+        name: args.templateName,
+        language: { code: args.languageCode },
+        components: [
+          {
+            type: "body",
+            parameters: args.bodyParameters.map((text) => ({ type: "text", text })),
+          },
+        ],
+      },
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(`WhatsApp send failed (${res.status}): ${JSON.stringify(json)}`);
+  }
+  const wamid: string | undefined = json?.messages?.[0]?.id;
+  return { messageId: wamid ?? null, wamid: wamid ?? null, raw: json };
+}
+
 export async function getTemplates(): Promise<WhatsAppTemplate[]> {
   try {
     const data = await waFetch<{

@@ -742,7 +742,7 @@ A flowing caftan in olive silk velvet, with a soft sheen that shifts in the ligh
 
 Hand-embroidered motifs trace the neckline, sleeves and hem in golden thread.
 
-Wear it for evenings, weddings or family gatherings in Kuwait. The fabric is light and breathes well.
+Wear it for evenings, weddings or family gatherings across the Gulf. The fabric is light and breathes well.
 
 PAGE TITLE: "Caftan Layali – Olive Velvet, Atelier Blue Marine"
 META DESCRIPTION: "Olive silk velvet caftan with hand-embroidered neckline. Made in Kuwait by Atelier Blue Marine for weddings, henna and formal evenings."

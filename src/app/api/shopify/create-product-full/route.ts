@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       collectionIds,
       colors,
       inventoryQuantity,
+      material,
     } = body as {
       sku?: string;
       price?: string;
@@ -61,6 +62,7 @@ export async function POST(request: NextRequest) {
       collectionIds?: string[];
       inventoryQuantity?: number;
       colors?: ColorInput[];
+      material?: string;
     };
 
     if (!sku?.trim()) {
@@ -184,6 +186,7 @@ export async function POST(request: NextRequest) {
         validColors.length > 1
           ? validColors.map((c) => c.name.trim())
           : undefined,
+      material: typeof material === "string" && material.trim() ? material.trim() : undefined,
     });
 
     const variantResults: Array<{

@@ -685,6 +685,103 @@ function paragraphsToHtml(text: string): string {
     .join("");
 }
 
+// GMC asks for color / size / material / pattern in every product description
+// (https://support.google.com/merchants/answer/6324468). We append a structured
+// block at the end of EN + AR descriptions so Google can extract those
+// attributes when scanning the feed. Markers let
+// scripts/enrich-descriptions-gmc.mjs re-inject without duplicating.
+const GMC_BLOCK_START = "<!-- gmc-enriched:start -->";
+const GMC_BLOCK_END = "<!-- gmc-enriched:end -->";
+
+const FABRIC_TAGS: Array<{ tag: string[]; en: string; ar: string }> = [
+  { tag: ["velvet", "مخمل"], en: "Velvet", ar: "مخمل" },
+  { tag: ["silk", "حرير"], en: "Silk", ar: "حرير" },
+  { tag: ["cotton", "قطن"], en: "Cotton", ar: "قطن" },
+  { tag: ["chiffon", "شيفون"], en: "Chiffon", ar: "شيفون" },
+  { tag: ["satin", "ساتان"], en: "Satin", ar: "ساتان" },
+  { tag: ["crepe", "كريب"], en: "Crepe", ar: "كريب" },
+  { tag: ["georgette", "جورجيت"], en: "Georgette", ar: "جورجيت" },
+  { tag: ["linen", "كتان"], en: "Linen", ar: "كتان" },
+];
+
+// French material label → EN / AR. Khadija enters the manual override in
+// French; unknown values pass through unchanged.
+const MATERIAL_MAP: Record<string, { en: string; ar: string }> = {
+  "velours": { en: "Velvet", ar: "مخمل" },
+  "soie": { en: "Silk", ar: "حرير" },
+  "coton": { en: "Cotton", ar: "قطن" },
+  "mousseline": { en: "Chiffon", ar: "شيفون" },
+  "chiffon": { en: "Chiffon", ar: "شيفون" },
+  "satin": { en: "Satin", ar: "ساتان" },
+  "crêpe": { en: "Crepe", ar: "كريب" },
+  "crepe": { en: "Crepe", ar: "كريب" },
+  "georgette": { en: "Georgette", ar: "جورجيت" },
+  "lin": { en: "Linen", ar: "كتان" },
+  "laine": { en: "Wool", ar: "صوف" },
+  "dentelle": { en: "Lace", ar: "دانتيل" },
+  "tulle": { en: "Tulle", ar: "تل" },
+  "organza": { en: "Organza", ar: "أورجانزا" },
+};
+
+function translateMaterial(input: string): { en: string; ar: string } {
+  const norm = input.trim().toLowerCase().replace(/\s+/g, " ");
+  if (MATERIAL_MAP[norm]) return MATERIAL_MAP[norm];
+  const cap = input.trim().charAt(0).toUpperCase() + input.trim().slice(1).toLowerCase();
+  return { en: cap, ar: cap };
+}
+
+const PATTERN_TAGS: Array<{ tag: string[]; en: string; ar: string }> = [
+  { tag: ["embroidered", "embroidery", "مطرّز", "مطرز", "تطريز"], en: "Embroidered", ar: "مطرّز" },
+  { tag: ["printed", "print", "مطبوع", "طبعة"], en: "Printed", ar: "مطبوع" },
+  { tag: ["floral", "زهور"], en: "Floral", ar: "نقش زهور" },
+  { tag: ["geometric", "هندسي"], en: "Geometric", ar: "نقش هندسي" },
+  { tag: ["paisley", "بيزلي"], en: "Paisley", ar: "نقش بيزلي" },
+  { tag: ["sequin", "sequins", "ترتر"], en: "Sequin", ar: "مزيّن بالترتر" },
+  { tag: ["striped", "مخطّط", "مخطط"], en: "Striped", ar: "مخطّط" },
+];
+
+function detectFromTags(
+  tags: string[],
+  table: Array<{ tag: string[]; en: string; ar: string }>,
+): Array<{ en: string; ar: string }> {
+  const lower = new Set(tags.map((t) => t.toLowerCase()));
+  const out: Array<{ en: string; ar: string }> = [];
+  for (const row of table) {
+    if (row.tag.some((t) => lower.has(t.toLowerCase()))) out.push({ en: row.en, ar: row.ar });
+  }
+  return out;
+}
+
+function buildGmcBlock(params: PushProductParams, locale: "en" | "ar"): string {
+  const colorSource = params.colorList?.length
+    ? params.colorList
+    : params.principalColor
+      ? [params.principalColor]
+      : [];
+  const colors = colorSource.map((c) => translateColorName(c)[locale]).filter(Boolean);
+  const materials = params.material?.trim()
+    ? params.material
+        .split(/[,،]/)
+        .map((m) => m.trim())
+        .filter(Boolean)
+        .map((m) => translateMaterial(m)[locale])
+    : detectFromTags(params.tags, FABRIC_TAGS).map((m) => m[locale]);
+  const patterns = detectFromTags(params.tags, PATTERN_TAGS).map((p) => p[locale]);
+  if (!patterns.length) patterns.push(locale === "en" ? "Solid" : "سادة");
+
+  const labels = locale === "en"
+    ? { heading: "Product details", color: "Colors", size: "Sizes", mat: "Material", pat: "Pattern", sep: ", " }
+    : { heading: "تفاصيل المنتج", color: "الألوان", size: "المقاسات", mat: "مادة الصنع", pat: "النقش", sep: "، " };
+
+  const lines: string[] = [];
+  if (colors.length) lines.push(`<li><strong>${labels.color}:</strong> ${colors.join(labels.sep)}</li>`);
+  lines.push(`<li><strong>${labels.size}:</strong> XS – 3XL</li>`);
+  if (materials.length) lines.push(`<li><strong>${labels.mat}:</strong> ${materials.join(labels.sep)}</li>`);
+  lines.push(`<li><strong>${labels.pat}:</strong> ${patterns.join(labels.sep)}</li>`);
+
+  return `\n${GMC_BLOCK_START}\n<h3>${labels.heading}</h3>\n<ul>\n${lines.join("\n")}\n</ul>\n${GMC_BLOCK_END}`;
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -820,6 +917,10 @@ export interface PushProductParams {
   inventoryQuantity?: number;
   principalColor?: string;
   colorList?: string[];
+  // Optional manual material override (French label, e.g. "Velours").
+  // When set, replaces tag-based material detection in the GMC block.
+  // Free text is accepted: unknown labels are passed through verbatim.
+  material?: string;
 }
 
 const TRADITIONAL_CLOTHING_CATEGORY = "gid://shopify/TaxonomyCategory/aa-1-23";
@@ -1047,7 +1148,7 @@ export async function pushProductToShopify(
     {
       input: {
         title: params.enTitle,
-        descriptionHtml: paragraphsToHtml(params.enDescription),
+        descriptionHtml: paragraphsToHtml(params.enDescription) + buildGmcBlock(params, "en"),
         vendor: params.vendor,
         handle: params.enHandle,
         tags: params.tags,
@@ -1099,6 +1200,53 @@ export async function pushProductToShopify(
   }
   const product = productCreateData.productCreate.product;
   if (!product) throw new Error("productCreate returned no product");
+
+  // Link Size + Color options to Shopify Taxonomy so apparel category validates
+  // (Google Merchant Center requires linked Color/Size to skip "missing attribute" errors).
+  try {
+    const optData = await shopifyGraphQL<{
+      product: { options: Array<{ id: string; name: string; optionValues: Array<{ id: string; name: string }> }> };
+    }>(
+      `query($id:ID!){ product(id:$id){ options { id name optionValues { id name } } } }`,
+      { id: product.id },
+    );
+    const sizeOpt = optData.product.options.find((o) => o.name === "Size");
+    const colorOpt = optData.product.options.find((o) => o.name === "Color");
+    const sizeGidByName: Record<string, string> = {
+      XS: SIZE_METAOBJECT_GIDS[0], S: SIZE_METAOBJECT_GIDS[1], M: SIZE_METAOBJECT_GIDS[2],
+      L: SIZE_METAOBJECT_GIDS[3], XL: SIZE_METAOBJECT_GIDS[4], "2XL": SIZE_METAOBJECT_GIDS[5], "3XL": SIZE_METAOBJECT_GIDS[6],
+    };
+    const LINK_MUT = `mutation($productId:ID!, $option:OptionUpdateInput!, $optionValuesToUpdate:[OptionValueUpdateInput!]) {
+      productOptionUpdate(productId:$productId, option:$option, optionValuesToUpdate:$optionValuesToUpdate) {
+        userErrors { field message code }
+      }
+    }`;
+    if (sizeOpt) {
+      const valuesToUpdate = sizeOpt.optionValues
+        .filter((v) => sizeGidByName[v.name])
+        .map((v) => ({ id: v.id, linkedMetafieldValue: sizeGidByName[v.name] }));
+      if (valuesToUpdate.length) {
+        await shopifyGraphQL(LINK_MUT, {
+          productId: product.id,
+          option: { id: sizeOpt.id, linkedMetafield: { namespace: "shopify", key: "size" } },
+          optionValuesToUpdate: valuesToUpdate,
+        });
+      }
+    }
+    if (colorOpt && params.principalColor) {
+      const colorGid = translateColorName(params.principalColor).metaobjectGid;
+      if (colorGid) {
+        const valuesToUpdate = colorOpt.optionValues.map((v) => ({ id: v.id, linkedMetafieldValue: colorGid }));
+        await shopifyGraphQL(LINK_MUT, {
+          productId: product.id,
+          option: { id: colorOpt.id, linkedMetafield: { namespace: "shopify", key: "color-pattern" } },
+          optionValuesToUpdate: valuesToUpdate,
+        });
+      }
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `Option linking: ${err.message}` : "Option linking failed");
+  }
 
   // Shopify productCreate auto-creates ONE variant (Size=XS, Length=first).
   // Create the remaining (Size × Length) - 1 variants so the product has all combinations.
@@ -1222,6 +1370,40 @@ export async function pushProductToShopify(
         warnings.push(
           `Variant update: ${updateRes.productVariantsBulkUpdate.userErrors.map((e) => e.message).join(", ")}`,
         );
+      }
+
+      // Set per-variant Google Shopping feed metafields (color, size, age_group, gender).
+      // Shopify's bulk editor flags these as "Missing" at the variant level otherwise.
+      try {
+        const variantMetafields: Array<{ ownerId: string; namespace: string; key: string; type: string; value: string }> = [];
+        for (const v of variantNodes) {
+          const color = v.selectedOptions.find((o) => /color|colour|لون/i.test(o.name))?.value;
+          const size = v.selectedOptions.find((o) => /^size$/i.test(o.name))?.value;
+          if (color) variantMetafields.push({ ownerId: v.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "color", type: "single_line_text_field", value: color });
+          if (size) variantMetafields.push({ ownerId: v.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "size", type: "single_line_text_field", value: size });
+          variantMetafields.push({ ownerId: v.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "age_group", type: "single_line_text_field", value: "adult" });
+          variantMetafields.push({ ownerId: v.id, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "gender", type: "single_line_text_field", value: "female" });
+        }
+        // Batch 25 per call (Shopify limit)
+        for (let i = 0; i < variantMetafields.length; i += 25) {
+          const batch = variantMetafields.slice(i, i + 25);
+          const res = await shopifyGraphQL<{
+            metafieldsSet: { userErrors: Array<{ field: string[]; message: string }> };
+          }>(
+            `mutation($metafields:[MetafieldsSetInput!]!) {
+              metafieldsSet(metafields: $metafields) {
+                userErrors { field message }
+              }
+            }`,
+            { metafields: batch },
+          );
+          if (res.metafieldsSet.userErrors.length) {
+            warnings.push(`Variant google metafields: ${res.metafieldsSet.userErrors.map((e) => e.message).join(", ")}`);
+            break;
+          }
+        }
+      } catch (err) {
+        warnings.push(err instanceof Error ? `Variant google metafields: ${err.message}` : "Variant google metafields failed");
       }
 
       // Seed inventory at the default location
@@ -1411,7 +1593,7 @@ export async function pushProductToShopify(
 
     const translationPlan: Array<{ key: string; value: string }> = [
       { key: "title", value: params.arTitle },
-      { key: "body_html", value: paragraphsToHtml(params.arDescription) },
+      { key: "body_html", value: paragraphsToHtml(params.arDescription) + buildGmcBlock(params, "ar") },
       { key: "meta_title", value: params.arSeoTitle },
       { key: "meta_description", value: params.arSeoDescription },
     ];
@@ -1658,7 +1840,8 @@ export async function addVariantToProduct(
   const existingColorValueNames =
     colorOption?.optionValues.map((v) => v.name) ?? [];
 
-  // 3. Add Color option (or new color value to existing option)
+  // 3. Add Color option (or new color value to existing option) with taxonomy link
+  const newColorGid = translateColorName(params.colorName).metaobjectGid;
   if (!colorOption) {
     const optRes = await shopifyGraphQL<{
       productOptionsCreate: {
@@ -1672,7 +1855,18 @@ export async function addVariantToProduct(
       }`,
       {
         productId: params.productId,
-        options: [{ name: "Color", values: [{ name: colorNameEn }] }],
+        options: [
+          newColorGid
+            ? {
+                name: "Color",
+                linkedMetafield: {
+                  namespace: "shopify",
+                  key: "color-pattern",
+                  values: [newColorGid],
+                },
+              }
+            : { name: "Color", values: [{ name: colorNameEn }] },
+        ],
       },
     );
     if (optRes.productOptionsCreate.userErrors.length) {
@@ -1694,7 +1888,11 @@ export async function addVariantToProduct(
       {
         productId: params.productId,
         option: { id: colorOption.id },
-        optionValuesToAdd: [{ name: colorNameEn }],
+        optionValuesToAdd: [
+          newColorGid
+            ? { linkedMetafieldValue: newColorGid }
+            : { name: colorNameEn },
+        ],
       },
     );
     if (updRes.productOptionUpdate.userErrors.length) {
@@ -1878,6 +2076,38 @@ export async function addVariantToProduct(
     }
   } catch (err) {
     warnings.push(err instanceof Error ? `Customs fields: ${err.message}` : "Customs fields update failed");
+  }
+
+  // Set per-variant Google Shopping feed metafields (color, size, age_group, gender)
+  // so the new variants don't get flagged as "Missing" by Shopify's apparel validator.
+  try {
+    const variantMetafields: Array<{ ownerId: string; namespace: string; key: string; type: string; value: string }> = [];
+    for (let i = 0; i < createdVariants.length; i++) {
+      const variantId = createdVariants[i].id;
+      const ov = newVariants[i]?.optionValues ?? [];
+      const size = ov.find((o) => /^size$/i.test(o.optionName))?.name;
+      variantMetafields.push({ ownerId: variantId, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "color", type: "single_line_text_field", value: colorNameEn });
+      if (size) variantMetafields.push({ ownerId: variantId, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "size", type: "single_line_text_field", value: size });
+      variantMetafields.push({ ownerId: variantId, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "age_group", type: "single_line_text_field", value: "adult" });
+      variantMetafields.push({ ownerId: variantId, namespace: GOOGLE_SHOPPING_NAMESPACE, key: "gender", type: "single_line_text_field", value: "female" });
+    }
+    for (let i = 0; i < variantMetafields.length; i += 25) {
+      const batch = variantMetafields.slice(i, i + 25);
+      const res = await shopifyGraphQL<{
+        metafieldsSet: { userErrors: Array<{ field: string[]; message: string }> };
+      }>(
+        `mutation($metafields:[MetafieldsSetInput!]!) {
+          metafieldsSet(metafields: $metafields) { userErrors { field message } }
+        }`,
+        { metafields: batch },
+      );
+      if (res.metafieldsSet.userErrors.length) {
+        warnings.push(`New-variant google metafields: ${res.metafieldsSet.userErrors.map((e) => e.message).join(", ")}`);
+        break;
+      }
+    }
+  } catch (err) {
+    warnings.push(err instanceof Error ? `New-variant google metafields: ${err.message}` : "New-variant google metafields failed");
   }
 
   // Register AR translation for the new color value + extend color-pattern metafield

@@ -88,6 +88,7 @@ export default function FullProductPage() {
   const [price, setPrice] = useState("45.000");
   const [pieces, setPieces] = useState<1 | 2 | 3 | 4>(1);
   const [hasShawl, setHasShawl] = useState(false);
+  const [material, setMaterial] = useState("");
   const [collections, setCollections] = useState<ShopifyCollection[]>([]);
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
   const [colors, setColors] = useState<ColorRow[]>([newRow(), newRow()]);
@@ -163,6 +164,7 @@ export default function FullProductPage() {
     setSelectedCollections([]);
     setHasShawl(false);
     setPieces(1);
+    setMaterial("");
     fetchNextSku({ force: true });
   }
 
@@ -195,6 +197,7 @@ export default function FullProductPage() {
             imageBase64: c.base64,
             imageMimeType: c.mimeType,
           })),
+          material: material.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -313,6 +316,41 @@ export default function FullProductPage() {
                   {hasShawl ? "✓ Oui, avec châle" : "Non"}
                 </button>
               </div>
+            </div>
+
+            <div className="mt-3">
+              <label className="text-[11px] uppercase tracking-wider text-foreground-subtle mb-1.5 block">
+                Matière (optionnel — sinon détectée automatiquement)
+              </label>
+              <input
+                type="text"
+                value={material}
+                onChange={(e) => setMaterial(e.target.value)}
+                placeholder="Velours, Soie, Coton…"
+                className="w-full rounded-lg bg-background border border-border px-3 py-2 text-sm text-foreground placeholder:text-foreground-subtle focus:outline-none focus:border-accent/50"
+              />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {["Velours", "Soie", "Coton", "Mousseline", "Satin", "Crêpe", "Georgette", "Lin"].map((m) => {
+                  const active = material.trim().toLowerCase() === m.toLowerCase();
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setMaterial(active ? "" : m)}
+                      className={`text-xs px-2.5 py-1 rounded-md border transition-colors ${
+                        active
+                          ? "border-accent bg-accent/10 text-foreground"
+                          : "border-border bg-background text-foreground-muted hover:text-foreground"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-foreground-subtle mt-1.5">
+                Plusieurs matières ? Séparez par une virgule (ex: « Velours, Soie »).
+              </p>
             </div>
           </div>
 

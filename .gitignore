@@ -42,3 +42,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# one-off maintenance script outputs (logs / audits / reports — generated locally)
+*.log.json
+*-audit*.json
+*-report.json
+
+# liquid theme backups
+*.bak
+*.bak2
+*.bak.*.liquid
+
+# throwaway model-preview renders & local verification artifacts
+/scripts/house-model-previews/
+/public/*.backup*.png
+/scripts/duplicate-images-verify.html
+
+# local theme dump & one-off content-image renders (regenerable, large binaries)
+/theme-dump/
+/scripts/darra-hero-images/
+/scripts/alkhairan-cover/
