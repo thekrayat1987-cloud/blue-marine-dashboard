@@ -1,13 +1,15 @@
 import { usdToKd } from "./currency";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
-const SNAP_ACCESS_TOKEN = process.env.SNAP_ACCESS_TOKEN!;
 const SNAP_AD_ACCOUNT_ID = process.env.SNAP_AD_ACCOUNT_ID!;
 const SNAP_BASE_URL = "https://adsapi.snapchat.com/v1";
 
 async function snapFetch<T>(endpoint: string): Promise<T> {
+  const token = await getIntegrationAccessToken("snapchat", "SNAP_ACCESS_TOKEN");
+  if (!token) throw new Error("SNAP_ACCESS_TOKEN manquant");
   const res = await fetch(`${SNAP_BASE_URL}/${endpoint}`, {
     headers: {
-      Authorization: `Bearer ${SNAP_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });

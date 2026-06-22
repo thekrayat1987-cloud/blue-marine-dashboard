@@ -15,7 +15,6 @@ import {
   Sparkles,
   Search,
   X,
-  Package,
   Clock,
   Tag,
   Workflow,
@@ -645,6 +644,7 @@ export default function BroadcastPlannerPage() {
                   {selectedProduct ? (
                     <div className="flex items-center gap-3 p-2 rounded-lg border border-border bg-surface-muted">
                       {selectedProduct.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={selectedProduct.imageUrl}
                           alt={selectedProduct.title}
@@ -705,6 +705,7 @@ export default function BroadcastPlannerPage() {
                                 className="w-full text-left p-2 hover:bg-surface-muted flex items-center gap-2"
                               >
                                 {p.imageUrl && (
+                                  // eslint-disable-next-line @next/next/no-img-element
                                   <img
                                     src={p.imageUrl}
                                     alt=""

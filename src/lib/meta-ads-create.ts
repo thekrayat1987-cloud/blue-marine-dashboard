@@ -1,10 +1,9 @@
 import { kdToUsd } from "@/lib/currency";
 import type { AdPlan, SelectedProduct } from "@/lib/ad-planner";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 const META_API = "https://graph.facebook.com/v21.0";
 
-const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
-const META_AD_ACCOUNT_ID = process.env.META_AD_ACCOUNT_ID;
 const META_PAGE_ID = process.env.META_PAGE_ID ?? "629026413637284";
 const META_PIXEL_ID = process.env.META_PIXEL_ID ?? "2377425909303221";
 
@@ -68,8 +67,9 @@ async function metaFetch<T>(
   body: Record<string, unknown>,
   method: "POST" | "GET" = "POST",
 ): Promise<T> {
-  if (!META_ACCESS_TOKEN) throw new Error("META_ACCESS_TOKEN manquant");
-  if (!META_AD_ACCOUNT_ID) throw new Error("META_AD_ACCOUNT_ID manquant");
+  const token = await getIntegrationAccessToken("meta", "META_ACCESS_TOKEN");
+  if (!token) throw new Error("META_ACCESS_TOKEN manquant");
+  if (!process.env.META_AD_ACCOUNT_ID) throw new Error("META_AD_ACCOUNT_ID manquant");
 
   const url = `${META_API}/${path}`;
   const formData = new URLSearchParams();
@@ -81,7 +81,7 @@ async function metaFetch<T>(
       formData.append(k, String(v));
     }
   }
-  formData.append("access_token", META_ACCESS_TOKEN);
+  formData.append("access_token", token);
 
   const res = await fetch(url, {
     method,
@@ -126,13 +126,15 @@ export async function pushPlanToMeta(
   plan: AdPlan,
   selectedProducts: SelectedProduct[],
 ): Promise<PushResult> {
-  if (!META_ACCESS_TOKEN || !META_AD_ACCOUNT_ID) {
+  const token = await getIntegrationAccessToken("meta", "META_ACCESS_TOKEN");
+  const metaAdAccountId = process.env.META_AD_ACCOUNT_ID;
+  if (!token || !metaAdAccountId) {
     throw new Error("Variables Meta manquantes (META_ACCESS_TOKEN, META_AD_ACCOUNT_ID)");
   }
 
-  const adAccount = META_AD_ACCOUNT_ID.startsWith("act_")
-    ? META_AD_ACCOUNT_ID
-    : `act_${META_AD_ACCOUNT_ID}`;
+  const adAccount = metaAdAccountId.startsWith("act_")
+    ? metaAdAccountId
+    : `act_${metaAdAccountId}`;
 
   const warnings: string[] = [];
   const errors: string[] = [];

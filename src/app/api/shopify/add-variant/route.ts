@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { addVariantToProduct } from "@/lib/shopify";
 import { readGenerationMeta, readGenerationImage } from "@/lib/storage";
+import { decodeBase64Image } from "@/lib/image-input";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     let resolvedSku: string;
 
     if (imageBase64 && imageMimeType) {
-      imageBuffer = Buffer.from(imageBase64, "base64");
+      imageBuffer = decodeBase64Image(imageBase64, imageMimeType);
       mimeType = imageMimeType;
       resolvedSku = sku?.trim() || `${Date.now()}`;
     } else if (generationId) {

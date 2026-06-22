@@ -1,6 +1,7 @@
 import { NextRequest, after } from "next/server";
 import { verifyShopifyWebhook } from "@/lib/shopify-webhook";
 import { standardizeFeaturedImage, TARGET_W, TARGET_H } from "@/lib/image-standardize";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
   after(async () => {
     const cfg = {
       store: process.env.SHOPIFY_STORE_URL || "",
-      token: process.env.SHOPIFY_ACCESS_TOKEN || "",
+      token: (await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN")) || "",
       version: process.env.SHOPIFY_API_VERSION || "2024-10",
     };
     try {

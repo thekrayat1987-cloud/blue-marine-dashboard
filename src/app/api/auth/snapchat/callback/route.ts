@@ -4,6 +4,7 @@ import {
   oauthStateCookieName,
   verifyOAuthState,
 } from "@/lib/oauth-state";
+import { saveIntegrationToken } from "@/lib/integration-tokens";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -40,9 +41,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token response missing access_token" }, { status: 500 });
     }
 
-    process.env.SNAP_ACCESS_TOKEN = accessToken;
+    const expiresIn = Number(tokenData.expires_in || 0);
+    await saveIntegrationToken({
+      provider: "snapchat",
+      accessToken,
+      tokenType: tokenData.token_type || "bearer",
+      expiresAt: expiresIn > 0 ? new Date(Date.now() + expiresIn * 1000).toISOString() : null,
+      metadata: {
+        refreshToken: Boolean(tokenData.refresh_token),
+        scope: tokenData.scope,
+      },
+    });
 
-    const response = NextResponse.redirect(new URL("/snapchat?connected=session", request.url));
+    const response = NextResponse.redirect(new URL("/snapchat?connected=stored", request.url));
     response.headers.append("Set-Cookie", clearOAuthStateCookie("snapchat"));
     return response;
   } catch (error) {

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getCampaigns, getAccountStats } from "@/lib/snapchat";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  // Check if token exists
-  if (!process.env.SNAP_ACCESS_TOKEN) {
+  if (!(await getIntegrationAccessToken("snapchat", "SNAP_ACCESS_TOKEN"))) {
     return NextResponse.json({ error: "Not connected. Please connect Snapchat first.", needsAuth: true }, { status: 401 });
   }
 

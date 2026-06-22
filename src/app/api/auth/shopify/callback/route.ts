@@ -4,6 +4,7 @@ import {
   oauthStateCookieName,
   verifyOAuthState,
 } from "@/lib/oauth-state";
+import { saveIntegrationToken } from "@/lib/integration-tokens";
 
 function normalizeShopHost(value: string | undefined): string | null {
   if (!value) return null;
@@ -52,9 +53,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Token response missing access_token" }, { status: 500 });
     }
 
-    process.env.SHOPIFY_ACCESS_TOKEN = accessToken;
+    await saveIntegrationToken({
+      provider: "shopify",
+      accessToken,
+      tokenType: typeof tokenData.scope === "string" ? "offline" : null,
+      metadata: {
+        shop: configuredShop,
+        scope: tokenData.scope,
+      },
+    });
 
-    const response = NextResponse.redirect(new URL("/settings?shopify_connected=session", request.url));
+    const response = NextResponse.redirect(new URL("/settings?shopify_connected=stored", request.url));
     response.headers.append("Set-Cookie", clearOAuthStateCookie("shopify"));
     return response;
   } catch (error) {

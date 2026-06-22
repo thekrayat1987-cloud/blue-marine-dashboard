@@ -1,14 +1,20 @@
-const SHOPIFY_STORE_URL = process.env.SHOPIFY_STORE_URL!;
-const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN!;
-const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION || "2024-10";
-const SHOPIFY_GRAPHQL_URL = `https://${SHOPIFY_STORE_URL}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
+
+async function getShopifyConfig(): Promise<{ graphqlUrl: string; token: string }> {
+  const store = process.env.SHOPIFY_STORE_URL;
+  const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
+  const version = process.env.SHOPIFY_API_VERSION || "2024-10";
+  if (!store || !token) throw new Error("SHOPIFY_STORE_URL or SHOPIFY_ACCESS_TOKEN missing");
+  return { graphqlUrl: `https://${store}/admin/api/${version}/graphql.json`, token };
+}
 
 async function shopifyGraphQL<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
-  const res = await fetch(SHOPIFY_GRAPHQL_URL, {
+  const cfg = await getShopifyConfig();
+  const res = await fetch(cfg.graphqlUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
+      "X-Shopify-Access-Token": cfg.token,
     },
     body: JSON.stringify({ query, variables }),
   });

@@ -1,9 +1,10 @@
 // Shopify orchestrator for creating a complete collection (collection + AR translations
 // + cover image + optional homepage placement + optional nav menu link with AR).
 
-const STORE = process.env.SHOPIFY_STORE_URL || "";
-const TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || "";
-const VERSION = process.env.SHOPIFY_API_VERSION || "2024-10";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
+import { sanitizeSimpleHtml } from "@/lib/html";
+import { decodeBase64Image } from "@/lib/image-input";
+
 const THEME_ID = process.env.SHOPIFY_THEME_ID || "182480240940";
 const MENU_ID = process.env.SHOPIFY_MAIN_MENU_ID || "gid://shopify/Menu/300333334828";
 const HOMEPAGE_COLLECTION_LIST_KEY =
@@ -11,12 +12,20 @@ const HOMEPAGE_COLLECTION_LIST_KEY =
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+async function getShopifyConfig(): Promise<{ store: string; token: string; version: string }> {
+  const store = process.env.SHOPIFY_STORE_URL || "";
+  const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
+  const version = process.env.SHOPIFY_API_VERSION || "2024-10";
+  if (!store || !token) throw new Error("SHOPIFY_STORE_URL or SHOPIFY_ACCESS_TOKEN missing");
+  return { store, token, version };
+}
+
 async function gql<T = unknown>(query: string, variables?: Record<string, unknown>): Promise<T> {
-  if (!STORE || !TOKEN) throw new Error("SHOPIFY_STORE_URL or SHOPIFY_ACCESS_TOKEN missing");
-  const url = `https://${STORE}/admin/api/${VERSION}/graphql.json`;
+  const cfg = await getShopifyConfig();
+  const url = `https://${cfg.store}/admin/api/${cfg.version}/graphql.json`;
   const r = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": TOKEN },
+    headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": cfg.token },
     body: JSON.stringify({ query, variables }),
   });
   const j = (await r.json()) as { data: T; errors?: unknown };
@@ -61,7 +70,10 @@ export interface CreateFullCollectionResult {
 export async function createFullCollection(
   input: CreateFullCollectionInput,
 ): Promise<CreateFullCollectionResult> {
+  const cfg = await getShopifyConfig();
   const handle = slugify(input.enName);
+  const bodyHtmlEn = sanitizeSimpleHtml(input.bodyHtmlEn);
+  const bodyHtmlAr = sanitizeSimpleHtml(input.bodyHtmlAr);
   const steps: Array<{ name: string; ok: boolean; detail?: string }> = [];
 
   // 1. Create the collection with EN content + products + sort order
@@ -82,7 +94,7 @@ export async function createFullCollection(
       input: {
         title: input.enName,
         handle,
-        descriptionHtml: input.bodyHtmlEn,
+        descriptionHtml: bodyHtmlEn,
         seo: { title: input.seoTitleEn, description: input.seoDescEn },
         products: input.productIds,
         sortOrder: input.sortOrder || "CREATED_DESC",
@@ -127,7 +139,7 @@ export async function createFullCollection(
     if (d) arTranslations.push({ key, value, locale: "ar", translatableContentDigest: d });
   };
   pushAr("title", input.arName);
-  pushAr("body_html", input.bodyHtmlAr);
+  pushAr("body_html", bodyHtmlAr);
   pushAr("meta_title", input.seoTitleAr);
   pushAr("meta_description", input.seoDescAr);
 
@@ -154,7 +166,7 @@ export async function createFullCollection(
 
   // 3. Cover image (optional)
   if (input.coverImageBase64) {
-    const buf = Buffer.from(input.coverImageBase64, "base64");
+    const buf = decodeBase64Image(input.coverImageBase64, "image/jpeg");
     const filename = `${handle}-cover.jpg`;
     type StagedRes = {
       stagedUploadsCreate: {
@@ -226,8 +238,8 @@ export async function createFullCollection(
   // 4. Homepage
   if (input.addToHomepage) {
     try {
-      const baseUrl = `https://${STORE}/admin/api/${VERSION}/themes/${THEME_ID}/assets.json`;
-      const headers = { "X-Shopify-Access-Token": TOKEN, "Content-Type": "application/json" };
+      const baseUrl = `https://${cfg.store}/admin/api/${cfg.version}/themes/${THEME_ID}/assets.json`;
+      const headers = { "X-Shopify-Access-Token": cfg.token, "Content-Type": "application/json" };
       const getR = await fetch(`${baseUrl}?asset[key]=templates/index.json`, { headers });
       if (!getR.ok) throw new Error(`GET index.json ${getR.status}`);
       const gj = (await getR.json()) as { asset: { value: string } };
@@ -443,7 +455,7 @@ export async function createFullCollection(
   return {
     id: col.id,
     handle: col.handle,
-    adminUrl: `https://${STORE}/admin/collections/${col.id.split("/").pop()}`,
+    adminUrl: `https://${cfg.store}/admin/collections/${col.id.split("/").pop()}`,
     storefrontUrl: `https://bluemarineatelier.com/collections/${col.handle}`,
     steps,
   };

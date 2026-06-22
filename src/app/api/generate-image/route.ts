@@ -8,6 +8,7 @@ import {
 import { generateBlueMarineImageOpenAI } from "@/lib/openai";
 import { getUsedPoeticNames } from "@/lib/shopify";
 import { saveGeneration } from "@/lib/storage";
+import { assertAllowedImageMime } from "@/lib/image-input";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -63,6 +64,14 @@ export async function POST(request: NextRequest) {
     for (const f of files) {
       if (f.size > MAX_BYTES) {
         return Response.json({ error: "Image trop volumineuse (max 8 Mo)" }, { status: 400 });
+      }
+      try {
+        assertAllowedImageMime(f.type || "image/jpeg");
+      } catch (error) {
+        return Response.json(
+          { error: error instanceof Error ? error.message : "Type d'image invalide" },
+          { status: 400 },
+        );
       }
     }
     const preset = ALLOWED_PRESETS.includes(presetRaw as StylePreset)

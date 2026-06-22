@@ -1,4 +1,5 @@
 import { usdToKd } from "./currency";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 export class OAuthError extends Error {
   constructor(message: string) {
@@ -7,14 +8,21 @@ export class OAuthError extends Error {
   }
 }
 
-const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN!;
-const META_AD_ACCOUNT_ID = process.env.META_AD_ACCOUNT_ID!;
 const META_API_VERSION = "v21.0";
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
 
+async function getMetaConfig(): Promise<{ token: string; adAccountId: string }> {
+  const token = await getIntegrationAccessToken("meta", "META_ACCESS_TOKEN");
+  const adAccountId = process.env.META_AD_ACCOUNT_ID;
+  if (!token) throw new Error("META_ACCESS_TOKEN manquant");
+  if (!adAccountId) throw new Error("META_AD_ACCOUNT_ID manquant");
+  return { token, adAccountId };
+}
+
 async function metaFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
+  const { token } = await getMetaConfig();
   const url = new URL(`${META_BASE_URL}/${endpoint}`);
-  url.searchParams.set("access_token", META_ACCESS_TOKEN);
+  url.searchParams.set("access_token", token);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
@@ -51,6 +59,7 @@ export interface MetaCampaign {
 }
 
 export async function getCampaigns(datePreset: string = "this_year"): Promise<MetaCampaign[]> {
+  const { adAccountId } = await getMetaConfig();
   const data = await metaFetch<{
     data: Array<{
       id: string;
@@ -60,7 +69,7 @@ export async function getCampaigns(datePreset: string = "this_year"): Promise<Me
       daily_budget?: string;
       lifetime_budget?: string;
     }>;
-  }>(`${META_AD_ACCOUNT_ID}/campaigns`, {
+  }>(`${adAccountId}/campaigns`, {
     fields: "id,name,status,objective,daily_budget,lifetime_budget",
     limit: "50",
   });
@@ -227,6 +236,7 @@ export interface MetaAdAccountInsights {
 export async function getAdAccountInsights(
   datePreset: string = "this_year",
 ): Promise<MetaAdAccountInsights> {
+  const { adAccountId } = await getMetaConfig();
   const data = await metaFetch<{
     data: Array<{
       spend: string;
@@ -238,7 +248,7 @@ export async function getAdAccountInsights(
       actions?: Array<{ action_type: string; value: string }>;
       action_values?: Array<{ action_type: string; value: string }>;
     }>;
-  }>(`${META_AD_ACCOUNT_ID}/insights`, {
+  }>(`${adAccountId}/insights`, {
     fields: "spend,impressions,clicks,cpc,cpm,ctr,actions,action_values",
     date_preset: datePreset,
   });

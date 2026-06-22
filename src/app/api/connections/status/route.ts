@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,7 +14,7 @@ const META_API = "https://graph.facebook.com/v21.0";
 
 async function checkShopify(): Promise<CheckResult> {
   const shop = process.env.SHOPIFY_STORE_URL;
-  const token = process.env.SHOPIFY_ACCESS_TOKEN;
+  const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
   const version = process.env.SHOPIFY_API_VERSION || "2024-10";
   if (!shop || !token) return { ok: false, error: "Variables manquantes (SHOPIFY_STORE_URL ou SHOPIFY_ACCESS_TOKEN)" };
 
@@ -33,7 +34,7 @@ async function checkShopify(): Promise<CheckResult> {
 }
 
 async function metaGet(path: string, fields: string): Promise<{ ok: true; data: Record<string, unknown> } | { ok: false; error: string }> {
-  const token = process.env.META_ACCESS_TOKEN;
+  const token = await getIntegrationAccessToken("meta", "META_ACCESS_TOKEN");
   if (!token) return { ok: false, error: "META_ACCESS_TOKEN manquant" };
   try {
     const url = new URL(`${META_API}/${path}`);
@@ -76,7 +77,7 @@ async function checkWhatsApp(): Promise<CheckResult> {
 }
 
 async function checkSnapchat(): Promise<CheckResult> {
-  const token = process.env.SNAP_ACCESS_TOKEN;
+  const token = await getIntegrationAccessToken("snapchat", "SNAP_ACCESS_TOKEN");
   if (!token) return { ok: false, error: "SNAP_ACCESS_TOKEN manquant" };
   try {
     const res = await fetch("https://adsapi.snapchat.com/v1/me", {

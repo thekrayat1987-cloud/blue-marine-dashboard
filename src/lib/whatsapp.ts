@@ -1,12 +1,20 @@
-const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN!;
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
+
 const WHATSAPP_BUSINESS_ACCOUNT_ID = process.env.WHATSAPP_BUSINESS_ACCOUNT_ID!;
 const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID!;
 const META_API_VERSION = "v21.0";
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
 
+async function getMetaToken(): Promise<string> {
+  const token = await getIntegrationAccessToken("meta", "META_ACCESS_TOKEN");
+  if (!token) throw new Error("META_ACCESS_TOKEN manquant");
+  return token;
+}
+
 async function waFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
+  const token = await getMetaToken();
   const url = new URL(`${META_BASE_URL}/${endpoint}`);
-  url.searchParams.set("access_token", META_ACCESS_TOKEN);
+  url.searchParams.set("access_token", token);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
@@ -109,11 +117,12 @@ export async function sendWhatsAppTemplate(args: {
   languageCode: string;
   bodyParameters: string[];
 }): Promise<WhatsAppSendResult> {
+  const token = await getMetaToken();
   const normalisedTo = args.to.replace(/[^\d]/g, "");
   const res = await fetch(`${META_BASE_URL}/${WHATSAPP_PHONE_ID}/messages`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${META_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

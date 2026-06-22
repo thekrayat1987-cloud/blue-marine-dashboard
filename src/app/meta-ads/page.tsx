@@ -272,7 +272,7 @@ export default function MetaAdsPage() {
           <div className="rounded-xl bg-surface border border-border p-6">
             <h2 className="text-sm font-semibold text-foreground mb-4">Répartition du budget pubs</h2>
             <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={224}>
                 <PieChart>
                   <Pie
                     data={adBudgetData}

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { pushProductToShopify } from "@/lib/shopify";
 import { readGenerationMeta, readGenerationImage } from "@/lib/storage";
 import type { ProductDescription } from "@/lib/gemini";
+import { decodeBase64Image } from "@/lib/image-input";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
       : imageBase64 && imageMimeType
         ? [{ base64: imageBase64, mimeType: imageMimeType }]
         : [];
+    if (inlineImages.length > 4) {
+      return Response.json({ error: "Maximum 4 images" }, { status: 400 });
+    }
 
     let payload: InlinePayload | null = null;
 
@@ -85,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     const result = await pushProductToShopify({
       images: payload.images.map((img, idx) => ({
-        buffer: Buffer.from(img.base64, "base64"),
+        buffer: decodeBase64Image(img.base64, img.mimeType),
         mimeType: img.mimeType,
         filename: `${sku || "product"}-${idx + 1}.${img.mimeType === "image/jpeg" ? "jpg" : "png"}`,
       })),

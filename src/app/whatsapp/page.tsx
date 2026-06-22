@@ -253,7 +253,7 @@ export default function WhatsAppPage() {
               Détection automatique : utm_source=whatsapp, SuperLemon, wa.me referrer.
             </p>
             <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={224}>
                 <LineChart data={attribution.monthlyHistory}>
                   <CartesianGrid stroke="rgba(0,0,0,0.05)" strokeDasharray="3 3" />
                   <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} />

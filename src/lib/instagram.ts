@@ -1,11 +1,20 @@
-const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN!;
-const META_INSTAGRAM_ID = process.env.META_INSTAGRAM_ID!;
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
+
 const META_API_VERSION = "v21.0";
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
 
+async function getInstagramConfig(): Promise<{ token: string; instagramId: string }> {
+  const token = await getIntegrationAccessToken("meta", "META_ACCESS_TOKEN");
+  const instagramId = process.env.META_INSTAGRAM_ID;
+  if (!token) throw new Error("META_ACCESS_TOKEN manquant");
+  if (!instagramId) throw new Error("META_INSTAGRAM_ID manquant");
+  return { token, instagramId };
+}
+
 async function igFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
+  const { token } = await getInstagramConfig();
   const url = new URL(`${META_BASE_URL}/${endpoint}`);
-  url.searchParams.set("access_token", META_ACCESS_TOKEN);
+  url.searchParams.set("access_token", token);
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
@@ -31,13 +40,14 @@ export interface InstagramProfile {
 }
 
 export async function getProfile(): Promise<InstagramProfile> {
+  const { instagramId } = await getInstagramConfig();
   const data = await igFetch<{
     followers_count: number;
     follows_count: number;
     media_count: number;
     name: string;
     username: string;
-  }>(META_INSTAGRAM_ID, {
+  }>(instagramId, {
     fields: "followers_count,follows_count,media_count,name,username",
   });
 
@@ -61,12 +71,13 @@ export interface InstagramInsights {
 export async function getInsights(): Promise<InstagramInsights> {
   // Try to get insights, but gracefully handle permission errors
   try {
+    const { instagramId } = await getInstagramConfig();
     const data = await igFetch<{
       data: Array<{
         name: string;
         values: Array<{ value: number }>;
       }>;
-    }>(`${META_INSTAGRAM_ID}/insights`, {
+    }>(`${instagramId}/insights`, {
       metric: "impressions,reach,profile_views,website_clicks",
       period: "days_28",
     });
@@ -103,6 +114,7 @@ export interface InstagramMedia {
 }
 
 export async function getRecentMedia(limit: number = 12): Promise<InstagramMedia[]> {
+  const { instagramId } = await getInstagramConfig();
   const data = await igFetch<{
     data: Array<{
       id: string;
@@ -113,7 +125,7 @@ export async function getRecentMedia(limit: number = 12): Promise<InstagramMedia
       comments_count: number;
       permalink: string;
     }>;
-  }>(`${META_INSTAGRAM_ID}/media`, {
+  }>(`${instagramId}/media`, {
     fields: "id,caption,media_type,timestamp,like_count,comments_count,permalink",
     limit: limit.toString(),
   });

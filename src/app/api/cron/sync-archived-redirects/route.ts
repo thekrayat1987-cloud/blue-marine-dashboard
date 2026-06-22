@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 export const dynamic = "force-dynamic";
 
-const STORE = process.env.SHOPIFY_STORE_URL!;
-const TOKEN = process.env.SHOPIFY_ACCESS_TOKEN!;
-const VERSION = process.env.SHOPIFY_API_VERSION || "2024-10";
-const ENDPOINT = `https://${STORE}/admin/api/${VERSION}/graphql.json`;
+async function getShopifyConfig(): Promise<{ endpoint: string; token: string }> {
+  const store = process.env.SHOPIFY_STORE_URL;
+  const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
+  const version = process.env.SHOPIFY_API_VERSION || "2024-10";
+  if (!store || !token) throw new Error("SHOPIFY_STORE_URL or SHOPIFY_ACCESS_TOKEN missing");
+  return { endpoint: `https://${store}/admin/api/${version}/graphql.json`, token };
+}
 
 interface ArchivedProduct {
   id: string;
@@ -16,9 +20,10 @@ interface ArchivedProduct {
 }
 
 async function gql<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
-  const r = await fetch(ENDPOINT, {
+  const cfg = await getShopifyConfig();
+  const r = await fetch(cfg.endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": TOKEN },
+    headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": cfg.token },
     body: JSON.stringify({ query, variables }),
   });
   const j = await r.json();

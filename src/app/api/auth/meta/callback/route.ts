@@ -4,6 +4,7 @@ import {
   oauthStateCookieName,
   verifyOAuthState,
 } from "@/lib/oauth-state";
+import { saveIntegrationToken } from "@/lib/integration-tokens";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -42,10 +43,19 @@ export async function GET(request: NextRequest) {
   );
   const longTokenData = await longTokenRes.json();
   const finalToken = longTokenData.access_token || tokenData.access_token;
+  const expiresIn = Number(longTokenData.expires_in || tokenData.expires_in || 0);
 
-  process.env.META_ACCESS_TOKEN = finalToken;
+  await saveIntegrationToken({
+    provider: "meta",
+    accessToken: finalToken,
+    tokenType: longTokenData.token_type || tokenData.token_type || "bearer",
+    expiresAt: expiresIn > 0 ? new Date(Date.now() + expiresIn * 1000).toISOString() : null,
+    metadata: {
+      source: longTokenData.access_token ? "long_lived" : "short_lived",
+    },
+  });
 
-  const response = NextResponse.redirect(new URL("/settings?meta_connected=session", request.url));
+  const response = NextResponse.redirect(new URL("/settings?meta_connected=stored", request.url));
   response.headers.append("Set-Cookie", clearOAuthStateCookie("meta"));
   return response;
 }

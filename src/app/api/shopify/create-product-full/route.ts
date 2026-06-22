@@ -6,6 +6,7 @@ import {
   type StylePreset,
   type PosePreset,
 } from "@/lib/gemini";
+import { decodeBase64Image } from "@/lib/image-input";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -74,6 +75,9 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(colors) || colors.length === 0) {
       return Response.json({ error: "Au moins une couleur requise" }, { status: 400 });
     }
+    if (colors.length > 4) {
+      return Response.json({ error: "Maximum 4 couleurs" }, { status: 400 });
+    }
 
     const validColors = colors.filter(
       (c) => c?.name?.trim() && c?.imageBase64 && c?.imageMimeType,
@@ -86,6 +90,9 @@ export async function POST(request: NextRequest) {
     }
 
     const cleanSku = sku.trim().toUpperCase();
+    for (const color of validColors) {
+      decodeBase64Image(color.imageBase64, color.imageMimeType);
+    }
     const piecesNormalized: 1 | 2 | 3 | 4 =
       pieces === 2 || pieces === 3 || pieces === 4 ? pieces : 1;
     const hasShawlBool = Boolean(hasShawl);

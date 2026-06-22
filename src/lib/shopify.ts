@@ -1,15 +1,28 @@
-const SHOPIFY_STORE_URL = process.env.SHOPIFY_STORE_URL!;
-const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN!;
-const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION || "2024-10";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
+import { escapeHtml, plainTextParagraphsToHtml } from "@/lib/html";
 
-const SHOPIFY_GRAPHQL_URL = `https://${SHOPIFY_STORE_URL}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
+async function getShopifyConfig(): Promise<{ store: string; token: string; version: string; graphqlUrl: string }> {
+  const store = process.env.SHOPIFY_STORE_URL;
+  const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
+  const version = process.env.SHOPIFY_API_VERSION || "2024-10";
+  if (!store || !token) {
+    throw new Error("SHOPIFY_STORE_URL or SHOPIFY_ACCESS_TOKEN missing");
+  }
+  return {
+    store,
+    token,
+    version,
+    graphqlUrl: `https://${store}/admin/api/${version}/graphql.json`,
+  };
+}
 
 async function shopifyGraphQL<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
-  const res = await fetch(SHOPIFY_GRAPHQL_URL, {
+  const cfg = await getShopifyConfig();
+  const res = await fetch(cfg.graphqlUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
+      "X-Shopify-Access-Token": cfg.token,
     },
     body: JSON.stringify({ query, variables }),
   });
@@ -676,15 +689,6 @@ export async function getCollections(): Promise<ShopifyCollection[]> {
   return data.collections.edges.map((e) => e.node);
 }
 
-function paragraphsToHtml(text: string): string {
-  return text
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
-    .join("");
-}
-
 // GMC asks for color / size / material / pattern in every product description
 // (https://support.google.com/merchants/answer/6324468). We append a structured
 // block at the end of EN + AR descriptions so Google can extract those
@@ -774,10 +778,10 @@ function buildGmcBlock(params: PushProductParams, locale: "en" | "ar"): string {
     : { heading: "تفاصيل المنتج", color: "الألوان", size: "المقاسات", mat: "مادة الصنع", pat: "النقش", sep: "، " };
 
   const lines: string[] = [];
-  if (colors.length) lines.push(`<li><strong>${labels.color}:</strong> ${colors.join(labels.sep)}</li>`);
+  if (colors.length) lines.push(`<li><strong>${labels.color}:</strong> ${colors.map(escapeHtml).join(labels.sep)}</li>`);
   lines.push(`<li><strong>${labels.size}:</strong> XS – 3XL</li>`);
-  if (materials.length) lines.push(`<li><strong>${labels.mat}:</strong> ${materials.join(labels.sep)}</li>`);
-  lines.push(`<li><strong>${labels.pat}:</strong> ${patterns.join(labels.sep)}</li>`);
+  if (materials.length) lines.push(`<li><strong>${labels.mat}:</strong> ${materials.map(escapeHtml).join(labels.sep)}</li>`);
+  lines.push(`<li><strong>${labels.pat}:</strong> ${patterns.map(escapeHtml).join(labels.sep)}</li>`);
 
   return `\n${GMC_BLOCK_START}\n<h3>${labels.heading}</h3>\n<ul>\n${lines.join("\n")}\n</ul>\n${GMC_BLOCK_END}`;
 }
@@ -1148,7 +1152,7 @@ export async function pushProductToShopify(
     {
       input: {
         title: params.enTitle,
-        descriptionHtml: paragraphsToHtml(params.enDescription) + buildGmcBlock(params, "en"),
+        descriptionHtml: plainTextParagraphsToHtml(params.enDescription) + buildGmcBlock(params, "en"),
         vendor: params.vendor,
         handle: params.enHandle,
         tags: params.tags,
@@ -1593,7 +1597,7 @@ export async function pushProductToShopify(
 
     const translationPlan: Array<{ key: string; value: string }> = [
       { key: "title", value: params.arTitle },
-      { key: "body_html", value: paragraphsToHtml(params.arDescription) + buildGmcBlock(params, "ar") },
+      { key: "body_html", value: plainTextParagraphsToHtml(params.arDescription) + buildGmcBlock(params, "ar") },
       { key: "meta_title", value: params.arSeoTitle },
       { key: "meta_description", value: params.arSeoDescription },
     ];
@@ -1677,7 +1681,8 @@ export async function pushProductToShopify(
   }
 
   const numericId = product.id.split("/").pop();
-  const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
+  const cfg = await getShopifyConfig();
+  const adminUrl = `https://${cfg.store.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
 
   // Publish to ALL sales channels (Online Store, POS, TikTok, Facebook & Instagram, Google & YouTube, Snapchat Ads, …).
   // Requires read_publications + write_publications scopes.
@@ -1720,11 +1725,11 @@ export async function pushProductToShopify(
     );
     try {
       const pubRes = await fetch(
-        `https://${SHOPIFY_STORE_URL}/admin/api/${SHOPIFY_API_VERSION}/products/${numericId}.json`,
+        `https://${cfg.store}/admin/api/${cfg.version}/products/${numericId}.json`,
         {
           method: "PUT",
           headers: {
-            "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN,
+            "X-Shopify-Access-Token": cfg.token,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -2183,7 +2188,8 @@ export async function addVariantToProduct(
   }
 
   const numericId = params.productId.split("/").pop();
-  const adminUrl = `https://${SHOPIFY_STORE_URL.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
+  const cfg = await getShopifyConfig();
+  const adminUrl = `https://${cfg.store.replace(/\.myshopify\.com$/, "")}.myshopify.com/admin/products/${numericId}`;
 
   return {
     variantId: createdVariants[0].id,
@@ -2207,4 +2213,3 @@ const LENGTH_VALUES = [
   "59",
   "60",
 ];
-

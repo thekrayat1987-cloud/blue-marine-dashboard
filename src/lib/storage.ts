@@ -1,11 +1,14 @@
 import { promises as fs } from "fs";
-import path from "path";
 import { randomBytes } from "crypto";
+import { supabase } from "@/lib/supabase";
 import type { ProductDescription, StylePreset, PosePreset } from "./gemini";
 
-const STORAGE_DIR = process.env.VERCEL
-  ? "/tmp/blue-marine-generated"
-  : path.join(process.cwd(), ".generated");
+const STORAGE_DIR = "/tmp/blue-marine-generated";
+const BUCKET = "blue-marine-generated";
+
+function storagePath(filename: string): string {
+  return `${STORAGE_DIR}/${filename}`;
+}
 
 export type GenerationMeta = {
   id: string;
@@ -28,6 +31,44 @@ function newId(): string {
   return `${Date.now()}-${randomBytes(4).toString("hex")}`;
 }
 
+function extensionFor(mimeType: string): "jpg" | "png" | "webp" {
+  if (mimeType === "image/jpeg") return "jpg";
+  if (mimeType === "image/webp") return "webp";
+  return "png";
+}
+
+async function saveLocal(id: string, ext: string, imageBuffer: Buffer, meta: GenerationMeta) {
+  await ensureDir();
+  await Promise.all([
+    fs.writeFile(storagePath(`${id}.${ext}`), imageBuffer),
+    fs.writeFile(storagePath(`${id}.json`), JSON.stringify(meta, null, 2), "utf-8"),
+  ]);
+}
+
+async function saveRemote(id: string, ext: string, imageBuffer: Buffer, meta: GenerationMeta): Promise<boolean> {
+  try {
+    const bucket = supabase.storage.from(BUCKET);
+    const image = await bucket.upload(`${id}.${ext}`, imageBuffer, {
+      contentType: meta.mimeType,
+      upsert: false,
+    });
+    if (image.error) throw image.error;
+    const metadata = await bucket.upload(`${id}.json`, JSON.stringify(meta, null, 2), {
+      contentType: "application/json; charset=utf-8",
+      upsert: false,
+    });
+    if (metadata.error) throw metadata.error;
+    return true;
+  } catch (error) {
+    console.warn(
+      `[storage] Supabase storage unavailable; using /tmp fallback: ${
+        error instanceof Error ? error.message : "unknown error"
+      }`,
+    );
+    return false;
+  }
+}
+
 export async function saveGeneration(params: {
   imageBuffer: Buffer;
   mimeType: string;
@@ -37,11 +78,8 @@ export async function saveGeneration(params: {
   extra?: string;
   description: ProductDescription | null;
 }): Promise<GenerationMeta> {
-  await ensureDir();
   const id = newId();
-  const ext = params.mimeType === "image/jpeg" ? "jpg" : "png";
-  const imagePath = path.join(STORAGE_DIR, `${id}.${ext}`);
-  const metaPath = path.join(STORAGE_DIR, `${id}.json`);
+  const ext = extensionFor(params.mimeType);
 
   const meta: GenerationMeta = {
     id,
@@ -56,15 +94,17 @@ export async function saveGeneration(params: {
     description: params.description,
   };
 
-  await Promise.all([
-    fs.writeFile(imagePath, params.imageBuffer),
-    fs.writeFile(metaPath, JSON.stringify(meta, null, 2), "utf-8"),
-  ]);
+  const savedRemote = await saveRemote(id, ext, params.imageBuffer, meta);
+  if (!savedRemote) {
+    await saveLocal(id, ext, params.imageBuffer, meta);
+  }
 
   return meta;
 }
 
 export async function listGenerations(): Promise<GenerationMeta[]> {
+  const remoteItems = await listRemoteGenerations();
+  if (remoteItems.length) return remoteItems;
   try {
     await ensureDir();
     const files = await fs.readdir(STORAGE_DIR);
@@ -72,7 +112,7 @@ export async function listGenerations(): Promise<GenerationMeta[]> {
     const items = await Promise.all(
       jsonFiles.map(async (f) => {
         try {
-          const content = await fs.readFile(path.join(STORAGE_DIR, f), "utf-8");
+          const content = await fs.readFile(storagePath(f), "utf-8");
           return JSON.parse(content) as GenerationMeta;
         } catch {
           return null;
@@ -89,9 +129,11 @@ export async function listGenerations(): Promise<GenerationMeta[]> {
 
 export async function readGenerationMeta(id: string): Promise<GenerationMeta | null> {
   if (!/^[a-zA-Z0-9_-]+$/.test(id)) return null;
+  const remote = await readRemoteMeta(id);
+  if (remote) return remote;
   await ensureDir();
   try {
-    const content = await fs.readFile(path.join(STORAGE_DIR, `${id}.json`), "utf-8");
+    const content = await fs.readFile(storagePath(`${id}.json`), "utf-8");
     return JSON.parse(content) as GenerationMeta;
   } catch {
     return null;
@@ -102,12 +144,17 @@ export async function readGenerationImage(
   id: string,
 ): Promise<{ buffer: Buffer; mimeType: string } | null> {
   if (!/^[a-zA-Z0-9_-]+$/.test(id)) return null;
+  const remote = await readRemoteImage(id);
+  if (remote) return remote;
   await ensureDir();
-  for (const ext of ["png", "jpg"] as const) {
-    const filePath = path.join(STORAGE_DIR, `${id}.${ext}`);
+  for (const ext of ["png", "jpg", "webp"] as const) {
+    const filePath = storagePath(`${id}.${ext}`);
     try {
       const buffer = await fs.readFile(filePath);
-      return { buffer, mimeType: ext === "jpg" ? "image/jpeg" : "image/png" };
+      return {
+        buffer,
+        mimeType: ext === "jpg" ? "image/jpeg" : ext === "webp" ? "image/webp" : "image/png",
+      };
     } catch {
       // try next
     }
@@ -119,8 +166,19 @@ export async function deleteGeneration(id: string): Promise<boolean> {
   if (!/^[a-zA-Z0-9_-]+$/.test(id)) return false;
   await ensureDir();
   let removed = false;
-  for (const ext of ["png", "jpg", "json"] as const) {
-    const filePath = path.join(STORAGE_DIR, `${id}.${ext}`);
+  try {
+    const { data } = await supabase.storage.from(BUCKET).remove([
+      `${id}.png`,
+      `${id}.jpg`,
+      `${id}.webp`,
+      `${id}.json`,
+    ]);
+    if (data?.length) removed = true;
+  } catch {
+    // fall back to local deletion below
+  }
+  for (const ext of ["png", "jpg", "webp", "json"] as const) {
+    const filePath = storagePath(`${id}.${ext}`);
     try {
       await fs.unlink(filePath);
       removed = true;
@@ -129,4 +187,52 @@ export async function deleteGeneration(id: string): Promise<boolean> {
     }
   }
   return removed;
+}
+
+async function listRemoteGenerations(): Promise<GenerationMeta[]> {
+  try {
+    const { data, error } = await supabase.storage.from(BUCKET).list("", {
+      limit: 200,
+      sortBy: { column: "created_at", order: "desc" },
+    });
+    if (error) throw error;
+    const jsonFiles: Array<{ name: string }> = (data || []).filter((f: { name: string }) =>
+      f.name.endsWith(".json"),
+    );
+    const items = await Promise.all(
+      jsonFiles.map(async (f) => readRemoteMeta(f.name.replace(/\.json$/, ""))),
+    );
+    return items
+      .filter((x): x is GenerationMeta => x !== null)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  } catch {
+    return [];
+  }
+}
+
+async function readRemoteMeta(id: string): Promise<GenerationMeta | null> {
+  try {
+    const { data, error } = await supabase.storage.from(BUCKET).download(`${id}.json`);
+    if (error || !data) return null;
+    return JSON.parse(await data.text()) as GenerationMeta;
+  } catch {
+    return null;
+  }
+}
+
+async function readRemoteImage(id: string): Promise<{ buffer: Buffer; mimeType: string } | null> {
+  for (const ext of ["png", "jpg", "webp"] as const) {
+    try {
+      const { data, error } = await supabase.storage.from(BUCKET).download(`${id}.${ext}`);
+      if (error || !data) continue;
+      const buffer = Buffer.from(await data.arrayBuffer());
+      return {
+        buffer,
+        mimeType: ext === "jpg" ? "image/jpeg" : ext === "webp" ? "image/webp" : "image/png",
+      };
+    } catch {
+      // try next
+    }
+  }
+  return null;
 }

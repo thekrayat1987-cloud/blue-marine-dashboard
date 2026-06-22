@@ -243,7 +243,7 @@ export default function Home() {
             Progression annuelle vers l&apos;objectif de {formatCurrency(annualGoal)} KD
           </p>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={320}>
               <BarChart data={monthlyData} barGap={6} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="2 4" stroke="#e8e2d6" vertical={false} />
                 <XAxis

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,7 +30,7 @@ async function resolveHandle(productId: string): Promise<string | null> {
   try {
     const store = process.env.SHOPIFY_STORE_URL;
     const ver = process.env.SHOPIFY_API_VERSION || "2024-10";
-    const token = process.env.SHOPIFY_ACCESS_TOKEN;
+    const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
     if (!store || !token) return null;
     const res = await fetch(
       `https://${store}/admin/api/${ver}/products/${productId}.json?fields=handle`,
