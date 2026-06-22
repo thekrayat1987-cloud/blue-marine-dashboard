@@ -52,6 +52,7 @@ next-env.d.ts
 *.bak
 *.bak2
 *.bak.*.liquid
+*.bak.*
 
 # throwaway model-preview renders & local verification artifacts
 /scripts/house-model-previews/

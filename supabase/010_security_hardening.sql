@@ -2,37 +2,36 @@
 -- Move app data access to the server-side service role and remove anon RLS
 -- access from dashboard tables. Also add atomic queue claiming helpers so
 -- overlapping cron runs cannot send duplicate WhatsApp messages.
+--
+-- Resilient: only hardens tables that actually exist (this DB never applied
+-- all of 001-007), so it won't fail on a missing relation. Idempotent — safe
+-- to re-run.
 
-alter table public.content_post_status enable row level security;
-drop policy if exists "anon read content_post_status" on public.content_post_status;
-drop policy if exists "anon write content_post_status" on public.content_post_status;
+-- 1) Enable RLS + strip anon policies on every dashboard table that exists.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'content_post_status',
+    'shopify_audit_status',
+    'captions_history',
+    'ad_planner_history',
+    'broadcast_planner_history',
+    'content_templates',
+    'pending_upsells',
+    'pending_review_requests'
+  ]
+  loop
+    if to_regclass('public.' || t) is not null then
+      execute format('alter table public.%I enable row level security', t);
+      execute format('drop policy if exists "anon read %s" on public.%I', t, t);
+      execute format('drop policy if exists "anon write %s" on public.%I', t, t);
+    end if;
+  end loop;
+end $$;
 
-alter table public.shopify_audit_status enable row level security;
-drop policy if exists "anon read shopify_audit_status" on public.shopify_audit_status;
-drop policy if exists "anon write shopify_audit_status" on public.shopify_audit_status;
-
-alter table public.captions_history enable row level security;
-drop policy if exists "anon read captions_history" on public.captions_history;
-drop policy if exists "anon write captions_history" on public.captions_history;
-
-alter table public.ad_planner_history enable row level security;
-drop policy if exists "anon read ad_planner_history" on public.ad_planner_history;
-drop policy if exists "anon write ad_planner_history" on public.ad_planner_history;
-
-alter table public.broadcast_planner_history enable row level security;
-drop policy if exists "anon read broadcast_planner_history" on public.broadcast_planner_history;
-drop policy if exists "anon write broadcast_planner_history" on public.broadcast_planner_history;
-
-alter table public.content_templates enable row level security;
-drop policy if exists "anon read content_templates" on public.content_templates;
-drop policy if exists "anon write content_templates" on public.content_templates;
-
-alter table public.pending_upsells enable row level security;
-drop policy if exists "anon read pending_upsells" on public.pending_upsells;
-drop policy if exists "anon write pending_upsells" on public.pending_upsells;
-
-alter table public.pending_review_requests enable row level security;
-
+-- 2) Atomic claim helper for upsells (pending_upsells already exists).
 create or replace function public.claim_pending_upsells(
   batch_limit integer,
   max_attempts integer
@@ -53,10 +52,9 @@ as $$
     limit batch_limit
   )
   update public.pending_upsells q
-  set
-    send_status = 'processing',
-    send_attempts = q.send_attempts + 1,
-    send_error = null
+  set send_status = 'processing',
+      send_attempts = q.send_attempts + 1,
+      send_error = null
   from claimed
   where q.id = claimed.id
   returning q.*;
@@ -67,6 +65,7 @@ revoke all on function public.claim_pending_upsells(integer, integer) from anon;
 revoke all on function public.claim_pending_upsells(integer, integer) from authenticated;
 grant execute on function public.claim_pending_upsells(integer, integer) to service_role;
 
+-- 3) Atomic claim helper for review requests (pending_review_requests from 009).
 create or replace function public.claim_pending_review_requests(
   batch_limit integer,
   max_attempts integer
@@ -87,10 +86,9 @@ as $$
     limit batch_limit
   )
   update public.pending_review_requests q
-  set
-    send_status = 'processing',
-    send_attempts = q.send_attempts + 1,
-    send_error = null
+  set send_status = 'processing',
+      send_attempts = q.send_attempts + 1,
+      send_error = null
   from claimed
   where q.id = claimed.id
   returning q.*;
