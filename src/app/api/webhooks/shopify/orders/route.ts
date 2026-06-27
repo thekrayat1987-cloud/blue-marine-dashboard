@@ -2,6 +2,7 @@ import { NextRequest, after } from "next/server";
 import { verifyShopifyWebhook } from "@/lib/shopify-webhook";
 import { getIntegrationAccessToken } from "@/lib/integration-tokens";
 import { supabase } from "@/lib/supabase";
+import { findReferralForPhone, recordOrderAttribution } from "@/lib/whatsapp-attribution";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -70,12 +71,8 @@ function buildDiscountUrl(locale: "ar" | "en"): string {
   return `https://bluemarineatelier.com${prefix}/discount/MATCHINGBISHT15?redirect=/collections/bisht-set`;
 }
 
-/**
- * Add the "whatsapp" tag to a manually-created (draft) order.
- * For this store, every order created in admin is a WhatsApp sale, so the
- * source_name "shopify_draft_order" is a reliable WhatsApp signal.
- */
-async function tagOrderWhatsApp(orderId: string, tags: string): Promise<void> {
+/** Overwrite an order's tags with the given comma-separated string. */
+async function setOrderTags(orderId: string, tags: string): Promise<void> {
   const store = process.env.SHOPIFY_STORE_URL;
   const token = await getIntegrationAccessToken("shopify", "SHOPIFY_ACCESS_TOKEN");
   const version = process.env.SHOPIFY_API_VERSION || "2024-10";
@@ -86,6 +83,13 @@ async function tagOrderWhatsApp(orderId: string, tags: string): Promise<void> {
     body: JSON.stringify({ order: { id: Number(orderId), tags } }),
   });
   if (!res.ok) throw new Error(`Shopify ${res.status} ${(await res.text()).slice(0, 200)}`);
+}
+
+/** Shopify tags can't contain commas (the delimiter); collapse them. */
+function campaignTag(campaignName: string | null): string | null {
+  if (!campaignName) return null;
+  const cleaned = campaignName.replace(/,/g, " ").replace(/\s+/g, " ").trim();
+  return cleaned ? `whatsapp-ad: ${cleaned}` : null;
 }
 
 export async function POST(request: NextRequest) {
@@ -161,32 +165,70 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // --- Auto-tag manual (draft) orders as WhatsApp. Every order created in
-  // admin (source_name "shopify_draft_order") is a WhatsApp sale for this store.
-  // Runs before the daraa-specific early-returns so it applies to ALL manual
-  // orders, and is isolated in its own background task + try/catch so it can
-  // never affect the upsell/review flows. ---
+  // --- WhatsApp tagging + Click-to-WhatsApp (CTWA) attribution. Consolidated
+  // into ONE background task with a single tags PUT so the two concerns can't
+  // race each other on the order's tag list.
+  //   1. Manual (draft) orders are WhatsApp sales for this store -> "whatsapp".
+  //   2. Any order whose phone matches a captured CTWA referral gets a
+  //      "whatsapp-ad: <campaign>" tag + a row in whatsapp_order_attribution,
+  //      surfacing the WhatsApp revenue the Meta pixel never sees.
+  // Runs before the daraa-specific early-returns so it applies to ALL orders,
+  // and is isolated in try/catch so it can never affect the upsell/review flows. ---
   {
-    if (payload.source_name === "shopify_draft_order") {
-      const existingTags = (payload.tags || "")
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-      if (!existingTags.some((t) => t.toLowerCase() === "whatsapp")) {
-        const nextTags = [...existingTags, "whatsapp"].join(", ");
-        after(async () => {
-          try {
-            await tagOrderWhatsApp(orderId, nextTags);
+    const taggingPhone = pickPhone(payload);
+    const isManualOrder = payload.source_name === "shopify_draft_order";
+    if (isManualOrder || taggingPhone) {
+      after(async () => {
+        try {
+          const existingTags = (payload.tags || "")
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean);
+          const lowerExisting = new Set(existingTags.map((t) => t.toLowerCase()));
+          const toAdd: string[] = [];
+          const addTag = (tag: string) => {
+            if (!lowerExisting.has(tag.toLowerCase()) && !toAdd.some((t) => t.toLowerCase() === tag.toLowerCase())) {
+              toAdd.push(tag);
+            }
+          };
+
+          if (isManualOrder) addTag("whatsapp");
+
+          let matched = null as Awaited<ReturnType<typeof findReferralForPhone>>;
+          if (taggingPhone) {
+            matched = await findReferralForPhone(taggingPhone);
+            if (matched) {
+              addTag("whatsapp"); // a CTWA click is a WhatsApp-channel sale
+              const ct = campaignTag(matched.campaignName);
+              if (ct) addTag(ct);
+            }
+          }
+
+          if (toAdd.length) {
+            await setOrderTags(orderId, [...existingTags, ...toAdd].join(", "));
+            console.log(`[orders-webhook] tagged ${orderName || orderId}: ${toAdd.join(", ")}`);
+          }
+
+          if (matched) {
+            const amount = payload.total_price ? parseFloat(payload.total_price) : null;
+            await recordOrderAttribution({
+              shopifyOrderId: orderId,
+              shopifyOrderNumber: orderName,
+              phone: taggingPhone,
+              referral: matched,
+              amount,
+              currency: payload.currency || "KWD",
+            });
             console.log(
-              `[orders-webhook] tagged ${orderName || orderId} 'whatsapp' (manual order)`,
-            );
-          } catch (e) {
-            console.error(
-              `[orders-webhook] whatsapp tag error for ${orderId}: ${e instanceof Error ? e.message.slice(0, 200) : ""}`,
+              `[orders-webhook] CTWA-attributed ${orderName || orderId} -> ${matched.campaignName ?? matched.adId} (by ${matched.matchedBy})`,
             );
           }
-        });
-      }
+        } catch (e) {
+          console.error(
+            `[orders-webhook] whatsapp tag/attribution error for ${orderId}: ${e instanceof Error ? e.message.slice(0, 200) : ""}`,
+          );
+        }
+      });
     }
   }
 
