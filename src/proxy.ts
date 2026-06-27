@@ -12,6 +12,7 @@ const PUBLIC_PATHS = new Set<string>([
   "/api/webhooks/shopify/products",
   "/api/webhooks/shopify/collections",
   "/api/webhooks/shopify/orders",
+  "/api/webhooks/whatsapp",
   "/api/cron/sync-archived-redirects",
   "/api/cron/process-pending-upsells",
   "/api/cron/process-review-requests",
